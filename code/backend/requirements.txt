@@ -1,4 +1,4 @@
-azure-identity~=1.17.1
+azure-identity~=1.21.0
 azure-monitor-opentelemetry~=1.6.4
 aiohttp~=3.11.11
 botbuilder-core~=4.16.2
