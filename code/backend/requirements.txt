@@ -7,6 +7,6 @@ botbuilder-integration-aiohttp~=4.16.2
 botbuilder-dialogs~=4.16.2
 openai~=1.58.1
 opentelemetry-instrumentation-aiohttp-client~=0.49b2
-opentelemetry-instrumentation-aiohttp-server~=0.49b2
+opentelemetry-instrumentation-aiohttp-server~=0.52b0
 pydantic~=2.10.4
 pydantic-settings~=2.7.0
