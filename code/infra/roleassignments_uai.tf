@@ -15,9 +15,17 @@ resource "azurerm_role_assignment" "uai_roleassignment_document_intelligence_cog
 }
 
 resource "azurerm_role_assignment" "uai_roleassignment_key_vault_secrets_user" {
-  description          = "Required for accessing secrets in the key vault from teh web app app settings."
+  description          = "Required for accessing secrets in the key vault from the web app app settings."
   scope                = module.key_vault.key_vault_id
   role_definition_name = "Key Vault Secrets User"
+  principal_id         = module.user_assigned_identity.user_assigned_identity_principal_id
+  principal_type       = "ServicePrincipal"
+}
+
+resource "azurerm_role_assignment" "uai_roleassignment_application_insights_monitoring_metrics_publisher" {
+  description          = "Required for publishing logs in the application insights instance from the web app app settings."
+  scope                = module.application_insights.application_insights_id
+  role_definition_name = "Monitoring Metrics Publisher"
   principal_id         = module.user_assigned_identity.user_assigned_identity_principal_id
   principal_type       = "ServicePrincipal"
 }
