@@ -29,12 +29,17 @@ locals {
     MANAGED_IDENTITY_CLIENT_ID = module.user_assigned_identity.user_assigned_identity_client_id
     OAUTH_CONNECTION_NAME      = local.bot_connection_aadv2_oauth_name
 
+    # Azure Document Intelligence settings
+    AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
+    AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = module.document_intelligence.cognitive_account_primary_access_key
+
     # Azure open ai app settings
-    AZURE_OPEN_AI_ENDPOINT     = module.azure_open_ai.cognitive_account_endpoint
-    AZURE_OPEN_AI_API_VERSION  = "2024-05-01-preview"
-    AZURE_OPENAI_MODEL_NAME    = azurerm_cognitive_deployment.cognitive_deployment_gpt_4o.name
-    AZURE_OPENAI_SYSTEM_PROMPT = data.local_file.file_system_prompt.content
-    AZURE_OPENAI_ASSISTANT_ID  = ""
+    AZURE_OPEN_AI_ENDPOINT  = module.azure_open_ai.cognitive_account_endpoint
+    AZURE_OPENAI_MODEL_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
+    AZURE_OPENAI_API_KEY    = module.azure_open_ai.cognitive_account_primary_access_key
+
+    # Prompt settings
+    INSTRUCTIONS_DOCUMENT_AGENT = ""
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT     = module.cosmosdb_account.cosmosdb_account_endpoint

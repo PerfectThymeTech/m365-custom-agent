@@ -10,7 +10,7 @@ module "bot_service" {
   tags                 = var.tags
   bot_service_name     = "${local.prefix}-bot001"
   bot_service_location = "global"
-  bot_service_endpoint = "https://${azurerm_linux_web_app.linux_web_app.default_hostname}/api/messages"
+  bot_service_endpoint = "https://${azurerm_linux_web_app.linux_web_app.default_hostname}/api/v1/messages/message"
   bot_service_luis = {
     app_ids = []
     key     = null
@@ -22,7 +22,8 @@ module "bot_service" {
     app_type      = "UserAssignedMSI"
   }
   bot_service_sku                              = "S1"
-  bot_service_streaming_endpoint_enabled       = false
+  bot_service_icon_url                         = "https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png"
+  bot_service_streaming_endpoint_enabled       = true
   bot_service_public_network_access_enabled    = true
   bot_service_application_insights_id          = module.application_insights.application_insights_id
   bot_service_application_insights_key_enabled = false

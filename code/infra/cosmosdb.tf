@@ -20,7 +20,7 @@ module "cosmosdb_account" {
     interval_in_minutes = null
   }
   cosmosdb_account_capabilities = [
-    # "EnableServerless" # TODO: Validate in a follow-up PR
+    # "EnableServerless" # TODO: Validate in a follow-up PR to save cost
   ]
   cosmosdb_account_capacity_total_throughput_limit = -1
   cosmosdb_account_consistency_policy = {
