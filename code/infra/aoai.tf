@@ -24,18 +24,34 @@ module "azure_open_ai" {
   customer_managed_key                                    = local.customer_managed_key
 }
 
-# resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_1" {
-#   name                 = "gpt-5.1"
-#   cognitive_account_id = module.azure_open_ai.cognitive_account_id
+resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_1" {
+  name                 = "gpt-5.1"
+  cognitive_account_id = module.azure_open_ai.cognitive_account_id
 
-#   model {
-#     format  = "OpenAI"
-#     name    = "gpt-5.1"
-#     version = "2024-08-06"
-#   }
-#   sku {
-#     capacity = 5
-#     name     = "Standard"
-#   }
-#   version_upgrade_option = "OnceNewDefaultVersionAvailable"
-# }
+  model {
+    format  = "OpenAI"
+    name    = "gpt-5.1"
+    version = "2025-11-13"
+  }
+  sku {
+    capacity = 5
+    name     = "GlobalStandard"
+  }
+  version_upgrade_option = "OnceNewDefaultVersionAvailable"
+}
+
+resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_mini" {
+  name                 = "gpt-5-mini"
+  cognitive_account_id = module.azure_open_ai.cognitive_account_id
+
+  model {
+    format  = "OpenAI"
+    name    = "gpt-5-mini"
+    version = "2025-08-07"
+  }
+  sku {
+    capacity = 5
+    name     = "GlobalStandard"
+  }
+  version_upgrade_option = "OnceNewDefaultVersionAvailable"
+}
