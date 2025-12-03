@@ -1,9 +1,9 @@
 import logging
 from typing import Optional
 
+from app.models.core import AuthorizationTypes
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from app.models.core import AuthorizationTypes
 
 
 class Settings(BaseSettings):
@@ -17,7 +17,10 @@ class Settings(BaseSettings):
     WEBSITE_NAME: str = Field(default="test", alias="WEBSITE_SITE_NAME")
     WEBSITE_INSTANCE_ID: str = Field(default="0", alias="WEBSITE_INSTANCE_ID")
     HOME_DIRECTORY: str = Field(default="", alias="HOME")
-    BASE_URL: str = Field(..., alias=AliasChoices("BASE_URL", "CONTAINER_APP_HOSTNAME", "WEBSITE_HOSTNAME"))
+    BASE_URL: str = Field(
+        ...,
+        alias=AliasChoices("BASE_URL", "CONTAINER_APP_HOSTNAME", "WEBSITE_HOSTNAME"),
+    )
 
     # Logging settings
     DEBUG: bool = False
@@ -55,7 +58,9 @@ class Settings(BaseSettings):
     )
     AZURE_OPENAI_MODEL_SLM_NAME: str = Field(
         default="gpt-5-mini",
-        alias=AliasChoices("AZURE_OPENAI_MODEL_SLM_NAME", "AZURE_OPENAI_SLM_DEPLOYMENT_NAME"),
+        alias=AliasChoices(
+            "AZURE_OPENAI_MODEL_SLM_NAME", "AZURE_OPENAI_SLM_DEPLOYMENT_NAME"
+        ),
     )
 
     # Instruction settings
@@ -157,7 +162,9 @@ class Settings(BaseSettings):
     ```
     """
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="allow"
+    )
 
 
 settings = Settings()

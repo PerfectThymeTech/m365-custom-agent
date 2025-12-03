@@ -1,11 +1,14 @@
 import asyncio
-import aiohttp
 import json
-from azure.ai.documentintelligence import DocumentIntelligenceClient
-from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, DocumentAnalysisFeature
-from azure.core.credentials import AzureKeyCredential
-from app.logs import setup_logging
 
+import aiohttp
+from app.logs import setup_logging
+from azure.ai.documentintelligence import DocumentIntelligenceClient
+from azure.ai.documentintelligence.models import (
+    AnalyzeDocumentRequest,
+    DocumentAnalysisFeature,
+)
+from azure.core.credentials import AzureKeyCredential
 
 logger = setup_logging(__name__)
 
@@ -13,20 +16,23 @@ logger = setup_logging(__name__)
 class FileExtractionClient:
     def __init__(self, api_key: str, endpoint: str):
         self.document_intelligence_client = DocumentIntelligenceClient(
-            endpoint=endpoint,
-            credential=AzureKeyCredential(key=api_key)
+            endpoint=endpoint, credential=AzureKeyCredential(key=api_key)
         )
 
     async def extract_data(self, file_url: str) -> dict:
         # Analyze document
         logger.debug(f"Starting data extraction for file URL: {file_url}")
         extract_data_result = await asyncio.create_task(
-            self._extract_data(file_url, features=[DocumentAnalysisFeature.OCR_HIGH_RESOLUTION])
+            self._extract_data(
+                file_url, features=[DocumentAnalysisFeature.OCR_HIGH_RESOLUTION]
+            )
         )
 
         return extract_data_result
 
-    async def _extract_data(self, file_url: str, features: list[DocumentAnalysisFeature]) -> dict:
+    async def _extract_data(
+        self, file_url: str, features: list[DocumentAnalysisFeature]
+    ) -> dict:
         try:
             # Download file content
             async with aiohttp.ClientSession() as session:
@@ -34,10 +40,8 @@ class FileExtractionClient:
                     file_content = await response.read()
 
             # Create body for analysis
-            body = AnalyzeDocumentRequest(
-                bytes_source=file_content
-            )
-            
+            body = AnalyzeDocumentRequest(bytes_source=file_content)
+
             # Analyze document
             poller = self.document_intelligence_client.begin_analyze_document(
                 model_id="prebuilt-layout",
@@ -55,8 +59,8 @@ class FileExtractionClient:
     def clean_extracted_data(self, data: dict) -> str:
         # Implement any cleaning logic here
         cleaned_data = {}
-            
-        # Process content 
+
+        # Process content
         data_content = data.get("content", "")
         cleaned_data["content"] = data_content
 
@@ -71,7 +75,7 @@ class FileExtractionClient:
             if "caption" in table:
                 del table["caption"]["spans"]
                 del table["caption"]["elements"]
-            
+
             for cell in table.get("cells", []):
                 if "spans" in cell:
                     del cell["spans"]
@@ -93,6 +97,6 @@ class FileExtractionClient:
         cleaned_data["paragraphs"] = data_paragraphs
 
         # Minify JSON structure by removing unnecessary whitespace
-        cleaned_data_minified = json.dumps(cleaned_data, separators=(',', ':'))
-        
+        cleaned_data_minified = json.dumps(cleaned_data, separators=(",", ":"))
+
         return cleaned_data_minified

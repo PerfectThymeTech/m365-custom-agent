@@ -2,9 +2,9 @@ import logging
 import os
 
 from app.core.settings import settings
+from azure.identity import DefaultAzureCredential
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
-from azure.identity import DefaultAzureCredential
 
 
 def setup_logging(module) -> logging.Logger:
@@ -52,30 +52,14 @@ def setup_opentelemetry():
         enable_performance_counters=True,
         enable_trace_based_sampling_for_logs=False,
         instrumentation_options={
-            "azure_sdk": {
-                "enabled": True
-            },
-            "django": {
-                "enabled": False
-            },
-            "fastapi": {
-                "enabled": True
-            },
-            "flask": {
-                "enabled": False
-            },
-            "psycopg2": {
-                "enabled": False
-            },
-            "requests": {
-                "enabled": False
-            },
-            "urllib": {
-                "enabled": False
-            },
-            "urllib3": {
-                "enabled": False
-            },
+            "azure_sdk": {"enabled": True},
+            "django": {"enabled": False},
+            "fastapi": {"enabled": True},
+            "flask": {"enabled": False},
+            "psycopg2": {"enabled": False},
+            "requests": {"enabled": False},
+            "urllib": {"enabled": False},
+            "urllib3": {"enabled": False},
         },
         storage_directory=os.path.join(settings.HOME_DIRECTORY, "azure_monitor"),
     )

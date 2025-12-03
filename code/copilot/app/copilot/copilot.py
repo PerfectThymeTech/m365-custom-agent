@@ -1,14 +1,10 @@
 import os
 
-from app.core.settings import settings
-from microsoft_agents.hosting.fastapi import CloudAdapter
-from microsoft_agents.hosting.core import (
-    AgentApplication,
-    TurnState,
-    MemoryStorage,
-)
-from microsoft_agents.authentication.msal import MsalConnectionManager
 from app.copilot.configuration import get_copilot_configuration
+from app.core.settings import settings
+from microsoft_agents.authentication.msal import MsalConnectionManager
+from microsoft_agents.hosting.core import AgentApplication, MemoryStorage, TurnState
+from microsoft_agents.hosting.fastapi import CloudAdapter
 
 
 def get_copilot_app() -> AgentApplication[TurnState]:

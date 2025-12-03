@@ -1,5 +1,10 @@
 from app.core.settings import settings
-from app.models.copilot import CopilotConfiguration, CopilotConnections, CopilotServiceConnection, CopilotSettings
+from app.models.copilot import (
+    CopilotConfiguration,
+    CopilotConnections,
+    CopilotServiceConnection,
+    CopilotSettings,
+)
 from app.models.core import AuthorizationTypes
 
 
@@ -21,20 +26,20 @@ def get_copilot_configuration() -> CopilotConfiguration:
                 authority_endpoint=f"https://login.microsoftonline.com/{settings.TENANT_ID}",
                 scopes=settings.SCOPES,
             )
-        
+
         case AuthorizationTypes.USER_MANAGED_IDENTITY:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
                 scopes=settings.SCOPES,
             )
-        
+
         case AuthorizationTypes.SYSTEM_MANAGED_IDENTITY:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
                 scopes=settings.SCOPES,
             )
-        
+
         case AuthorizationTypes.FEDERATED_CREDENTIALS:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
@@ -44,7 +49,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
                 federated_client_id=settings.FEDERATED_CLIENT_ID,
                 scopes=settings.SCOPES,
             )
-        
+
         case AuthorizationTypes.WORKLOAD_IDENTITY:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
@@ -54,7 +59,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
                 federated_token_file=settings.FEDERATED_TOKEN_FILE,
                 scopes=settings.SCOPES,
             )
-        
+
         case _:
             raise ValueError(f"Unsupported AUTH_TYPE: {settings.AUTH_TYPE}")
 
@@ -62,8 +67,6 @@ def get_copilot_configuration() -> CopilotConfiguration:
         agent_application={},
         connections_map={},
         connections=CopilotConnections(
-            service_connection=CopilotServiceConnection(
-                settings=copilot_settings
-            )
+            service_connection=CopilotServiceConnection(settings=copilot_settings)
         ),
     )

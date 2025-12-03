@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, field_serializer, ConfigDict
-from pydantic.alias_generators import to_camel
 from app.models.core import AuthorizationTypes
+from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic.alias_generators import to_camel
 
 
 def copilot_settings_alias_generator(string: str) -> str:

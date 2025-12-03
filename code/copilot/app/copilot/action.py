@@ -1,8 +1,7 @@
+from app.logs import setup_logging
 from microsoft_agents.activity import ActionTypes, Activity, ActivityTypes, CardAction
 from microsoft_agents.activity.suggested_actions import SuggestedActions
 from microsoft_agents.hosting.core import TurnContext
-from app.logs import setup_logging
-
 
 logger = setup_logging(__name__)
 
@@ -19,7 +18,9 @@ class SuggestedActionHandler:
         )
         self.add_suggested_actions: dict[str, str] = {}
 
-    def add_suggested_action(self, title: str, prompt: str, type: str = ActionTypes.im_back) -> None:
+    def add_suggested_action(
+        self, title: str, prompt: str, type: str = ActionTypes.im_back
+    ) -> None:
         """
         Add a suggested action to the activity.
 
@@ -31,7 +32,9 @@ class SuggestedActionHandler:
         :type type: str
         :return: None
         """
-        logger.info(f"Adding suggested action with title: '{title}', prompt: '{prompt}', type: '{type}'")
+        logger.info(
+            f"Adding suggested action with title: '{title}', prompt: '{prompt}', type: '{type}'"
+        )
 
         # Create CardAction and add to activity
         action = CardAction(
@@ -44,10 +47,10 @@ class SuggestedActionHandler:
             image_alt_text="Question Icon",
         )
         self.activity.suggested_actions.actions.append(action)
-        
+
         # Add to internal tracking dictionary
         self.add_suggested_actions[title] = prompt
-    
+
     def get_suggested_actions(self) -> dict[str, str]:
         """
         Get the dictionary of suggested actions.
@@ -75,7 +78,9 @@ class SuggestedActionHandler:
         :return: None
         """
         if len(self.activity.suggested_actions.actions) > 0:
-            logger.info(f"Sending {len(self.activity.suggested_actions.actions)} suggested actions to the user.")
+            logger.info(
+                f"Sending {len(self.activity.suggested_actions.actions)} suggested actions to the user."
+            )
             await context.send_activity(self.activity)
         else:
             logger.info("No suggested actions to send to the user.")

@@ -1,8 +1,12 @@
 from enum import Enum
 
+
 class DocumentScenarios(str, Enum):
-    LEGAL_DESCRIPTIONS_AND_DISCREPANCIES = "Extract the legal descriptions and list the identified discrepancies!"
+    LEGAL_DESCRIPTIONS_AND_DISCREPANCIES = (
+        "Extract the legal descriptions and list the identified discrepancies!"
+    )
     SUMMARIZE_DOCUMENT = "Summarize the document!"
+
 
 class DocumentScenarioInstructions:
     INSTRUCTIONS = {
@@ -47,13 +51,13 @@ class DocumentScenarioInstructions:
             """
             # Objective
             Provide a concise summary of the provided document.
-            
+
             # Instructions
             - Read through the entire document carefully.
             - Identify the main points and key information presented in the document.
             - Create a summary that captures the essence of the document in a clear and concise manner.
             - Ensure the summary is easy to understand and free of jargon.
-            
+
             # Response Format
             - Provide the summary in markdown format.
             - The summary must be presented as a series of bullet points.
