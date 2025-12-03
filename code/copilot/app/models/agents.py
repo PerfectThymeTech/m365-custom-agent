@@ -1,3 +1,4 @@
+from pydantic import BaseModel, Field
 from microsoft_agents.hosting.core import StoreItem
 
 class UserStateStoreItem(StoreItem):
@@ -20,3 +21,12 @@ class UserStateStoreItem(StoreItem):
             instructions=json_data.get("instructions", None),
             last_response_id=json_data.get("last_response_id", None),
         )
+
+
+class SuggestedAction(BaseModel):
+    title: str = Field(..., alias='title')
+    value: str = Field(..., alias='value')
+
+
+class SuggestedActionsAgentResponse(BaseModel):
+    suggested_actions: list[SuggestedAction] = Field(..., alias='suggested_actions')

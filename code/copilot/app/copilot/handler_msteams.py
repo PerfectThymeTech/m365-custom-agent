@@ -1,3 +1,4 @@
+from typing import Tuple
 from pydantic import ValidationError
 from microsoft_agents.hosting.core import TurnContext
 from app.logs import setup_logging
@@ -114,7 +115,7 @@ async def handle_attachments(context: TurnContext, user_state_store_item: UserSt
     return user_state_store_item
 
 
-async def handle_agent_response(context: TurnContext, user_state_store_item: UserStateStoreItem) -> UserStateStoreItem:
+async def handle_agent_response(context: TurnContext, user_state_store_item: UserStateStoreItem) -> Tuple[UserStateStoreItem, str]:
     """
     Handle agent response based on user prompt and previous state.
 
@@ -150,12 +151,12 @@ async def handle_agent_response(context: TurnContext, user_state_store_item: Use
 
     # Stream agent response
     logger.info(f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.")
-    last_response_id = await agent.stream_response(input=user_prompt, last_response_id=user_state_store_item.last_response_id, context=context)
+    last_response_id, response = await agent.stream_response(input=user_prompt, last_response_id=user_state_store_item.last_response_id, context=context)
     
     # Update store item
     user_state_store_item.last_response_id = last_response_id
 
-    return user_state_store_item
+    return user_state_store_item, response
 
 async def handle_default_response(context: TurnContext) -> None:
     """

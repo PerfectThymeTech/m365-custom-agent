@@ -5,6 +5,9 @@ from microsoft_agents.hosting.core import TurnContext
 from microsoft_agents.activity.attachment import Attachment
 from app.logs import setup_logging
 from app.models.attachments import AttachmentContent
+from app.agents.actions import SuggestedActionsAgent
+from app.core.settings import settings
+from app.models.agents import SuggestedActionsAgentResponse
 
 
 logger = setup_logging(__name__)
@@ -88,6 +91,57 @@ def get_html_from_attachment(attachments: list[Attachment]) -> str:
                     logger.error(f"HTML attachment content for {attachment.name} is not a string.")
     
     return html_message
+
+
+async def get_suggested_actions_from_agent(user_input: str, agent_response: str, agent_instructions: str) -> SuggestedActionsAgentResponse:
+    """
+    Get suggested actions from the SuggestedActionsAgent.
+
+    :param input: The input string to be sent to the agent.
+    :type input: str
+    :param last_response_id: The last response ID from the agent, if any.
+    :type last_response_id: str | None
+    :return: A list of suggested actions.
+    :rtype: list[str]
+    """
+    logger.info("Generating suggested actions using SuggestedActionsAgent.")
+
+    # Define input for agent
+    input = f"""
+    # User Input:
+    ```
+    {user_input}
+    ```
+
+    # Agent Response:
+    ```
+    {agent_response}
+    ```
+    
+    # Agent Instructions:
+    ```
+    {agent_instructions}
+    ```
+    """
+
+    # Initialize SuggestedActionsAgent
+    suggested_actions_agent = SuggestedActionsAgent(
+        api_key=settings.AZURE_OPENAI_API_KEY,
+        endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        model_name=settings.AZURE_OPENAI_MODEL_NAME,
+        instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS,
+        reasoning_effort="none"
+    )
+
+    # Get suggested actions from agent
+    suggested_actions_response = await suggested_actions_agent.get_suggested_actions(
+        input=input,
+        last_response_id=None,
+    )
+
+    logger.info(f"Number of suggested actions generated: {len(suggested_actions_response.suggested_actions)}")
+
+    return suggested_actions_response
 
 
 async def stream_string_in_chunks(context: TurnContext, text: str):
