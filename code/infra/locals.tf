@@ -22,30 +22,29 @@ locals {
     WEBSITE_CONTENTOVERVNET                    = "1"
 
     # Auth app settings
-    MICROSOFT_APP_ID           = module.user_assigned_identity.user_assigned_identity_client_id
-    MICROSOFT_APP_PASSWORD     = ""
-    MICROSOFT_APP_TENANTID     = module.user_assigned_identity.user_assigned_identity_tenant_id
-    MICROSOFT_APP_TYPE         = "UserAssignedMSI"
-    MANAGED_IDENTITY_CLIENT_ID = module.user_assigned_identity.user_assigned_identity_client_id
-    OAUTH_CONNECTION_NAME      = local.bot_connection_aadv2_oauth_name
+    AUTH_TYPE = "UserManagedIdentity"
+    TENANT_ID = data.azurerm_client_config.current.tenant_id
+    CLIENT_ID = module.user_assigned_identity.user_assigned_identity_client_id
+    AAD_OAUTH_CONNECTION_NAME = local.bot_connection_aadv2_oauth_name
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
     AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = module.document_intelligence.cognitive_account_primary_access_key
-
-    # Azure open ai app settings
-    AZURE_OPEN_AI_ENDPOINT  = module.azure_open_ai.cognitive_account_endpoint
-    AZURE_OPENAI_MODEL_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
-    AZURE_OPENAI_API_KEY    = module.azure_open_ai.cognitive_account_primary_access_key
-
-    # Prompt settings
-    INSTRUCTIONS_DOCUMENT_AGENT = ""
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT     = module.cosmosdb_account.cosmosdb_account_endpoint
     AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
+  
+    # Azure Open AI app settings
+    AZURE_OPEN_AI_ENDPOINT  = module.azure_open_ai.cognitive_account_endpoint
+    AZURE_OPENAI_API_KEY    = module.azure_open_ai.cognitive_account_primary_access_key
+    AZURE_OPENAI_MODEL_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
+    AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_mini.name
+  
+    # Prompt settings
+    INSTRUCTIONS_DOCUMENT_AGENT = ""
   }
   web_app_app_settings = merge(local.app_settings_default, var.web_app_app_settings)
 
@@ -84,7 +83,8 @@ locals {
   customer_managed_key = null
 
   # Other locals
-  system_prompt_code_path         = "${path.module}/../../docs/SystemPrompt.txt"
+  instructions_document_agent_path          = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
+  instructions_suggested_actions_agent_path = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
   cosmosdb_sql_container_name     = "bot-data"
   bot_connection_aadv2_oauth_name = "aadv2-oauth"
 }

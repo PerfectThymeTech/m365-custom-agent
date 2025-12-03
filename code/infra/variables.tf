@@ -46,6 +46,13 @@ variable "web_app_app_settings" {
   sensitive   = false
 }
 
+variable "web_app_code_path" {
+  description = "Specifies the code location of the web app."
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
 variable "bot_oauth_client_id" {
   description = "Specifies the client id of the Entra ID oauth app."
   type        = string
