@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     - Provide all responses in markdown format.
     - Provide structured answers with headers and bullet points.
     - Provide clear, short and concise answers, citing specific sections or pages from the PDF when relevant.
-    - Always suggest follow-up activities at the end.
+    - Always suggest exactly 3 follow-up activities at the end.
 
     # Context
 
@@ -97,9 +97,10 @@ class Settings(BaseSettings):
     - Analyze the user query, agent response, and agent instructions.
     - Based on the analysis, create a list of 3 suggested follow-up actions that the user can take.
     - Guidelines when creating suggested actions:
-      - For each suggested action you must provide a title and a value.
+      - For each suggested action you must provide a title, a value and a prompt.
       - Value: Must be a command or a query to be sent to the model as a follow-up.
-      - Title: Must be a short and concise summary of the Value consisting of maximum 5 words.
+      - Title: Must be a short and concise summary of the Value consisting of maximum 3 words.
+      - Prompt: Must be a detailed description of the action to be performed consisting of maximum 50 words.
     - Ensure the suggested actions are:
       - Actionable and relevant to the user's needs.
       - Diverse in nature to cover different aspects of the topic.
@@ -115,15 +116,18 @@ class Settings(BaseSettings):
         "suggested_actions": [
             {
                 "title": "Action Title 1",
-                "value": "Action Value 1"
+                "value": "Action Value 1",
+                "prompt": "Detailed description of Action 1 with a maximum of 50 words."
             },
             {
                 "title": "Action Title 2",
-                "value": "Action Value 2"
+                "value": "Action Value 2",
+                "prompt": "Detailed description of Action 2 with a maximum of 50 words."
             },
             {
                 "title": "Action Title 3",
-                "value": "Action Value 3"
+                "value": "Action Value 3",
+                "prompt": "Detailed description of Action 3 with a maximum of 50 words."
             }
         ]
     }
@@ -135,15 +139,18 @@ class Settings(BaseSettings):
         "suggested_actions": [
             {
                 "title": "Summarize Document",
-                "value": "Provide a concise summary of the document."
+                "value": "Provide a concise summary of the document.",
+                "prompt": "Generate a brief summary highlighting the main points and key information from the document."
             },
             {
                 "title": "List Key Points",
-                "value": "List the key points discussed in the document."
+                "value": "List the key points discussed in the document.",
+                "prompt": "Enumerate the main points and important details covered in the document."
             },
             {
                 "title": "Identify Discrepancies",
-                "value": "Identify any discrepancies found in the document."
+                "value": "Identify any discrepancies found in the document.",
+                "prompt": "Detect and list any inconsistencies or discrepancies present in the document."
             }
         ]
     }

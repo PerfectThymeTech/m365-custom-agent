@@ -68,11 +68,11 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         # Add suggested actions for next steps to suggested action handler
         suggested_action_handler.add_suggested_action(
             title="Legal Descriptions and Discrepancies",
-            value=DocumentScenarios.LEGAL_DESCRIPTIONS_AND_DISCREPANCIES.value,
+            prompt=DocumentScenarios.LEGAL_DESCRIPTIONS_AND_DISCREPANCIES.value,
         )
         suggested_action_handler.add_suggested_action(
             title="Summarize the Document",
-            value=DocumentScenarios.SUMMARIZE_DOCUMENT.value,
+            prompt=DocumentScenarios.SUMMARIZE_DOCUMENT.value,
         )
 
     # Use agent to process user prompt if file is uploaded and instructions are set
@@ -86,13 +86,26 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             agent_response=response,
             agent_instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT
         )
+        # suggested_action_handler.add_suggested_action(
+        #     title="Test 01",
+        #     prompt="Test 01", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
+        # )
+        # suggested_action_handler.add_suggested_action(
+        #     title="Test 02",
+        #     prompt="Test 02", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
+        # )
+        # suggested_action_handler.add_suggested_action(
+        #     title="Test 03",
+        #     prompt="Test 03", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
+        # )
         # Add suggested actions for next steps to suggested action handler
         for suggested_action in suggested_actions_response.suggested_actions:
+            logger.info(f"Adding suggested action: '{suggested_action.title}' with value: '{suggested_action.value}'")
             suggested_action_handler.add_suggested_action(
                 title=suggested_action.title,
-                value=suggested_action.value,
+                prompt=suggested_action.prompt,
             )
-
+        
     # Use default response if file has not been uploaded yet
     else:
         await handle_default_response(context=context)
@@ -101,6 +114,8 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     await suggested_action_handler.send(context=context)
     
     # Save store item back to state
+    suggested_actions = suggested_action_handler.get_suggested_actions()
+    user_state_store_item.suggested_actions = suggested_actions
     state.set_value(path="ConversationState.user_state_store_item", value=user_state_store_item)
     
     # End response stream if active

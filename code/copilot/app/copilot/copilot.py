@@ -17,7 +17,7 @@ def get_copilot_app() -> AgentApplication[TurnState]:
 
     RETURNS (AgentApplication): The AgentApplication instance.
     """
-    config = get_copilot_configuration().model_dump()
+    config = get_copilot_configuration().model_dump(by_alias=True, exclude_none=True)
     agent_app = AgentApplication[TurnState](
         adapter=CloudAdapter(
             connection_manager=MsalConnectionManager(**config),

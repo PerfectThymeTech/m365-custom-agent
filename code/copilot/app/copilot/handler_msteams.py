@@ -57,8 +57,8 @@ async def handle_attachments(context: TurnContext, user_state_store_item: UserSt
             logger.info(f"Processing attachment: {attachment.name}")
             
             # Update user about processing of each file
-            await stream_string_in_chunks(context=context, text=f"\n\nProcessing file `{attachment.name}`... ")
-            await stream_string_in_chunks(context=context, text="\n(  0%) Loading file... ")
+            await stream_string_in_chunks(context=context, text=f"\n\nProcessing file `{attachment.name}` ... ")
+            await stream_string_in_chunks(context=context, text="\n(  0%) Loading file ... ")
 
             # Loading file content          
             attachment_content = AttachmentContent.model_validate(attachment.content)
@@ -72,7 +72,7 @@ async def handle_attachments(context: TurnContext, user_state_store_item: UserSt
 
             # Clean extracted data
             await stream_string_in_chunks(context=context, text="\n( 80%) Cleaning extracted data ... ")
-            cleaned_data = file_extraction_client.clean_extracted_data(extracted_data=extracted_data)
+            cleaned_data = file_extraction_client.clean_extracted_data(data=extracted_data)
             logger.debug(f"Cleaned Data from file {attachment.name}: {cleaned_data}")
 
             # Update user about completion of file processing
@@ -87,7 +87,7 @@ async def handle_attachments(context: TurnContext, user_state_store_item: UserSt
         if len(supported_attachments) > 1:
             await stream_string_in_chunks(
                 context=context,
-                text=f"\nNote: I could see that you uploaded the following supported files: {supported_attachments_names}. However, I only support one document at a time. Only the first item has been added to the context (`{supported_attachments[0].name}`). You can upload a new file at any time to replace it. "
+                text=f"\n\nNote: I could see that you uploaded the following supported files: {supported_attachments_names}. However, I only support one document at a time. Only the first item has been added to the context (`{supported_attachments[0].name}`). You can upload a new file at any time to replace it. "
             )
         
         # Update store item
@@ -138,16 +138,22 @@ async def handle_agent_response(context: TurnContext, user_state_store_item: Use
     # Define user prompt
     user_prompt = context.activity.text if context.activity.text else get_html_from_attachment()
 
-    # Check for pre-defined user prompt scenarios
-    logger.info("Checking for pre-defined user prompt scenarios.")
-    try:
-        document_scenario = DocumentScenarios(user_prompt)
-        user_prompt = DocumentScenarioInstructions.INSTRUCTIONS[document_scenario]
-        logger.info(f"User prompt matches predefined scenario '{document_scenario.value}'. Using corresponding instructions.")
-    except ValueError as e:
-        logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
-    except ValidationError as e:
-        logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
+    # Check for suggested action prompt scenarios
+    logger.info("Checking for suggested action prompt scenarios.")
+    if user_prompt in user_state_store_item.suggested_actions.keys():
+        user_prompt = user_state_store_item.suggested_actions[user_prompt]
+        logger.info(f"User prompt matches a suggested action. Using corresponding prompt.")
+    else:
+        logger.info(f"User prompt does not match any suggested action. Proceeding with default instructions.")
+
+    # try:
+    #     document_scenario = DocumentScenarios(user_prompt)
+    #     user_prompt = DocumentScenarioInstructions.INSTRUCTIONS[document_scenario]
+    #     logger.info(f"User prompt matches predefined scenario '{document_scenario.value}'. Using corresponding instructions.")
+    # except ValueError as e:
+    #     logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
+    # except ValidationError as e:
+    #     logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
 
     # Stream agent response
     logger.info(f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.")

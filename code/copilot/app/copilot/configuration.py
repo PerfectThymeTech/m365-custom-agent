@@ -15,6 +15,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
         case AuthorizationTypes.CLIENT_SECRET:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
+                tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
                 client_secret=settings.CLIENT_SECRET,
                 authority_endpoint=f"https://login.microsoftonline.com/{settings.TENANT_ID}",
@@ -24,7 +25,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
         case AuthorizationTypes.USER_MANAGED_IDENTITY:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
-                client_id=settings.CLIENT_ID,
+                tenant_id=settings.TENANT_ID,
                 scopes=settings.SCOPES,
             )
         
@@ -37,6 +38,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
         case AuthorizationTypes.FEDERATED_CREDENTIALS:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
+                tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
                 authority_endpoint=f"https://login.microsoftonline.com/{settings.TENANT_ID}",
                 federated_client_id=settings.FEDERATED_CLIENT_ID,
@@ -46,6 +48,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
         case AuthorizationTypes.WORKLOAD_IDENTITY:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
+                tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
                 authority_endpoint=f"https://login.microsoftonline.com/{settings.TENANT_ID}",
                 federated_token_file=settings.FEDERATED_TOKEN_FILE,

@@ -55,7 +55,7 @@ def filter_attachments_by_type(attachments: list[Attachment], supported_content_
                 # Check if file type is supported
                 if attachment_content.file_type.lower() in supported_file_types:
                     logger.info(f"Supported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected.")
-                    supported_attachments.append(attachment.name)
+                    supported_attachments.append(attachment)
                 else:
                     logger.info(f"Unsupported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected.")
                     unsupported_attachments.append(attachment)
@@ -128,9 +128,9 @@ async def get_suggested_actions_from_agent(user_input: str, agent_response: str,
     suggested_actions_agent = SuggestedActionsAgent(
         api_key=settings.AZURE_OPENAI_API_KEY,
         endpoint=settings.AZURE_OPENAI_ENDPOINT,
-        model_name=settings.AZURE_OPENAI_MODEL_NAME,
+        model_name=settings.AZURE_OPENAI_MODEL_SLM_NAME,
         instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS,
-        reasoning_effort="none"
+        reasoning_effort="minimal",
     )
 
     # Get suggested actions from agent
