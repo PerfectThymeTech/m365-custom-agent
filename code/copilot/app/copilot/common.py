@@ -153,7 +153,7 @@ async def get_suggested_actions_from_agent(
         api_key=settings.AZURE_OPENAI_API_KEY,
         endpoint=settings.AZURE_OPENAI_ENDPOINT,
         model_name=settings.AZURE_OPENAI_MODEL_SLM_NAME,
-        instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS,
+        instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT,
         reasoning_effort="minimal",
     )
 

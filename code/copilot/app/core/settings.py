@@ -88,7 +88,7 @@ class Settings(BaseSettings):
 
     ## Document Extraction
     """
-    INSTRUCTIONS_SUGGESTED_ACTIONS: str = """
+    INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT: str = """
     # Objective
     You are a helpful assistant that creates suggested follow-up actions based on the provided content and user queries.
 
