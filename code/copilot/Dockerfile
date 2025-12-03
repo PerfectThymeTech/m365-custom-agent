@@ -40,4 +40,4 @@ ENTRYPOINT []
 # USER nonroot
 
 # Run the application
-CMD ["fastapi", "run", "app/app.py", "--port", "80"]
+CMD ["fastapi", "run", "app/main.py", "--port", "80"]
