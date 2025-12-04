@@ -27,7 +27,7 @@ module "storage_account" {
     "/subscriptions/${data.azurerm_client_config.current.subscription_id}/providers/Microsoft.Security/datascanners/storageDataScanner",
     "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/*/providers/Microsoft.CognitiveServices/accounts/*",
   ]
-  storage_public_network_access_enabled = true
+  storage_public_network_access_enabled = false
   storage_nfsv3_enabled                 = false
   storage_sftp_enabled                  = false
   storage_shared_access_key_enabled     = false
