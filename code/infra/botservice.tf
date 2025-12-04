@@ -49,3 +49,13 @@ resource "azurerm_bot_connection" "bot_connection_aadv2_oauth" {
   service_provider_name = "Aadv2" # supported = wunderlist,google,pinterest,appFigures,facebook,SkypeForBusiness,outlook,SharePointOnline,Aadb2c,Aadv2,Aadv2WithCerts,FactSet,linkedin,trello,SharepointServer,oauth2,slack,zendesk,DynamicsCrmOnline,Aad,smartsheet,flickr,Office365,onedrive,basecamp,instagram,mailchimp,Office365User,echosign,live,oauth2generic,spotify,tumblr,AWeber,marketo,dropbox,box,yammer,intuit,uservoice,salesforce,todoist,github,docusign,stripe,bitly,lithium,sugarcrm
   scopes                = join(" ", var.bot_oauth_scopes)
 }
+
+resource "azurerm_bot_channel_ms_teams" "bot_channel_ms_teams" {
+  bot_name            = module.bot_service.bot_service_name
+  location            = "global"
+  resource_group_name = azurerm_resource_group.resource_group_consumption.name
+
+  calling_enabled        = false
+  calling_web_hook       = null
+  deployment_environment = "CommercialDeployment"
+}
