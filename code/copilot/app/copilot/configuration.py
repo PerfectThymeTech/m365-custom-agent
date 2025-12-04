@@ -31,6 +31,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
             copilot_settings = CopilotSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
+                client_id=settings.CLIENT_ID,
                 scopes=settings.SCOPES,
             )
 
