@@ -22,9 +22,9 @@ locals {
     WEBSITE_CONTENTOVERVNET                    = "1"
 
     # Auth app settings
-    AUTH_TYPE = "UserManagedIdentity"
-    TENANT_ID = data.azurerm_client_config.current.tenant_id
-    CLIENT_ID = module.user_assigned_identity.user_assigned_identity_client_id
+    AUTH_TYPE                 = "UserManagedIdentity"
+    TENANT_ID                 = data.azurerm_client_config.current.tenant_id
+    CLIENT_ID                 = module.user_assigned_identity.user_assigned_identity_client_id
     AAD_OAUTH_CONNECTION_NAME = local.bot_connection_aadv2_oauth_name
 
     # Azure Document Intelligence settings
@@ -36,15 +36,16 @@ locals {
     AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
-  
+
     # Azure Open AI app settings
-    AZURE_OPEN_AI_ENDPOINT  = module.azure_open_ai.cognitive_account_endpoint
-    AZURE_OPENAI_API_KEY    = module.azure_open_ai.cognitive_account_primary_access_key
-    AZURE_OPENAI_MODEL_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
+    AZURE_OPENAI_ENDPOINT       = module.azure_open_ai.cognitive_account_endpoint
+    AZURE_OPENAI_API_KEY        = module.azure_open_ai.cognitive_account_primary_access_key
+    AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
     AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_mini.name
-  
+
     # Prompt settings
-    INSTRUCTIONS_DOCUMENT_AGENT = ""
+    INSTRUCTIONS_DOCUMENT_AGENT          = data.local_file.file_instructions_document_agent.content
+    INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT = data.local_file.file_instructions_suggested_actions_agent.content
   }
   web_app_app_settings = merge(local.app_settings_default, var.web_app_app_settings)
 
@@ -85,6 +86,6 @@ locals {
   # Other locals
   instructions_document_agent_path          = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
   instructions_suggested_actions_agent_path = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
-  cosmosdb_sql_container_name     = "bot-data"
-  bot_connection_aadv2_oauth_name = "aadv2-oauth"
+  cosmosdb_sql_container_name               = "bot-data"
+  bot_connection_aadv2_oauth_name           = "aadv2-oauth"
 }
