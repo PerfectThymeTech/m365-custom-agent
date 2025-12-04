@@ -34,7 +34,7 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_1" {
     version = "2025-11-13"
   }
   sku {
-    capacity = 5
+    capacity = 250
     name     = "GlobalStandard"
   }
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
@@ -50,7 +50,7 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_mini" {
     version = "2025-08-07"
   }
   sku {
-    capacity = 5
+    capacity = 250
     name     = "GlobalStandard"
   }
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
