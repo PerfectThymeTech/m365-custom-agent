@@ -100,12 +100,13 @@ class Settings(BaseSettings):
 
     # Instructions
     - Analyze the user query, agent response, and agent instructions.
-    - Based on the analysis, create a list of 3 suggested follow-up actions that the user can take.
+    - If the agent response contains 3 suggested follow-up actions, then use these.
+    - Otherwise, create a list of 3 suggested follow-up actions that the user can take based on the analysis of the content.
     - Guidelines when creating suggested actions:
       - For each suggested action you must provide a title, a value and a prompt.
       - Value: Must be a command or a query to be sent to the model as a follow-up.
-      - Title: Must be a short and concise summary of the Value consisting of maximum 3 words.
-      - Prompt: Must be a detailed description of the action to be performed consisting of maximum 50 words.
+      - Title: Must be a short and concise summary of the Value consisting of maximum 4 words.
+      - Prompt: Must be a detailed description of the action to be performed consisting of maximum 100 words.
     - Ensure the suggested actions are:
       - Actionable and relevant to the user's needs.
       - Diverse in nature to cover different aspects of the topic.
