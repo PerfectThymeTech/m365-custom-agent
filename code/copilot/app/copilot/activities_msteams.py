@@ -1,19 +1,30 @@
 from app.copilot.action import SuggestedActionHandler
 from app.copilot.common import configure_context, get_suggested_actions_from_agent
 from app.copilot.copilot import copilot_apps
-from app.copilot.handler_msteams import (
-    handle_agent_response,
-    handle_attachments,
-    handle_default_response,
-)
+from app.copilot.handler_msteams import MSTeamsHandler
 from app.copilot.scenarios import DocumentScenarios
 from app.core.settings import settings
 from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from microsoft_agents.activity import ActivityTypes, ConversationUpdateTypes
 from microsoft_agents.hosting.core import TurnContext, TurnState
+from microsoft_agents.hosting.teams import TeamsActivityHandler, TeamsInfo
 
 logger = setup_logging(__name__)
+
+
+@copilot_apps["msteams"].error
+async def on_error(context: TurnContext, error: Exception) -> None:
+    """
+    Handle errors that occur during the bot's operation.
+
+    :param context: The TurnContext object for the current turn.
+    :type context: TurnContext
+    :param error: The Exception object representing the error that occurred.
+    :type error: Exception
+    :return: None
+    """
+    await MSTeamsHandler.handle_error_response(context=context, error=error)
 
 
 @copilot_apps["msteams"].activity(ConversationUpdateTypes.MEMBERS_ADDED)
@@ -50,7 +61,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     """
     # Run some logging
     logger.info(
-        f"Processing message activity with text: {context.activity.text} via channel: {context.activity.channel_data} {context.activity.id}",
+        f"Processing message activity with text: '{context.activity.text}', channel id: '{context.activity.channel_id}', activity: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'.",
     )
 
     # Configure context
@@ -70,7 +81,8 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
 
     # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
     if len(context.activity.attachments or []) > 1:
-        user_state_store_item = await handle_attachments(
+        # Handle attachments
+        user_state_store_item = await MSTeamsHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
         )
 
@@ -87,7 +99,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Use agent to process user prompt if file is uploaded and instructions are set
     elif user_state_store_item.file_uploaded and user_state_store_item.instructions:
         # Handle agent response
-        user_state_store_item, response = await handle_agent_response(
+        user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item
         )
 
@@ -97,18 +109,6 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             agent_response=response,
             agent_instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT,
         )
-        # suggested_action_handler.add_suggested_action(
-        #     title="Test 01",
-        #     prompt="Test 01", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
-        # )
-        # suggested_action_handler.add_suggested_action(
-        #     title="Test 02",
-        #     prompt="Test 02", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
-        # )
-        # suggested_action_handler.add_suggested_action(
-        #     title="Test 03",
-        #     prompt="Test 03", # "This is a big test with lots of characters to see how it works in the aaaaaaaaa.",
-        # )
         # Add suggested actions for next steps to suggested action handler
         for suggested_action in suggested_actions_response.suggested_actions:
             logger.info(
@@ -121,7 +121,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
 
     # Use default response if file has not been uploaded yet
     else:
-        await handle_default_response(context=context)
+        await MSTeamsHandler.handle_default_response(context=context)
 
     # Send suggested actions if any
     await suggested_action_handler.send(context=context)
@@ -138,3 +138,19 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         await context.streaming_response.end_stream()
     except RuntimeError as e:
         logger.info(f"Response stream has already ended: '{e}'")
+
+
+@copilot_apps["msteams"].on_sign_in_success
+async def on_sign_in_success(context: TurnContext, state: TurnState, handler_id: str = None) -> None:
+    """
+    Handle sign-in success events.
+
+    :param context: The TurnContext object for the current turn.
+    :type context: TurnContext
+    :param state: The TurnState object for maintaining state across turns.
+    :type state: TurnState
+    :param handler_id: The handler ID for the sign-in event.
+    :type handler_id: str | None
+    :return: None
+    """
+    logger.info(f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'.")
