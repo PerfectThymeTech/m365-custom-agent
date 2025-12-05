@@ -14,6 +14,7 @@ dependencies = [
     "microsoft-agents-hosting-aiohttp>=0.6.1",
     "microsoft-agents-hosting-core>=0.6.1",
     "microsoft-agents-hosting-fastapi>=0.6.1",
+    "microsoft-agents-storage-cosmos>=0.6.1",
     "openai-agents>=0.6.1",
     "opentelemetry-instrumentation-aiohttp-client>=0.59b0",
     "pydantic-settings>=2.12.0",

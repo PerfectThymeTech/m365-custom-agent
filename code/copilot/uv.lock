@@ -180,6 +180,19 @@ wheels = [
 ]
 
 [[package]]
+name = "azure-cosmos"
+version = "4.14.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "azure-core" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bc/5b/037a296c4ed0d49eb745592bdb9db8cc7fc29eb41a3cd12703d7841f70ec/azure_cosmos-4.14.2.tar.gz", hash = "sha256:7fb746449ef159304c5af6fe687548e561c1f1e257fd6505d60158d00101ec6e", size = 2034916, upload-time = "2025-11-14T23:08:36.456Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/f3/d7c938771c8dc1ad7ae44370694ebacb06d9b37f70be846033395af2c56b/azure_cosmos-4.14.2-py3-none-any.whl", hash = "sha256:f0783a9b1c13f8dbd62bdbf8456f927125d77d5267e5ff6b37193bcd4554fd2c", size = 388602, upload-time = "2025-11-14T23:08:39.741Z" },
+]
+
+[[package]]
 name = "azure-identity"
 version = "1.25.1"
 source = { registry = "https://pypi.org/simple" }
@@ -374,6 +387,7 @@ dependencies = [
     { name = "microsoft-agents-hosting-aiohttp" },
     { name = "microsoft-agents-hosting-core" },
     { name = "microsoft-agents-hosting-fastapi" },
+    { name = "microsoft-agents-storage-cosmos" },
     { name = "openai-agents" },
     { name = "opentelemetry-instrumentation-aiohttp-client" },
     { name = "pydantic-settings" },
@@ -395,6 +409,7 @@ requires-dist = [
     { name = "microsoft-agents-hosting-aiohttp", specifier = ">=0.6.1" },
     { name = "microsoft-agents-hosting-core", specifier = ">=0.6.1" },
     { name = "microsoft-agents-hosting-fastapi", specifier = ">=0.6.1" },
+    { name = "microsoft-agents-storage-cosmos", specifier = ">=0.6.1" },
     { name = "openai-agents", specifier = ">=0.6.1" },
     { name = "opentelemetry-instrumentation-aiohttp-client", specifier = ">=0.59b0" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
@@ -1072,6 +1087,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f4/b1/1fa03d151e86a22732df72de7b5e61c0e7263110978e439f8e41c52c5cc0/microsoft_agents_hosting_fastapi-0.6.1.tar.gz", hash = "sha256:a836c6af3016cfff76fff41545c2bdc28e391519c8d238d0961b9f29f9b71f7f", size = 10846, upload-time = "2025-12-01T21:22:25.947Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/48/7a/27e5582ba3fa7a78747ed4e53fa1555ebff63a5fe91fa3fd404c21543eb2/microsoft_agents_hosting_fastapi-0.6.1-py3-none-any.whl", hash = "sha256:2b03ef706d5bc4bf9963b6590d9cc1bc23777960d00ab3ee948d9872b08609ba", size = 14247, upload-time = "2025-12-01T21:22:35.312Z" },
+]
+
+[[package]]
+name = "microsoft-agents-storage-cosmos"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "azure-core" },
+    { name = "azure-cosmos" },
+    { name = "microsoft-agents-hosting-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0b/12/f90bb2e64a7261853261a98ca2503afb29e4ab3e1a1835570ef0cd5032a8/microsoft_agents_storage_cosmos-0.6.1.tar.gz", hash = "sha256:9e1f3b0ff47915c4e4c5501826712a662e903a6488a4aa3cdff0ef7cc36aec55", size = 11746, upload-time = "2025-12-01T21:22:29.107Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/2a/e50f6e353a5fe233759f4ab7784fb016bcbe0c10a58ee36606200ff1058b/microsoft_agents_storage_cosmos-0.6.1-py3-none-any.whl", hash = "sha256:794e0c334f405c73fe613e3dc6125cb71ba079085ec11ea209ee4e0c31121403", size = 11034, upload-time = "2025-12-01T21:22:37.813Z" },
 ]
 
 [[package]]
