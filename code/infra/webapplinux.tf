@@ -2,7 +2,7 @@ resource "azurerm_linux_web_app" "linux_web_app" {
   name                = "${local.prefix}-app001"
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group_consumption.name
-  tags                = var.tags
+  tags                = merge(var.tags, { "hidden-link: /app-insights-resource-id" = module.application_insights.application_insights_id })
   identity {
     type = "UserAssigned"
     identity_ids = [
