@@ -85,12 +85,12 @@ jobs:
           tenant-id: ${{ inputs.tenant_id }}
           subscription-id: ${{ inputs.subscription_id }}
 
-      # Deploy Web App
-      - name: Deploy Web App
-        id: webapp_deploy
-        uses: Azure/webapps-deploy@v3
-        with:
-          app-name: ${{ inputs.webapp_name }}
-          package: ${{ inputs.webapp_directory }}
-          startup-command: "gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 app:APP"
-          # restart: true
+      # # Deploy Web App
+      # - name: Deploy Web App
+      #   id: webapp_deploy
+      #   uses: Azure/webapps-deploy@v3
+      #   with:
+      #     app-name: ${{ inputs.webapp_name }}
+      #     package: ${{ inputs.webapp_directory }}
+      #     startup-command: "gunicorn --bind 0.0.0.0 --worker-class uvicorn.workers.UvicornWorker --timeout 600 app.main:app"
+      #     # restart: true
