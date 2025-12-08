@@ -4,7 +4,7 @@ location_openai = "swedencentral"
 environment     = "dev"
 prefix          = "cop"
 tags = {
-  workload = "bot-assistant"
+  workload = "m365-copilot"
 }
 
 # Service variables
