@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from app.api.v1.router import api_v1_router
+from app.copilot.copilot import connection_manager
 from app.core.settings import settings
 from app.logs import setup_opentelemetry
 from fastapi import FastAPI
@@ -25,6 +26,7 @@ def get_app() -> FastAPI:
 
     RETURNS (FastAPI): The FastAPI object to start the server.
     """
+    # Create app
     app = FastAPI(
         title=settings.PROJECT_NAME,
         description="",
@@ -32,10 +34,17 @@ def get_app() -> FastAPI:
         openapi_url="/openapi.json",
         debug=settings.DEBUG,
         lifespan=lifespan,
-        # middleware=[JwtAuthorizationMiddleware],
     )
-    # app.add_middleware(JwtAuthorizationMiddleware)
+
+    # Add middleware
+    app.state.agent_configuration = (
+        connection_manager.get_default_connection_configuration()
+    )
+    app.add_middleware(JwtAuthorizationMiddleware)
+
+    # Add router
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)
+    
     return app
 
 
