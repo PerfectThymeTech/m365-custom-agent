@@ -6,6 +6,7 @@ from app.copilot.copilot import connection_manager
 from app.core.settings import settings
 from app.logs import setup_opentelemetry
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from microsoft_agents.hosting.fastapi import JwtAuthorizationMiddleware
 
 
@@ -34,6 +35,11 @@ def get_app() -> FastAPI:
         openapi_url="/openapi.json",
         debug=settings.DEBUG,
         lifespan=lifespan,
+        swagger_ui_oauth2_redirect_url='/oauth2-redirect',
+        swagger_ui_init_oauth={
+            'usePkceWithAuthorizationCodeGrant': True,
+            'clientId': settings.CLIENT_ID,
+        },
     )
 
     # Add middleware
@@ -41,6 +47,12 @@ def get_app() -> FastAPI:
         connection_manager.get_default_connection_configuration()
     )
     app.add_middleware(JwtAuthorizationMiddleware)
+    app.add_middleware(CORSMiddleware,
+        allow_origins=[str(origin) for origin in [f"http://{settings.BASE_URL}", f"https://{settings.BASE_URL}"]],
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
 
     # Add router
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)
