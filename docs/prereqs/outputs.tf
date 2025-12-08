@@ -34,13 +34,13 @@ output "private_dns_zone_ids" {
 output "application_client_id" {
   description = "Specifies the application client id."
   sensitive   = true
-  value       = azuread_service_principal.service_principal.client_id
+  value       = local.application_client_id
 }
 
 output "application_password" {
   description = "Specifies the application client secret."
   sensitive   = true
-  value       = tolist(azuread_application.application.password).0.value
+  value       = local.application_password
 }
 
 output "application_tenant_id" {

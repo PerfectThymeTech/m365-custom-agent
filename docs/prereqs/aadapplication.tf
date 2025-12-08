@@ -5,6 +5,8 @@ resource "time_rotating" "expiration" {
 resource "random_uuid" "uuid_application_app_role" {}
 
 resource "azuread_application" "application" {
+  count = var.entra_application_enabled ? 1 : 0
+  
   display_name = local.application_name
   description  = "Azure AD OAuth Bot App"
 
@@ -47,7 +49,9 @@ resource "azuread_application" "application" {
 }
 
 resource "azuread_service_principal" "service_principal" {
-  client_id    = azuread_application.application.client_id
+  count = var.entra_application_enabled ? 1 : 0
+
+  client_id    = one(azuread_application.application[*].client_id)
   use_existing = true
 
   account_enabled              = true
