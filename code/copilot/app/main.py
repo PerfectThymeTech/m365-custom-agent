@@ -43,10 +43,10 @@ def get_app() -> FastAPI:
     )
 
     # Add middleware
-    app.state.agent_configuration = (
-        connection_manager.get_default_connection_configuration()
-    )
-    app.add_middleware(JwtAuthorizationMiddleware)
+    # app.state.agent_configuration = (
+    #     connection_manager.get_default_connection_configuration()
+    # )
+    # app.add_middleware(JwtAuthorizationMiddleware)
     app.add_middleware(CORSMiddleware,
         allow_origins=[str(origin) for origin in [f"http://{settings.BASE_URL}", f"https://{settings.BASE_URL}"]],
         allow_credentials=True,
