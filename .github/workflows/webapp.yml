@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - "**.py"
-      - "code/backend/**"
+      - "code/copilot/**"
       - "config/**"
       - "tests/**"
       - "requirements.txt"
@@ -15,7 +15,7 @@ on:
       - main
     paths:
       - "**.py"
-      - "code/backend/**"
+      - "code/copilot/**"
       - "config/**"
       - "tests/**"
       - "requirements.txt"
@@ -25,8 +25,8 @@ jobs:
     uses: ./.github/workflows/_webappTestTemplate.yml
     name: "Web App Test"
     with:
-      python_version: "3.11"
-      webapp_directory: "./code/backend"
+      python_version: "3.13"
+      webapp_directory: "./code/copilot"
 
   webapp_dev:
     uses: ./.github/workflows/_webappDeployTemplate.yml
@@ -34,8 +34,8 @@ jobs:
     needs: [webapp_test]
     with:
       environment: "dev"
-      python_version: "3.11"
-      webapp_directory: "./code/backend"
+      python_version: "3.13"
+      webapp_directory: "./code/copilot"
       webapp_name: "bfr-dev-app001"
       tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
       subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
