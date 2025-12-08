@@ -19,9 +19,9 @@ from microsoft_agents.storage.cosmos import CosmosDBStorage, CosmosDBStorageConf
 logger = setup_logging(__name__)
 
 
-def get_copilot_configuration() -> dict[str, Any]:
+def get_copilot_configuration_as_dict() -> dict[str, Any]:
     """
-    Create and return the Copilot configuration.
+    Create and return the Copilot configuration as dict.
 
     :return: The configuration used for the copilot app.
     :rtype: dict[str, Any]
@@ -145,6 +145,6 @@ def get_copilot_apps(
     }
 
 
-config = get_copilot_configuration()
+config = get_copilot_configuration_as_dict()
 connection_manager = get_copilot_connection_manager(config=config)
 copilot_apps = get_copilot_apps(config=config, connection_manager=connection_manager)

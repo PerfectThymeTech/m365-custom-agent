@@ -8,7 +8,6 @@ from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from microsoft_agents.activity import ActivityTypes, ConversationUpdateTypes
 from microsoft_agents.hosting.core import TurnContext, TurnState
-from microsoft_agents.hosting.teams import TeamsActivityHandler, TeamsInfo
 
 logger = setup_logging(__name__)
 
