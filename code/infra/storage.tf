@@ -6,7 +6,7 @@ module "storage_account" {
   }
 
   location            = var.location
-  resource_group_name = azurerm_resource_group.resource_group_ingestion.name
+  resource_group_name = azurerm_resource_group.resource_group_consumption.name
   tags                = var.tags
 
   storage_account_name                            = replace("${local.prefix}-stg001", "-", "")
@@ -27,7 +27,7 @@ module "storage_account" {
     "/subscriptions/${data.azurerm_client_config.current.subscription_id}/providers/Microsoft.Security/datascanners/storageDataScanner",
     "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/*/providers/Microsoft.CognitiveServices/accounts/*",
   ]
-  storage_public_network_access_enabled = true
+  storage_public_network_access_enabled = false
   storage_nfsv3_enabled                 = false
   storage_sftp_enabled                  = false
   storage_shared_access_key_enabled     = false

@@ -2,17 +2,29 @@ terraform {
   required_version = ">=0.12"
 
   required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.54.0"
+    }
+    azapi = {
+      source  = "azure/azapi"
+      version = "2.7.0"
+    }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "3.0.2"
+      version = "3.7.0"
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.12.1"
+      version = "0.13.1"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.6.3"
+      version = "3.7.2"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "2.6.1"
     }
   }
 }

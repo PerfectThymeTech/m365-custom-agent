@@ -3,6 +3,14 @@ variable "location" {
   description = "Specifies the location for all Azure resources."
   type        = string
   sensitive   = false
+  default     = "eastus2"
+}
+
+variable "location_openai" {
+  description = "Specifies the location for Azure Open AI."
+  type        = string
+  sensitive   = false
+  default     = "eastus2"
 }
 
 variable "environment" {
@@ -46,8 +54,16 @@ variable "data_residency" {
   }
 }
 
+variable "entra_application_enabled" {
+  description = "Specifies whether the Entra ID application should be created."
+  type        = bool
+  sensitive   = false
+  nullable    = false
+  default     = false
+}
+
 variable "virtual_network_address_space" {
-  description = "Specifies the data residency requirements of the bot framework."
+  description = "Specifies the virtual network address space."
   type        = string
   sensitive   = false
   nullable    = false
@@ -55,5 +71,9 @@ variable "virtual_network_address_space" {
   validation {
     condition     = length(split("/", var.virtual_network_address_space)) == 2
     error_message = "Please specify a valid vnet cidr range."
+  }
+  validation {
+    condition     = tonumber(split("/", var.virtual_network_address_space)[1]) <= 27
+    error_message = "Please specify a valid vnet cidr range larger than 25."
   }
 }

@@ -46,6 +46,13 @@ variable "web_app_app_settings" {
   sensitive   = false
 }
 
+variable "web_app_code_path" {
+  description = "Specifies the code location of the web app."
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
 variable "bot_oauth_client_id" {
   description = "Specifies the client id of the Entra ID oauth app."
   type        = string
@@ -183,6 +190,17 @@ variable "private_dns_zone_id_bot_framework_token" {
   }
 }
 
+variable "private_dns_zone_id_cognitive_account" {
+  description = "Specifies the resource ID of the private DNS zone for Azure Cognitive Services. Not required if DNS A-records get created via Azure Policy."
+  type        = string
+  sensitive   = false
+  default     = ""
+  validation {
+    condition     = var.private_dns_zone_id_cognitive_account == "" || (length(split("/", var.private_dns_zone_id_cognitive_account)) == 9 && (endswith(var.private_dns_zone_id_cognitive_account, "privatelink.cognitiveservices.azure.com")))
+    error_message = "Please specify a valid resource ID for the private DNS Zone."
+  }
+}
+
 variable "private_dns_zone_id_open_ai" {
   description = "Specifies the resource ID of the private DNS zone for Azure Open AI. Not required if DNS A-records get created via Azure Policy."
   type        = string
@@ -212,17 +230,6 @@ variable "private_dns_zone_id_blob" {
   default     = ""
   validation {
     condition     = var.private_dns_zone_id_blob == "" || (length(split("/", var.private_dns_zone_id_blob)) == 9 && endswith(var.private_dns_zone_id_blob, "privatelink.blob.core.windows.net"))
-    error_message = "Please specify a valid resource ID for the private DNS Zone."
-  }
-}
-
-variable "private_dns_zone_id_data_factory" {
-  description = "Specifies the resource ID of the private DNS zone for Azure Data Factory. Not required if DNS A-records get created via Azure Policy."
-  type        = string
-  sensitive   = false
-  default     = ""
-  validation {
-    condition     = var.private_dns_zone_id_data_factory == "" || (length(split("/", var.private_dns_zone_id_data_factory)) == 9 && endswith(var.private_dns_zone_id_data_factory, "privatelink.datafactory.azure.net"))
     error_message = "Please specify a valid resource ID for the private DNS Zone."
   }
 }

@@ -2,7 +2,7 @@ resource "azurerm_linux_web_app" "linux_web_app" {
   name                = "${local.prefix}-app001"
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group_consumption.name
-  tags                = var.tags
+  tags                = merge(var.tags, { "hidden-link: /app-insights-resource-id" = module.application_insights.application_insights_id })
   identity {
     type = "UserAssigned"
     identity_ids = [
@@ -27,9 +27,9 @@ resource "azurerm_linux_web_app" "linux_web_app" {
     always_on             = true
     api_definition_url    = null
     api_management_api_id = null
-    app_command_line      = "gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 app:APP"
+    app_command_line      = "gunicorn --bind 0.0.0.0 --worker-class uvicorn.workers.UvicornWorker --timeout 600 app.main:app"
     application_stack {
-      python_version = "3.11"
+      python_version = "3.13"
     }
     cors {
       allowed_origins = [
