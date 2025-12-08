@@ -44,7 +44,7 @@ def get_app() -> FastAPI:
 
     # Add router
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)
-    
+
     return app
 
 
