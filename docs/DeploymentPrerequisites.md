@@ -2,7 +2,7 @@
 
 
 ## Software requirements
- 
+
 Before deploying the Microsoft 365 Custom Agent Reference Implementation, ensure you have the following software installed on your device:
 
 1. **Azure CLI**: Install the Azure Command-Line Interface (CLI) to manage Azure resources from your local machine. Follow the installation guide at [Install Azure CLI](https://docs.microsoft.com/cli/azure/install-azure-cli).
