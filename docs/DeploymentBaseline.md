@@ -29,7 +29,7 @@ Before proceeding with the deployment, ensure that you have followed the steps i
     terraform init
     ```
 
-5 **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command:
+5. **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command.
 
     ```bash
     az login
