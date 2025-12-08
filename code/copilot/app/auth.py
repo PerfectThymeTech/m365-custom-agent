@@ -1,5 +1,5 @@
-from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
 from app.core.settings import settings
+from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
 
 
 def get_scopes_as_dict() -> dict[str, str]:
@@ -14,7 +14,7 @@ def get_scopes_as_dict() -> dict[str, str]:
 
         # Add scope to result dict
         result_dict[scope_key] = scope_value
-    
+
     return result_dict
 
 

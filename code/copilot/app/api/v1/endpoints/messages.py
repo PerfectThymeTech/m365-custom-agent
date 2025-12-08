@@ -1,8 +1,8 @@
 from typing import Any
 
+from app.auth import auth_settings
 from app.copilot.activities_msteams import on_message  # noqa: F401
 from app.copilot.copilot import copilot_apps
-from app.auth import auth_settings
 from app.logs import setup_logging
 from fastapi import APIRouter, Request, Security
 from microsoft_agents.hosting.fastapi import start_agent_process
