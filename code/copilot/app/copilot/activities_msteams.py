@@ -141,7 +141,9 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
 
 
 @copilot_apps["msteams"].on_sign_in_success
-async def on_sign_in_success(context: TurnContext, state: TurnState, handler_id: str = None) -> None:
+async def on_sign_in_success(
+    context: TurnContext, state: TurnState, handler_id: str = None
+) -> None:
     """
     Handle sign-in success events.
 
@@ -153,4 +155,6 @@ async def on_sign_in_success(context: TurnContext, state: TurnState, handler_id:
     :type handler_id: str | None
     :return: None
     """
-    logger.info(f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'.")
+    logger.info(
+        f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'."
+    )

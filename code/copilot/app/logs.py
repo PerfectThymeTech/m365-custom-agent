@@ -4,9 +4,9 @@ import os
 from app.core.settings import settings
 from azure.identity import DefaultAzureCredential
 from azure.monitor.opentelemetry import configure_azure_monitor
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
-from microsoft_agents.hosting.core.storage.transcript_logger import TranscriptLogger
 from microsoft_agents.activity import Activity
+from microsoft_agents.hosting.core.storage.transcript_logger import TranscriptLogger
+from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 
 
 def setup_logging(module) -> logging.Logger:
@@ -74,6 +74,7 @@ class OpenTelemetryTranscriptLogger(TranscriptLogger):
     """
     Docstring for OpenTelemetryTranscriptLogger
     """
+
     def __init__(self):
         """
         Initialize the OpenTelemetryTranscriptLogger.
@@ -83,11 +84,11 @@ class OpenTelemetryTranscriptLogger(TranscriptLogger):
     async def log_activity(self, activity: Activity):
         """
         Logs the activity using OpenTelemetry.
-        
+
         :param activity: The Activity object to log.
         :type activity: Activity
         """
         if not activity:
             raise TypeError("Activity is required")
-        
+
         self.logger.info(activity.model_dump_json())

@@ -33,7 +33,7 @@ data "local_file" "file_instructions_suggested_actions_agent" {
 data "archive_file" "file_web_app" {
   count = var.web_app_code_path != "" ? 1 : 0
 
-  excludes    = [ "${path.module}/${var.web_app_code_path}/.venv/**" ]
+  excludes    = ["${path.module}/${var.web_app_code_path}/.venv/**"]
   type        = "zip"
   source_dir  = "${path.module}/${var.web_app_code_path}"
   output_path = "${path.module}/${format("webapp-${azurerm_linux_web_app.linux_web_app.name}-%s.zip", formatdate("YYYY-MM-DD'-'hh_mm_ss", timestamp()))}"

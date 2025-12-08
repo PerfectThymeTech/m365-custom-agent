@@ -77,14 +77,17 @@ class MSTeamsHandler(AbstractHandler):
 
                 # Update user about processing of each file
                 await stream_string_in_chunks(
-                    context=context, text=f"\n\nProcessing file `{attachment.name}` ... "
+                    context=context,
+                    text=f"\n\nProcessing file `{attachment.name}` ... ",
                 )
                 await stream_string_in_chunks(
                     context=context, text="\n(  0%) Loading file ... "
                 )
 
                 # Loading file content
-                attachment_content = AttachmentContent.model_validate(attachment.content)
+                attachment_content = AttachmentContent.model_validate(
+                    attachment.content
+                )
 
                 # Extract text from file using FileExtractionClient
                 await stream_string_in_chunks(
@@ -106,7 +109,9 @@ class MSTeamsHandler(AbstractHandler):
                 cleaned_data = file_extraction_client.clean_extracted_data(
                     data=extracted_data
                 )
-                logger.debug(f"Cleaned Data from file {attachment.name}: {cleaned_data}")
+                logger.debug(
+                    f"Cleaned Data from file {attachment.name}: {cleaned_data}"
+                )
 
                 # Update user about completion of file processing
                 logger.info(f"Attachment '{attachment.name}' processed successfully.")
@@ -171,7 +176,9 @@ class MSTeamsHandler(AbstractHandler):
         :rtype: UserStateStoreItem
         """
         # Send informative update to user
-        context.streaming_response.queue_informative_update("Let me think about that... ")
+        context.streaming_response.queue_informative_update(
+            "Let me think about that... "
+        )
 
         # Create agent
         agent = DocumentAgent(
@@ -184,7 +191,9 @@ class MSTeamsHandler(AbstractHandler):
 
         # Define user prompt
         user_prompt = (
-            context.activity.text if context.activity.text else get_html_from_attachment()
+            context.activity.text
+            if context.activity.text
+            else get_html_from_attachment()
         )
 
         # Check for suggested action prompt scenarios
@@ -222,7 +231,7 @@ class MSTeamsHandler(AbstractHandler):
         user_state_store_item.last_response_id = last_response_id
 
         return user_state_store_item, response
-    
+
     @staticmethod
     async def handle_default_response(context: TurnContext) -> None:
         """

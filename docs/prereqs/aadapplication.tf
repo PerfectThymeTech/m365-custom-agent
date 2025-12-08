@@ -6,7 +6,7 @@ resource "random_uuid" "uuid_application_app_role" {}
 
 resource "azuread_application" "application" {
   count = var.entra_application_enabled ? 1 : 0
-  
+
   display_name = local.application_name
   description  = "Azure AD OAuth Bot App"
 

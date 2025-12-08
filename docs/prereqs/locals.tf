@@ -19,7 +19,7 @@ locals {
     gov    = "https://token.botframework.azure.us/.auth/web/redirect"
   }
   application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : ""
-  application_password = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : ""
+  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : ""
 
   # DNS variables
   private_dns_zone_names = {
@@ -65,8 +65,8 @@ log_analytics_workspace_id = "${module.log_analytics_workspace.log_analytics_wor
 vnet_id                       = "${azurerm_virtual_network.virtual_network.id}"
 nsg_id                        = "${azurerm_network_security_group.network_security_group.id}"
 route_table_id                = "${azurerm_route_table.route_table.id}"
-subnet_cidr_web_app           = "${cidrsubnet(var.virtual_network_address_space, 28-local.virtual_network_address_space_mask_bits, 0)}"
-subnet_cidr_private_endpoints = "${cidrsubnet(var.virtual_network_address_space, 28-local.virtual_network_address_space_mask_bits, 1)}"
+subnet_cidr_web_app           = "${cidrsubnet(var.virtual_network_address_space, 28 - local.virtual_network_address_space_mask_bits, 0)}"
+subnet_cidr_private_endpoints = "${cidrsubnet(var.virtual_network_address_space, 28 - local.virtual_network_address_space_mask_bits, 1)}"
 
 # DNS variables
 private_dns_zone_id_vault                    = "${azurerm_private_dns_zone.private_dns_zone["vault"].id}"
