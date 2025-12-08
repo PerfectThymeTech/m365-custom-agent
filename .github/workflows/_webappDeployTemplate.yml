@@ -52,12 +52,12 @@ jobs:
       # Check Out Repository
       - name: Check Out Repository
         id: checkout_repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # Setup Python
       - name: Setup Python
         id: python_setup
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: ${{ inputs.python_version }}
           cache: "pip"
@@ -79,7 +79,7 @@ jobs:
       # Azure login
       - name: Azure login
         id: azure_login
-        uses: azure/login@v2
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ inputs.tenant_id }}
@@ -88,7 +88,7 @@ jobs:
       # # Deploy Web App
       # - name: Deploy Web App
       #   id: webapp_deploy
-      #   uses: Azure/webapps-deploy@v3
+      #   uses: Azure/webapps-deploy@657f0700ea5214d56a0400d8ac5e8023c963d25d  # v3.0.6
       #   with:
       #     app-name: ${{ inputs.webapp_name }}
       #     package: ${{ inputs.webapp_directory }}
