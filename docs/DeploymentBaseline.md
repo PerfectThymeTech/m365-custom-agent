@@ -6,6 +6,18 @@ This document outlines the steps to deploy the baseline infrastructure and servi
 
 Before proceeding with the deployment, ensure that you have followed the steps in the [Deployment Prerequisites](/docs/DeploymentPrerequisites.md) document to set up your environment.
 
+## Notes
+
+- This is an opttional deployment step. The baseline infrastructure is only required if you do not already have the necessary resources and configurations in place.
+- The baseline deployment provisions foundational resources that the main implementation will build upon. This includes:
+    - Virtual Networks
+    - Network Security Groups
+    - Route Tables
+    - Private DNS Zones
+    - Log Analytics Workspace
+    - (optional) Entra ID App Registrations
+- If you already have these resources configured in your Azure environment, you may choose to skip this step and proceed directly to the [Deployment of Reference Implementation](/docs/DeploymentReferenceImplementation.md).
+
 ## Deployment Steps
 
 1. **Clone the Repository**: If you haven't already, clone the Microsoft 365 Custom Agent repository to your local machine.
