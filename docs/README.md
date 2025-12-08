@@ -7,5 +7,6 @@ Comprehensive documentation is available to help you get started and make the mo
 ### Deployment
 
 1. [Prerequisites](/docs/DeploymentPrerequisites.md)
-2. [Deployment of Baseline](/docs/DeploymentBaseline.md)
-3. [Deployment of Reference Implementation](/docs/DeploymentReferenceImplementation.md)
+2. [Baseline](/docs/DeploymentBaseline.md)
+3. [Reference Implementation](/docs/DeploymentReferenceImplementation.md)
+4. [Teams Application Setup](/docs/DeploymentTeamsAppSetup.md)
