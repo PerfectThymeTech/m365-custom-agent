@@ -113,4 +113,4 @@ Before proceeding with the deployment, ensure that you have completed the steps 
 
 ## Next Steps
 
-After successfully deploying the Microsoft 365 Custom Agent Reference Implementation, you can proceed with the following steps:
+After successfully deploying the Microsoft 365 Custom Agent Reference Implementation, you can proceed with the [deployment of the Teams app](/docs/DeploymentTeamsAppSetup.md).
