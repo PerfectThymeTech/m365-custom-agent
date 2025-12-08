@@ -2,7 +2,7 @@
 location        = "northeurope"
 location_openai = "swedencentral"
 environment     = "dev"
-prefix          = "bfr"
+prefix          = "cop"
 tags = {
   workload = "bot-assistant"
 }
