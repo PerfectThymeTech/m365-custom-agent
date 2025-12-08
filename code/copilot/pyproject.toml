@@ -8,6 +8,7 @@ dependencies = [
     "aiohttp>=3.13.2",
     "azure-ai-documentintelligence>=1.0.2",
     "azure-monitor-opentelemetry>=1.8.2",
+    "fastapi-azure-auth>=5.2.0",
     "fastapi[standard]>=0.123.4",
     "microsoft-agents-activity>=0.6.1",
     "microsoft-agents-authentication-msal>=0.6.1",
