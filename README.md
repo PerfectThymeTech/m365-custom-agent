@@ -46,7 +46,7 @@ To get started with the reference implementation, follow these steps:
 
 ## 📚 Documentation
 
-Comprehensive documentation is available to help you get started and make the most of the Microsoft 365 Custom Agent project. Visit the Documentation folder for more information.
+Comprehensive documentation is available to help you get started and make the most of the Microsoft 365 Custom Agent project. Visit the [Documentation folder](/docs/README.md) for more information.
 
 ## Contributing
 

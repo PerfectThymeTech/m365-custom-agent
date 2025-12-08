@@ -130,4 +130,4 @@ By following these steps, you can confirm that your environment is properly conf
 
 ## Next Steps
 
-With the deployment prerequisites met and your environment verified, you are now ready to proceed with deploying the Microsoft 365 Custom Agent Reference Implementation. Follow the deployment instructions in the subsequent sections of the documentation to set up and configure the application in your Azure environment.
+With the deployment prerequisites met and your environment verified, you are now ready to proceed with deploying the Microsoft 365 Custom Agent Reference Implementation. Follow the deployment instructions in the subsequent sections of the documentation which covers the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md).
