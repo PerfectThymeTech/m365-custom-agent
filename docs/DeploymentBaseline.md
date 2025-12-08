@@ -29,17 +29,47 @@ Before proceeding with the deployment, ensure that you have followed the steps i
     terraform init
     ```
 
-5. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
+5 **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command:
+
+    ```bash
+    az login
+    ```
+
+    If you have access to multiple Entra ID Tenants, specify the desired tenant using the `--tenant` parameter:
+
+    ```bash
+    az login --tenant <tenant-id-or-name>
+    ```
+
+    Set the desired subscription context using the following command:
+
+    ```bash
+    az account set --subscription <subscription-id-or-name>
+    ```
+
+    You can verify the current subscription context by running:
+
+    ```bash
+    az account show
+    ```
+
+6. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
 
     ```bash
     terraform plan -var-file="vars.tfvars"
     ```
 
-6. **Apply the Configuration**: Apply the configuration to deploy the baseline infrastructure.
+7. **Apply the Configuration**: Apply the configuration to deploy the baseline infrastructure.
 
     ```bash
     terraform apply -var-file="vars.tfvars"
     ```
     You will be prompted to confirm the action. Type `yes` to proceed.
 
-7. **Verify the Deployment**: After the apply command completes, verify that the resources have been created successfully in your Azure subscription by checking the Azure Portal or using the Azure CLI.
+8. **Verify the Deployment**: After the apply command completes, verify that the resources have been created successfully in your Azure subscription by checking the Azure Portal. You should see a resource group with the name `<your-prefix>-prereqs-rg` which will contain all required resources for the main deployment.
+
+9. **Verify Terraform Variables file**: The Terraform deployment automatically created a `vars.tfvars` file in [./code/infra](/code/infra/). Please review the file, which has all the required variables for the main deployment.
+
+## Next Steps
+
+With the baseline infrastructure deployed, you can now proceed to deploy the main components of the Microsoft 365 Custom Agent Reference Implementation. Follow the instructions in the [Deployment Reference Implementation Guide](/docs/DeploymentReferenceImplementation.md) to continue with the deployment process.
