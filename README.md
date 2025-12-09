@@ -34,13 +34,29 @@ To get started with the reference implementation, follow these steps:
     uv sync
     ```
 
-3. **Run the Backend Application**:
+3. **Activate the virtual environment**:
+
+    For Windows:
+    ```bash
+    venv\Scripts\activate
+    ```
+
+    For Linux/MacOS:
+    ```bash
+    source venv/bin/activate
+    ```
+
+4. **Set Environment Variables**:
+
+    Create a `.env` file in the `code/copilot` directory based on the `.env.TEMPLATE` file and fill in the required values.
+
+5. **Run the Backend Application**:
 
     ```bash
     fastapi dev app/main.py
     ```
 
-4. **Access the API Documentation**:
+6. **Access the API Documentation**:
 
     Open your browser and navigate to `http://localhost:8000/docs` to access the interactive API documentation.
 

@@ -25,17 +25,25 @@ We welcome contributions to the M35 Custom Agent project! This document provides
 
 4. Activate virtual environment:
 
+    For Windows:
     ```bash
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    venv\Scripts\activate
     ```
 
-5. Run backend service:
+    For Linux/MacOS:
+    ```bash
+    source venv/bin/activate
+    ```
+
+5. **Set Environment Variables**: Create a `.env` file in the `code/copilot` directory based on the `.env.TEMPLATE` file and fill in the required values.
+
+6. Run backend service:
 
     ```bash
     fastapi dev app/main.py
     ```
 
-6. Open docs at `http://localhost:8000/docs`
+7. Open docs at `http://localhost:8000/docs`
 
 ## Making Changes
 
