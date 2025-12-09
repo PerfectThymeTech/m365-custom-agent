@@ -9,7 +9,7 @@ Before deploying the Microsoft 365 Custom Agent Reference Implementation, ensure
 2. **Terraform**: Install Terraform to use Infrastructure as Code (IaC) if you plan on contributing to the Terraform project or deploying the project to your environment. Follow the guide at [Install Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) to install the Terraform CLI.
 3. **Visual Studio Code**: It is recommended to use Visual Studio Code as your code editor. Download it from [VS Code Downloads](https://code.visualstudio.com/download) and install the necessary extensions for Python and Azure development.
 4. **Python 3.8+**: Ensure you have Python version 3.8 or higher installed on your machine if you plan in contributing to the Python project. You can download it from [Python Downloads](https://www.python.org/downloads/).
-5. **uv Package Manager (Optional)**: The project uses the uv package manager for dependency management. If you plan in contributing to the Python project then install uv by following the instructions at [uv Documentation](https://docs.astral.sh/uv/).
+5. **uv Package Manager (Optional)**: The project uses the uv package manager for dependency management. If you plan in contributing to the Python project then install uv by following the instructions at [uv Documentation](https://docs.astral.sh/uv/#installation).
 6. **Git**: Install Git to clone the repository and manage version control. You can download it from [Git Downloads](https://git-scm.com/downloads).
 
 Once you have met all the prerequisites, you can proceed with the next section.
@@ -100,26 +100,38 @@ To verify that your environment is correctly set up for deployments with Terrafo
     }
     ```
 
-3. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
+3. **Set Environment Variables**: Set the necessary environment variables for Terraform. This includes specifying the Azure subscription ID.
+
+    For Windows:
+    ```pwsh
+    $env:ARM_SUBSCRIPTION_ID = "<your-subscription-id>"
+    ```
+
+    For Linux/MacOS:
+    ```bash
+    export ARM_SUBSCRIPTION_ID="<your-subscription-id>"
+    ```
+
+4. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
 
     ```bash
     terraform init
     ```
 
-4. **Apply the Configuration**: Apply the configuration to create the resource group in Azure.
+5. **Apply the Configuration**: Apply the configuration to create the resource group in Azure.
 
     ```bash
     terraform apply
     ```
     You will be prompted to confirm the action. Type `yes` to proceed.
 
-5. **Verify the Resource Creation**: After the apply command completes, verify that the resource group has been created in your Azure subscription by checking the Azure Portal or using the Azure CLI:
+6. **Verify the Resource Creation**: After the apply command completes, verify that the resource group has been created in your Azure subscription by checking the Azure Portal or using the Azure CLI:
 
     ```bash
     az group show --name terraform-test-rg
     ```
 
-6. **Clean Up**: Once you have verified that the resource group was created successfully, you can clean up by destroying the resources created during the test.
+7. **Clean Up**: Once you have verified that the resource group was created successfully, you can clean up by destroying the resources created during the test.
 
     ```bash
     terraform destroy
