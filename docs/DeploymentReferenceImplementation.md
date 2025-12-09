@@ -16,7 +16,7 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     cd ./code/infra
     ```
 
-2. **Update Terraform Variables**:
+2. **Update Terraform Variable File**:
 
     1. If you have used the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md) to set up your environment, review and update the `vars.tf` file that has been automatically created in this directory. Ensure that the variables such as resource names, locations, and sizes align with your baseline deployment.
 
@@ -63,13 +63,33 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     private_dns_zone_id_blob                     = "/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
     ```
 
-3. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
+3. **Update Terraform Backend Configuration**: Open the `terraform.tf` file and remove the following section:
 
-    ```bash
-    terraform init
+    ```hcl
+    backend "azurerm" {
+        environment          = "public"
+        resource_group_name  = "<provided-via-config>"
+        storage_account_name = "<provided-via-config>"
+        container_name       = "<provided-via-config>"
+        key                  = "<provided-via-config>"
+        use_azuread_auth     = true
+    }
+    ```
+    Once removed, save the file. Now, Terraform will use the local file system as the backend.
+
+4. **Set Environment Variables**: Set the necessary environment variables for Terraform. This includes specifying the Azure subscription ID.
+
+    For Windows:
+    ```pwsh
+    $env:ARM_SUBSCRIPTION_ID = "<your-subscription-id>"
     ```
 
-4. **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command.
+    For Linux/MacOS:
+    ```bash
+    export ARM_SUBSCRIPTION_ID="<your-subscription-id>"
+    ```
+
+5. **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command.
 
     ```bash
     az login
@@ -93,13 +113,19 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     az account show
     ```
 
-5. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
+6. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
+
+    ```bash
+    terraform init
+    ```
+
+7. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
 
     ```bash
     terraform plan -var-file="vars.tfvars"
     ```
 
-6. **Apply the Configuration**: Apply the configuration to deploy the reference implementation infrastructure.
+8. **Apply the Configuration**: Apply the configuration to deploy the reference implementation infrastructure.
 
     ```bash
     terraform apply -var-file="vars.tfvars"
@@ -107,9 +133,9 @@ Before proceeding with the deployment, ensure that you have completed the steps 
 
     You will be prompted to confirm the action. Type `yes` to proceed.
 
-7. **Verify the Deployment**: After the deployment is complete, verify that all resources have been created successfully by checking the Azure Portal or using the Azure CLI. Review the resource group named `<your-prefix>-bot-rg`, which should contain all the resources for the reference implementation.
+9. **Verify the Deployment**: After the deployment is complete, verify that all resources have been created successfully by checking the Azure Portal or using the Azure CLI. Review the resource group named `<your-prefix>-bot-rg`, which should contain all the resources for the reference implementation.
 
-8. **Agent Testing**: Navigate to the Azure Bot Service in the new resource group to test the deployed bot. Just click on "Test in Web Chat" to interact with the bot and ensure it is functioning as expected. Submit a few queries to validate its responses. Be aware that the web chat only supports file uploads up to 4MB in size.
+10. **Agent Testing**: Navigate to the Azure Bot Service in the new resource group to test the deployed bot. Just click on "Test in Web Chat" to interact with the bot and ensure it is functioning as expected. Submit a few queries to validate its responses. Be aware that the web chat only supports file uploads up to 4MB in size.
 
 ## Next Steps
 

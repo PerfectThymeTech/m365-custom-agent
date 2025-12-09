@@ -33,15 +33,27 @@ Before proceeding with the deployment, ensure that you have followed the steps i
     cd ./docs/prereqs
     ```
 
-3. **Update Terraform Variables**: Review and update the `variables.tf` file to customize the deployment parameters such as the prefix, locations, and sizes according to your requirements.
+3. **Update Terraform Variable File**: Review and update the `vars.tf` file that has been created for you in the `./docs/prereqs` directory. Ensure that the variables such as the `prefix`, locations, and sizes align with your requirements.
 
-4. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
+4. **Set Environment Variables**: Set the necessary environment variables for Terraform. This includes specifying the Azure subscription ID.
+
+    For Windows:
+    ```pwsh
+    $env:ARM_SUBSCRIPTION_ID = "<your-subscription-id>"
+    ```
+
+    For Linux/MacOS:
+    ```bash
+    export ARM_SUBSCRIPTION_ID="<your-subscription-id>"
+    ```
+
+5. **Initialize Terraform**: Run the following command to initialize the Terraform configuration. This will download the necessary provider plugins.
 
     ```bash
     terraform init
     ```
 
-5. **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command.
+6. **Login to Azure**: Log in to your Azure account using the Azure CLI. Open your terminal or command prompt and run the following command.
 
     ```bash
     az login
@@ -65,22 +77,22 @@ Before proceeding with the deployment, ensure that you have followed the steps i
     az account show
     ```
 
-6. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
+7. **Review the Deployment Plan**: Generate and review the deployment plan to understand the resources that will be created.
 
     ```bash
     terraform plan -var-file="vars.tfvars"
     ```
 
-7. **Apply the Configuration**: Apply the configuration to deploy the baseline infrastructure.
+8. **Apply the Configuration**: Apply the configuration to deploy the baseline infrastructure.
 
     ```bash
     terraform apply -var-file="vars.tfvars"
     ```
     You will be prompted to confirm the action. Type `yes` to proceed.
 
-8. **Verify the Deployment**: After the apply command completes, verify that the resources have been created successfully in your Azure subscription by checking the Azure Portal. You should see a resource group with the name `<your-prefix>-prereqs-rg` which will contain all required resources for the main deployment.
+9. **Verify the Deployment**: After the apply command completes, verify that the resources have been created successfully in your Azure subscription by checking the Azure Portal. You should see a resource group with the name `<your-prefix>-prereqs-rg` which will contain all required resources for the main deployment.
 
-9. **Verify Terraform Variables file**: The Terraform deployment automatically created a `vars.tfvars` file in [./code/infra](/code/infra/). Please review the file, which has all the required variables for the main deployment.
+10. **Verify Terraform Variable File**: The Terraform deployment automatically created a `vars.tfvars` file in [./code/infra](/code/infra/). Please review the file, which has all the required variables for the main deployment.
 
 ## Next Steps
 
