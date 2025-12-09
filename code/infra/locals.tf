@@ -20,6 +20,7 @@ locals {
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     SCM_DO_BUILD_DURING_DEPLOYMENT             = "1"
     WEBSITE_CONTENTOVERVNET                    = "1"
+    LOGGING_LEVEL                              = "10" # TODO: Remove after testing
 
     # Auth app settings
     AUTH_TYPE                 = "UserManagedIdentity"

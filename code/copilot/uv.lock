@@ -388,6 +388,7 @@ dependencies = [
     { name = "microsoft-agents-hosting-aiohttp" },
     { name = "microsoft-agents-hosting-core" },
     { name = "microsoft-agents-hosting-fastapi" },
+    { name = "microsoft-agents-hosting-teams" },
     { name = "microsoft-agents-storage-cosmos" },
     { name = "openai-agents" },
     { name = "opentelemetry-instrumentation-aiohttp-client" },
@@ -411,6 +412,7 @@ requires-dist = [
     { name = "microsoft-agents-hosting-aiohttp", specifier = ">=0.6.1" },
     { name = "microsoft-agents-hosting-core", specifier = ">=0.6.1" },
     { name = "microsoft-agents-hosting-fastapi", specifier = ">=0.6.1" },
+    { name = "microsoft-agents-hosting-teams", specifier = ">=0.6.1" },
     { name = "microsoft-agents-storage-cosmos", specifier = ">=0.6.1" },
     { name = "openai-agents", specifier = ">=0.6.1" },
     { name = "opentelemetry-instrumentation-aiohttp-client", specifier = ">=0.59b0" },
@@ -1104,6 +1106,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f4/b1/1fa03d151e86a22732df72de7b5e61c0e7263110978e439f8e41c52c5cc0/microsoft_agents_hosting_fastapi-0.6.1.tar.gz", hash = "sha256:a836c6af3016cfff76fff41545c2bdc28e391519c8d238d0961b9f29f9b71f7f", size = 10846, upload-time = "2025-12-01T21:22:25.947Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/48/7a/27e5582ba3fa7a78747ed4e53fa1555ebff63a5fe91fa3fd404c21543eb2/microsoft_agents_hosting_fastapi-0.6.1-py3-none-any.whl", hash = "sha256:2b03ef706d5bc4bf9963b6590d9cc1bc23777960d00ab3ee948d9872b08609ba", size = 14247, upload-time = "2025-12-01T21:22:35.312Z" },
+]
+
+[[package]]
+name = "microsoft-agents-hosting-teams"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "microsoft-agents-hosting-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/bb/df5dd31a8cdab424039e9e4d7b983bab6e6ea00496d2ed1097659e97d73b/microsoft_agents_hosting_teams-0.6.1.tar.gz", hash = "sha256:628742da46d598ff19122b6cac9011943e857826f1edc10473ff0613089b7734", size = 13790, upload-time = "2025-12-01T21:22:27.295Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bf/a0/8522c8fb519583f0fe8eeb9c5447d9d0c304ad27f4b4f2cb64df75ec1196/microsoft_agents_hosting_teams-0.6.1-py3-none-any.whl", hash = "sha256:a49526a8c2b47483d28afac0155b5d1b9f714301983a86eb757ee2c73255ba4e", size = 12840, upload-time = "2025-12-01T21:22:36.171Z" },
 ]
 
 [[package]]

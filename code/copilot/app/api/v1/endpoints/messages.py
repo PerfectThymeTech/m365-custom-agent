@@ -1,10 +1,10 @@
 from typing import Any
 
-from app.auth import auth_settings
+from app.auth import auth_settings, validate_is_valid_user
 from app.copilot.activities_msteams import on_message  # noqa: F401
 from app.copilot.copilot import copilot_apps
 from app.logs import setup_logging
-from fastapi import APIRouter, Request, Security
+from fastapi import APIRouter, Request, Security, Depends
 from microsoft_agents.hosting.fastapi import start_agent_process
 
 logger = setup_logging(__name__)
@@ -16,13 +16,17 @@ router = APIRouter()
     "/message",
     response_model=Any,
     name="message",
-    dependencies=[Security(auth_settings)],
+    # dependencies=[Depends(validate_is_valid_user)],
 )
 async def post_message(request: Request) -> Any:
     """
     Heartbeat endpoint to verify service is alive.
     """
     logger.info(f"Received message")
+
+    # Get headers
+    headers = request.headers
+    logger.debug(f"Headers: {headers}")
 
     # Get payload
     payload = await request.json()

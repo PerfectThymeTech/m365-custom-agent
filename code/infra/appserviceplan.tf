@@ -11,7 +11,7 @@ module "app_service_plan" {
   service_plan_maximum_elastic_worker_count = null
   service_plan_os_type                      = "Linux"
   service_plan_per_site_scaling_enabled     = false
-  service_plan_sku_name                     = "P0V4"
+  service_plan_sku_name                     = "P0v3" # TODO: Update to V4 Plan
   service_plan_worker_count                 = 1
   service_plan_zone_balancing_enabled       = false
   diagnostics_configurations                = local.diagnostics_configurations

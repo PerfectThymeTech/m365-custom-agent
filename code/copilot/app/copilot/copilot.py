@@ -11,6 +11,7 @@ from microsoft_agents.hosting.core import (
     Authorization,
     MemoryStorage,
     TurnState,
+    UserState,
 )
 from microsoft_agents.hosting.core.storage import TranscriptLoggerMiddleware
 from microsoft_agents.hosting.fastapi import CloudAdapter
@@ -105,6 +106,9 @@ def get_copilot_app(
         use_cache=True,
         **config,
     )
+
+    # Configure user state
+    user_state = UserState(storage=storage)
 
     # Create agent application
     logger.info("Creating AgentApplication for Copilot")

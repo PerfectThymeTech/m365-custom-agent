@@ -7,7 +7,8 @@ from app.core.settings import settings
 from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from microsoft_agents.activity import ActivityTypes, ConversationUpdateTypes
-from microsoft_agents.hosting.core import TurnContext, TurnState
+from microsoft_agents.hosting.core import TurnContext, TurnState, OAuthFlow
+from microsoft_agents.hosting.teams import TeamsActivityHandler
 
 logger = setup_logging(__name__)
 
@@ -37,6 +38,7 @@ async def on_members_added(context: TurnContext, state: TurnState) -> None:
     :type state: TurnState
     :return: None
     """
+    token_response = await self.oauth_flow.continue_flow(turn_context)
     await context.send_activity(
         "Welcome to the Large File Processing agent! "
         "This agent helps you to reason over large PDF files."

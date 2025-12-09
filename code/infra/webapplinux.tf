@@ -76,12 +76,11 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_setting_linux_web_app"
     }
   }
 
-  dynamic "metric" {
+  dynamic "enabled_metric" {
     iterator = entry
     for_each = data.azurerm_monitor_diagnostic_categories.diagnostic_categories_linux_web_app.metrics
     content {
       category = entry.value
-      enabled  = true
     }
   }
 }
