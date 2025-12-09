@@ -46,7 +46,9 @@ To get started with the reference implementation, follow these steps:
     source venv/bin/activate
     ```
 
-4. **Set Environment Variables**: Create a `.env` file in the `code/copilot` directory based on the `.env.TEMPLATE` file and fill in the required values.
+4. **Set Environment Variables**:
+
+    Create a `.env` file in the `code/copilot` directory based on the `.env.TEMPLATE` file and fill in the required values.
 
 5. **Run the Backend Application**:
 
