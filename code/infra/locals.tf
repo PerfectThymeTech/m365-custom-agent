@@ -20,12 +20,14 @@ locals {
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     SCM_DO_BUILD_DURING_DEPLOYMENT             = "1"
     WEBSITE_CONTENTOVERVNET                    = "1"
+    LOGGING_LEVEL                              = "10"
 
     # Auth app settings
-    AUTH_TYPE                 = "UserManagedIdentity"
+    AUTH_TYPE                 = "FederatedCredentials" # "UserManagedIdentity"
     TENANT_ID                 = data.azurerm_client_config.current.tenant_id
-    CLIENT_ID                 = module.user_assigned_identity.user_assigned_identity_client_id
-    AAD_OAUTH_CONNECTION_NAME = local.bot_connection_aadv2_oauth_name
+    CLIENT_ID                 = var.bot_oauth_client_id
+    FEDERATED_CLIENT_ID       = data.azurerm_user_assigned_identity.user_assigned_identity.client_id
+    AAD_OAUTH_CONNECTION_NAME = local.bot_connection_aadv2_federated_credentials_name
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
@@ -67,6 +69,11 @@ locals {
     resource_group_name = split("/", var.log_analytics_workspace_id)[4]
     name                = split("/", var.log_analytics_workspace_id)[8]
   }
+  user_assigned_identity = {
+    subscription_id     = split("/", var.user_assigned_identity_id)[2]
+    resource_group_name = split("/", var.user_assigned_identity_id)[4]
+    name                = split("/", var.user_assigned_identity_id)[8]
+  }
 
   # Storage locals
   storage_account_container_raw_name     = "raw"
@@ -84,8 +91,8 @@ locals {
   customer_managed_key = null
 
   # Other locals
-  instructions_document_agent_path          = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
-  instructions_suggested_actions_agent_path = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
-  cosmosdb_sql_container_name               = "bot-data"
-  bot_connection_aadv2_oauth_name           = "aadv2-oauth"
+  instructions_document_agent_path                = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
+  instructions_suggested_actions_agent_path       = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
+  cosmosdb_sql_container_name                     = "bot-data"
+  bot_connection_aadv2_federated_credentials_name = "aadv2-federated-credentials"
 }

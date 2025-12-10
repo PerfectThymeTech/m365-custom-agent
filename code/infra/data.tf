@@ -22,6 +22,11 @@ data "azurerm_log_analytics_workspace" "log_analytics_workspace" {
   resource_group_name = local.log_analytics_workspace.resource_group_name
 }
 
+data "azurerm_user_assigned_identity" "user_assigned_identity" {
+  name                = local.user_assigned_identity.name
+  resource_group_name = local.user_assigned_identity.resource_group_name
+}
+
 data "local_file" "file_instructions_document_agent" {
   filename = local.instructions_document_agent_path
 }

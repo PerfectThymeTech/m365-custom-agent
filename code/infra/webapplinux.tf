@@ -6,7 +6,8 @@ resource "azurerm_linux_web_app" "linux_web_app" {
   identity {
     type = "UserAssigned"
     identity_ids = [
-      module.user_assigned_identity.user_assigned_identity_id
+      module.user_assigned_identity.user_assigned_identity_id,
+      data.azurerm_user_assigned_identity.user_assigned_identity.id,
     ]
   }
 

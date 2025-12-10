@@ -2,7 +2,9 @@ resource "time_rotating" "expiration" {
   rotation_days = 180
 }
 
-resource "random_uuid" "uuid_application_app_role" {}
+resource "random_uuid" "uuid_application_api_oauth2_permission_scope_id" {}
+
+resource "random_uuid" "uuid_application_federated_identity_credential_oauth" {}
 
 resource "azuread_application" "application" {
   count = var.entra_application_enabled ? 1 : 0
@@ -16,10 +18,19 @@ resource "azuread_application" "application" {
   prevent_duplicate_names       = true
   sign_in_audience              = "AzureADMyOrg"
 
-  password {
-    display_name = "bot-login"
-    start_date   = time_rotating.expiration.id
-    end_date     = timeadd(time_rotating.expiration.id, "4320h")
+  api {
+    mapped_claims_enabled = false
+
+    oauth2_permission_scope {
+      admin_consent_description  = "Teams can call the app's web APIs as the current user."
+      admin_consent_display_name = "Teams can access user profile"
+      enabled                    = true
+      id                         = random_uuid.uuid_application_api_oauth2_permission_scope_id.result
+      type                       = "User"
+      user_consent_description   = "Teams can access the user profile and make requests on behalf of the user."
+      user_consent_display_name  = "Teams can access user profile"
+      value                      = "access_as_user"
+    }
   }
   required_resource_access {
     resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
@@ -43,9 +54,53 @@ resource "azuread_application" "application" {
   web {
     redirect_uris = [
       local.redirect_uris[var.data_residency],
-      # "https://login.microsoftonline.com",
     ]
   }
+}
+
+resource "azuread_application_identifier_uri" "application_identifier_uri" {
+  count = var.entra_application_enabled ? 1 : 0
+
+  application_id = one(azuread_application.application[*].id)
+
+  identifier_uri = "api://botid-${one(azuread_application.application[*].client_id)}"
+}
+
+resource "azuread_application_pre_authorized" "application_pre_authorized" {
+  for_each = var.entra_application_enabled ? toset(local.application_known_client_applications) : toset([])
+
+  application_id       = one(azuread_application.application[*].id)
+  authorized_client_id = each.value
+
+  permission_ids = [random_uuid.uuid_application_api_oauth2_permission_scope_id.result]
+
+  depends_on = [
+    azuread_application_identifier_uri.application_identifier_uri,
+  ]
+}
+
+resource "azuread_application_federated_identity_credential" "application_federated_identity_credential_bot" {
+  count = var.entra_application_enabled ? 1 : 0
+
+  application_id = one(azuread_application.application[*].id)
+
+  audiences    = ["api://AzureADTokenExchange"]
+  description  = "Federated credential using user assigned managed identity."
+  display_name = "BotAppFederatedIdentityCredential"
+  issuer       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
+  subject      = module.user_assigned_identity.user_assigned_identity_principal_id
+}
+
+resource "azuread_application_federated_identity_credential" "application_federated_identity_credential_oauth" {
+  count = var.entra_application_enabled ? 1 : 0
+
+  application_id = one(azuread_application.application[*].id)
+
+  audiences    = ["api://AzureADTokenExchange"]
+  description  = "Federated credential for OAuth app."
+  display_name = "OauthAppFederatedIdentityCredential"
+  issuer       = "https://login.microsoftonline.com/${data.azuread_client_config.current.tenant_id}/v2.0"
+  subject      = "/eid1/c/pub/t/${var.encoded_tenant_id}/a/${local.base64_encoded_first_party_app_ids.bot_service_token_store}/${random_uuid.uuid_application_federated_identity_credential_oauth.result}"
 }
 
 resource "azuread_service_principal" "service_principal" {
@@ -58,7 +113,7 @@ resource "azuread_service_principal" "service_principal" {
   alternative_names            = []
   app_role_assignment_required = false
   description                  = "Service Principal for AAD Auth."
-  notes                        = "Service Principal for AAD in teh Bot Frameowork."
+  notes                        = "Service Principal for AAD in the Bot Framework."
   owners = [
     data.azuread_client_config.current.object_id
   ]

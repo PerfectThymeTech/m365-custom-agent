@@ -16,10 +16,10 @@ module "bot_service" {
     key     = null
   }
   bot_service_microsoft_app = {
-    app_id        = module.user_assigned_identity.user_assigned_identity_client_id
-    app_msi_id    = module.user_assigned_identity.user_assigned_identity_id
-    app_tenant_id = module.user_assigned_identity.user_assigned_identity_tenant_id
-    app_type      = "UserAssignedMSI"
+    app_id        = var.bot_oauth_client_id
+    app_msi_id    = null
+    app_tenant_id = data.azurerm_client_config.current.tenant_id
+    app_type      = "SingleTenant"
   }
   bot_service_sku                              = "S1"
   bot_service_icon_url                         = "https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png"
@@ -35,21 +35,41 @@ module "bot_service" {
   customer_managed_key                         = local.customer_managed_key
 }
 
-resource "azurerm_bot_connection" "bot_connection_aadv2_oauth" {
-  count = var.bot_oauth_client_id != "" && var.bot_oauth_client_secret != "" ? 1 : 0
+resource "azapi_resource" "bot_connection_aadv2_federated_credentials" {
+  count = var.bot_oauth_client_id != "" && var.bot_oauth_unique_identifier != "" && var.bot_oauth_token_exchange_url != "" ? 1 : 0
 
-  name                = local.bot_connection_aadv2_oauth_name
-  bot_name            = module.bot_service.bot_service_name
-  location            = "global"
-  resource_group_name = azurerm_resource_group.resource_group_consumption.name
+  type      = "Microsoft.BotService/botServices/connections@2023-09-15-preview"
+  parent_id = module.bot_service.bot_service_id
+  name      = local.bot_connection_aadv2_federated_credentials_name
+  location  = "global"
 
-  client_id     = var.bot_oauth_client_id
-  client_secret = var.bot_oauth_client_secret
-  parameters = {
-    "tenantId" = data.azurerm_client_config.current.tenant_id
+  body = {
+    kind = "azurebot"
+    properties = {
+      clientId     = var.bot_oauth_client_id
+      clientSecret = null
+      parameters = [
+        {
+          key   = "ClientId"
+          value = var.bot_oauth_client_id
+        },
+        {
+          key   = "UniqueIdentifier"
+          value = var.bot_oauth_unique_identifier
+        },
+        {
+          key   = "TokenExchangeUrl"
+          value = var.bot_oauth_token_exchange_url
+        },
+        {
+          key   = "TenantId"
+          value = data.azurerm_client_config.current.tenant_id
+        },
+      ]
+      serviceProviderId = "c00b44ab-5e16-c44c-af26-2fd5bc55eb18" # Aadv2WithFic
+      scopes            = join(" ", var.bot_oauth_scopes)
+    }
   }
-  service_provider_name = "Aadv2" # supported = wunderlist,google,pinterest,appFigures,facebook,SkypeForBusiness,outlook,SharePointOnline,Aadb2c,Aadv2,Aadv2WithCerts,FactSet,linkedin,trello,SharepointServer,oauth2,slack,zendesk,DynamicsCrmOnline,Aad,smartsheet,flickr,Office365,onedrive,basecamp,instagram,mailchimp,Office365User,echosign,live,oauth2generic,spotify,tumblr,AWeber,marketo,dropbox,box,yammer,intuit,uservoice,salesforce,todoist,github,docusign,stripe,bitly,lithium,sugarcrm
-  scopes                = join(" ", var.bot_oauth_scopes)
 }
 
 resource "azurerm_bot_channel_ms_teams" "bot_channel_ms_teams" {

@@ -62,6 +62,13 @@ variable "entra_application_enabled" {
   default     = false
 }
 
+variable "encoded_tenant_id" {
+  description = "Specifies the encoded tenant ID."
+  type        = string
+  sensitive   = false
+  nullable    = false
+}
+
 variable "virtual_network_address_space" {
   description = "Specifies the virtual network address space."
   type        = string

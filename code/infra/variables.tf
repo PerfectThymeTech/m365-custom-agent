@@ -57,18 +57,59 @@ variable "bot_oauth_client_id" {
   description = "Specifies the client id of the Entra ID oauth app."
   type        = string
   sensitive   = true
+  default     = ""
 }
 
-variable "bot_oauth_client_secret" {
-  description = "Specifies the client secret of the Entra ID oauth app."
+variable "bot_oauth_unique_identifier" {
+  description = "Specifies the unique identifier of the Entra ID oauth app."
   type        = string
-  sensitive   = true
+  sensitive   = false
+  default     = ""
+}
+
+variable "bot_oauth_token_exchange_url" {
+  description = "Specifies the token exchange url of the Entra ID oauth app."
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
+variable "bot_oauth_federated_client_id" {
+  description = "Specifies the federated client id of the Entra ID oauth app."
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
+variable "bot_oauth_federated_credential_issuer" {
+  description = "Specifies the federated credential issuer of the Entra ID oauth app."
+  type        = string
+  sensitive   = false
+  default     = ""
+}
+
+variable "bot_oauth_federated_credential_value" {
+  description = "Specifies the federated credential value of the Entra ID oauth app."
+  type        = string
+  sensitive   = false
+  default     = ""
 }
 
 variable "bot_oauth_scopes" {
   description = "Specifies the scopes of the Entra ID oauth app."
   type        = list(string)
   sensitive   = false
+  default     = []
+}
+
+variable "user_assigned_identity_id" {
+  description = "Specifies the resource ID of the user assigned identity used for SSO with federated credentials."
+  type        = string
+  sensitive   = false
+  validation {
+    condition     = length(split("/", var.user_assigned_identity_id)) == 9
+    error_message = "Please specify a valid resource ID."
+  }
 }
 
 # Logging variables
