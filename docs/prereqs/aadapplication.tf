@@ -19,9 +19,7 @@ resource "azuread_application" "application" {
   sign_in_audience              = "AzureADMyOrg"
 
   api {
-    mapped_claims_enabled          = false
-    # requested_access_token_version = 2
-    # known_client_applications      = local.application_known_client_applications
+    mapped_claims_enabled = false
 
     oauth2_permission_scope {
       admin_consent_description  = "Teams can call the app's web APIs as the current user."

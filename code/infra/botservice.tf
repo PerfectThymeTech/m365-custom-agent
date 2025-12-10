@@ -50,19 +50,19 @@ resource "azapi_resource" "bot_connection_aadv2_federated_credentials" {
       clientSecret = null
       parameters = [
         {
-          key = "ClientId"
+          key   = "ClientId"
           value = var.bot_oauth_client_id
         },
         {
-          key = "UniqueIdentifier"
+          key   = "UniqueIdentifier"
           value = var.bot_oauth_unique_identifier
         },
         {
-          key = "TokenExchangeUrl"
+          key   = "TokenExchangeUrl"
           value = var.bot_oauth_token_exchange_url
         },
         {
-          key = "TenantId"
+          key   = "TenantId"
           value = data.azurerm_client_config.current.tenant_id
         },
       ]
