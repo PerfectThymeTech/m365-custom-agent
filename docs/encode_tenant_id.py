@@ -10,7 +10,9 @@ def encode_tenant_id_to_base64_url(tenant_id):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Encode a tenant id to base64 URL-safe format.")
+    parser = argparse.ArgumentParser(
+        description="Encode a tenant id to base64 URL-safe format."
+    )
     parser.add_argument("--tenant_id", type=str, help="The tenant ID to encode.")
     args = parser.parse_args()
     return args
