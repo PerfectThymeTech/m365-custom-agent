@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     FEDERATED_CLIENT_ID: Optional[str] = None
     FEDERATED_TOKEN_FILE: Optional[str] = None
     SCOPES: list[str] = ["https://api.botframework.com/.default"]
+    AAD_OAUTH_CONNECTION_NAME: Optional[str] = None
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str

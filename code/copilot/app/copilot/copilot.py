@@ -112,6 +112,7 @@ def get_copilot_app(
         authorization=authorization,
         adapter=cloud_adapter,
         storage=storage,
+        **config,
     )
     return agent_app
 
@@ -145,6 +146,25 @@ def get_copilot_apps(
     }
 
 
+def get_auth_handlers() -> list[str]:
+    """
+    Get the authentication handlers for the copilot app.
+
+    :return: A list of authentication handler names.
+    :rtype: list[str]
+    """
+    logger.info("Getting authentication handlers for Copilot")
+    auth_handlers = []
+    if settings.AAD_OAUTH_CONNECTION_NAME:
+        auth_handlers.append("GRAPH")
+
+    if len(auth_handlers) > 0:
+        return auth_handlers
+    return None
+
+
+# Initialize Copilot components
 config = get_copilot_configuration_as_dict()
 connection_manager = get_copilot_connection_manager(config=config)
 copilot_apps = get_copilot_apps(config=config, connection_manager=connection_manager)
+auth_handlers = get_auth_handlers()
