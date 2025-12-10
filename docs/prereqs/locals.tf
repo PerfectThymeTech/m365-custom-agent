@@ -11,6 +11,21 @@ locals {
 
   # AAD App locals
   application_name = "${local.prefix}-bot-oauth"
+  application_known_client_applications = [
+    "1fec8e78-bce4-4aaf-ab1b-5451cc387264", # Teams mobile or desktop application
+    "5e3ce6c0-2b1f-4285-8d4b-75ee78787346", # Teams web application
+    "4765445b-32c6-49b0-83e6-1d93765276ca", # Microsoft 365 web application
+    "0ec893e0-5785-4de6-99da-4ed124e5296c", # Microsoft 365 desktop application
+    "d3590ed6-52b3-4102-aeff-aad2292ab01c", # Microsoft 365 mobile application/Outlook desktop application
+    "bc59ab01-8403-45c6-8796-ac3ef710b3e3", # Outlook web application
+    "27922004-5251-4030-b22d-91ecd9a37ea4", # Outlook mobile application
+  ]
+  application_client_id                   = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : ""
+  application_unique_identifier           = var.entra_application_enabled ? random_uuid.uuid_application_federated_identity_credential_oauth.result : ""
+  application_token_exchange_url          = var.entra_application_enabled ? one(azuread_application_identifier_uri.application_identifier_uri[*].identifier_uri) : ""
+  application_federated_client_id         = var.entra_application_enabled ? module.user_assigned_identity.user_assigned_identity_client_id : ""
+  application_federated_credential_issuer = var.entra_application_enabled ? one(azuread_application_federated_identity_credential.application_federated_identity_credential_oauth[*].issuer) : ""
+  application_federated_credential_value  = var.entra_application_enabled ? one(azuread_application_federated_identity_credential.application_federated_identity_credential_oauth[*].subject) : ""
   redirect_uris = {
     none   = "https://token.botframework.com/.auth/web/redirect"
     europe = "https://europe.token.botframework.com/.auth/web/redirect"
@@ -18,8 +33,10 @@ locals {
     india  = "https://india.token.botframework.com/.auth/web/redirect"
     gov    = "https://token.botframework.azure.us/.auth/web/redirect"
   }
-  application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : ""
-  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : ""
+  base64_encoded_first_party_app_ids = {
+    bot_service_token_store  = "9ExAW52n_ky4ZiS_jhpJIQ"
+    bot_framework_dev_portal = "ND1y8_Vv60yhSNmdzSUR_A"
+  } # Reference: https://learn.microsoft.com/en-us/microsoft-365/agents-sdk/azure-bot-user-authorization-federated-credentials
 
   # DNS variables
   private_dns_zone_names = {
@@ -47,16 +64,21 @@ prefix          = "${var.prefix}"
 tags            = {}
 
 # Service variables
-web_app_app_settings    = {}
-web_app_code_path       = "../copilot"
-bot_oauth_client_id     = "${local.application_client_id}"
-bot_oauth_client_secret = "${local.application_password}"
+web_app_app_settings                  = {}
+web_app_code_path                     = "../copilot"
+bot_oauth_client_id                   = "${local.application_client_id}"
+bot_oauth_unique_identifier           = "${local.application_unique_identifier}"
+bot_oauth_token_exchange_url          = "${local.application_token_exchange_url}"
+bot_oauth_federated_client_id         = "${local.application_federated_client_id}"
+bot_oauth_federated_credential_issuer = "${local.application_federated_credential_issuer}"
+bot_oauth_federated_credential_value  = "${local.application_federated_credential_value}"
 bot_oauth_scopes = [
   "openid",
   "profile",
   "User.Read",
   "User.ReadBasic.All",
 ]
+user_assigned_identity_id = "${module.user_assigned_identity.user_assigned_identity_id}"
 
 # Logging variables
 log_analytics_workspace_id = "${module.log_analytics_workspace.log_analytics_workspace_id}"

@@ -37,12 +37,6 @@ output "application_client_id" {
   value       = local.application_client_id
 }
 
-output "application_password" {
-  description = "Specifies the application client secret."
-  sensitive   = true
-  value       = local.application_password
-}
-
 output "application_tenant_id" {
   description = "Specifies the application tenant id."
   sensitive   = true
