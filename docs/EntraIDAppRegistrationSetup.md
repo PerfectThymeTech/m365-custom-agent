@@ -40,7 +40,7 @@ This document provides step-by-step instructions to set up an Entra ID App Regis
     Open the [Microsoft Learn Page which walks you through the configuration of the new app registration](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/authentication/bot-sso-register-aad?tabs=windows#enable-sso-in-microsoft-entra-id). Please consider the following notes:
 
     - When configuring the authorized client applications, make sure you at least add the app id for the Teams mobile and desktop application and the Teams web application.
-    - You do NOT have to configure the redirect URL of your app again. You already completed this in step 3.
+    - You do **NOT** have to configure the redirect URL of your app again. You already completed this in step 3.
     - Do **NOT** configure the messaging endpoint for your bot resource as this will be take care of by the Terraform deployment.
     - Do **NOT** configure the OAuth connection for your bot resource in the Azure Portal. The Terraform deployment will take care of that.
 
