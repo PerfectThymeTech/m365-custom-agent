@@ -25,7 +25,7 @@ locals {
     AUTH_TYPE                 = "UserManagedIdentity"
     TENANT_ID                 = data.azurerm_client_config.current.tenant_id
     CLIENT_ID                 = module.user_assigned_identity.user_assigned_identity_client_id
-    AAD_OAUTH_CONNECTION_NAME = local.bot_connection_aadv2_oauth_name
+    AAD_OAUTH_CONNECTION_NAME = var.bot_oauth_client_id != "" && var.bot_oauth_client_secret != "" ? local.bot_connection_aadv2_oauth_name : ""
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
