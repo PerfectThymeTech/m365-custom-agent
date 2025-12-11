@@ -22,7 +22,8 @@ resource "azuread_application" "application" {
     end_date     = timeadd(time_rotating.expiration.id, "4320h")
   }
   api {
-    mapped_claims_enabled = false
+    mapped_claims_enabled          = false
+    requested_access_token_version = 2
 
     oauth2_permission_scope {
       admin_consent_description  = "Teams can call the app's web APIs as the current user."
