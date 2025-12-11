@@ -1,4 +1,6 @@
 resource "time_rotating" "expiration" {
+  count = var.entra_application_enabled ? 1 : 0
+
   rotation_days = 180
 }
 
@@ -18,8 +20,8 @@ resource "azuread_application" "application" {
 
   password {
     display_name = "bot-login"
-    start_date   = time_rotating.expiration.id
-    end_date     = timeadd(time_rotating.expiration.id, "4320h")
+    start_date   = one(time_rotating.expiration[*].id)
+    end_date     = timeadd(one(time_rotating.expiration[*].id), "4320h")
   }
   api {
     mapped_claims_enabled          = false
@@ -59,6 +61,12 @@ resource "azuread_application" "application" {
     redirect_uris = [
       local.redirect_uris[var.data_residency],
       # "https://login.microsoftonline.com",
+    ]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      identifier_uris
     ]
   }
 }
