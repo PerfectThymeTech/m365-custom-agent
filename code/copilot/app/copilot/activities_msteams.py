@@ -160,6 +160,7 @@ async def on_sign_in_success(
         f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'."
     )
 
+
 @copilot_apps["msteams"].on_turn
 async def on_turn(context: TurnContext, state: TurnState) -> None:
     """
