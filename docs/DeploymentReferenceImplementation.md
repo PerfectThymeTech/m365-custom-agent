@@ -33,8 +33,8 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     # Service variables
     web_app_app_settings    = {}
     web_app_code_path       = "../copilot"
-    bot_oauth_client_id     = ""
-    bot_oauth_client_secret = ""
+    bot_oauth_client_id     = "<your-bot-oauth-client-id>" # Only required if you want to enable SSO (recommended)
+    bot_oauth_client_secret = "<your-bot-oauth-client-secret>" # Only required if you want to enable SSO (recommended)
     bot_oauth_scopes = [
         "openid",
         "profile",
@@ -62,6 +62,8 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     private_dns_zone_id_cosmos_sql               = "/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Network/privateDnsZones/privatelink.documents.azure.com"
     private_dns_zone_id_blob                     = "/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
     ```
+
+    If you want to enable SSO for the bot, make sure to provide the `bot_oauth_client_id` and `bot_oauth_client_secret` values corresponding to your Entra ID App Registration. To configure the App Registration for SSO, refer to the [Entra ID App Registration Setup](/docs/EntraIDAppRegistrationSetup.md) document.
 
 3. **Update Terraform Backend Configuration**: Open the `terraform.tf` file and remove the following section:
 
