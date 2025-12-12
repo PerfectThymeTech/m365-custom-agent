@@ -131,12 +131,14 @@ class MSTeamsHandler(AbstractHandler):
                     context=context,
                     text=f"\n\nNote: I could see that you uploaded the following supported files: {supported_attachments_names}. However, I only support one document at a time. Only the first item has been added to the context (`{supported_attachments[0].name}`). You can upload a new file at any time to replace it. ",
                 )
+            
+            # Encode instructions with extracted data
+            instructions = settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\n{cleaned_data}"
+            compressed_instructions = FileExtractionClient.compress_string(instructions)
 
             # Update store item
             user_state_store_item.file_uploaded = True
-            user_state_store_item.instructions = (
-                settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\n{cleaned_data}"
-            )
+            user_state_store_item.instructions = compressed_instructions
         else:
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
@@ -180,12 +182,15 @@ class MSTeamsHandler(AbstractHandler):
             "Let me think about that... "
         )
 
+        # Decompress instructions before creating the agent
+        decompressed_instructions = FileExtractionClient.decompress_string(user_state_store_item.instructions)
+
         # Create agent
         agent = DocumentAgent(
             api_key=settings.AZURE_OPENAI_API_KEY,
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
-            instructions=user_state_store_item.instructions,
+            instructions=decompressed_instructions,
             reasoning_effort="none",
         )
 
