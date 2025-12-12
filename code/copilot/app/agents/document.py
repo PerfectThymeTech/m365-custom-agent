@@ -4,7 +4,7 @@ from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from app.logs import setup_logging
 from microsoft_agents.hosting.core import TurnContext, TurnState
-from openai import AsyncOpenAI, BadRequestError
+from openai import AsyncOpenAI, BadRequestError, APIError
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
 
@@ -81,10 +81,20 @@ class DocumentAgent:
                     context.streaming_response.queue_text_chunk(event.data.delta)
                     response += event.data.delta
         except BadRequestError as e:
-            logger.error(f"Error generating agent response: {e.message}")
+            logger.error(f"Error generating agent response: {e.message}, code: {e.code}")
 
             if e.code == "string_above_max_length":
                 response_error = "[Error]: The document is too large for me to process. Please upload a smaller document."
+
+                # Add message to inform user
+                context.streaming_response.queue_text_chunk(response_error)
+
+            raise e
+        except APIError as e:
+            logger.error(f"API Error generating agent response: {e.message}, code: {e.code}")
+
+            if True: # TODO: Define Code (e.g. e.code == "string_above_max_length")
+                response_error = "The request is too large. Please rephrase your question or upload a smaller document."
 
                 # Add message to inform user
                 context.streaming_response.queue_text_chunk(response_error)
