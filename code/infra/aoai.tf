@@ -24,14 +24,14 @@ module "azure_open_ai" {
   customer_managed_key                                    = local.customer_managed_key
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_1" {
-  name                 = "gpt-5.1"
+resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_2" {
+  name                 = "gpt-5.2"
   cognitive_account_id = module.azure_open_ai.cognitive_account_id
 
   model {
     format  = "OpenAI"
-    name    = "gpt-5.1"
-    version = "2025-11-13"
+    name    = "gpt-5.2"
+    version = "2025-12-11"
   }
   sku {
     capacity = 250
