@@ -7,6 +7,7 @@ This document provides step-by-step instructions to deploy the Microsoft 365 Cus
 Before proceeding with the deployment, ensure that you have completed the steps outlined in the following documents:
 - [Deployment Prerequisites](/docs/DeploymentPrerequisites.md)
 - [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md)
+- Request access to GPT 5.2 by [submitting this form](https://customervoice.microsoft.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR7en2Ais5pxKtso_Pz4b1_xUQ1VGQUEzRlBIMVU2UFlHSFpSNkpOR0paRSQlQCN0PWcu).
 
 ## Deployment Steps
 
