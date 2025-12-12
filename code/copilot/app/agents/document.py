@@ -2,10 +2,13 @@ from typing import Tuple
 
 from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
+from app.logs import setup_logging
 from microsoft_agents.hosting.core import TurnContext, TurnState
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, BadRequestError
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
+
+logger = setup_logging(__name__)
 
 
 class DocumentAgent:
@@ -70,12 +73,23 @@ class DocumentAgent:
 
         # Return the streamed response
         response = ""
-        async for event in result.stream_events():
-            if event.type == "raw_response_event" and isinstance(
-                event.data, ResponseTextDeltaEvent
-            ):
-                context.streaming_response.queue_text_chunk(event.data.delta)
-                response += event.data.delta
+        try:
+            async for event in result.stream_events():
+                if event.type == "raw_response_event" and isinstance(
+                    event.data, ResponseTextDeltaEvent
+                ):
+                    context.streaming_response.queue_text_chunk(event.data.delta)
+                    response += event.data.delta
+        except BadRequestError as e:
+            logger.error(f"Error generating agent response: {e.message}")
+
+            if e.code == "string_above_max_length":
+                response_error = "[Error]: The document is too large for me to process. Please upload a smaller document."
+
+                # Add message to inform user
+                context.streaming_response.queue_text_chunk(response_error)
+
+            raise e
 
         # Return last response id and the full response
         return result.last_response_id, response
