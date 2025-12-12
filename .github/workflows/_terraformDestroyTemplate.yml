@@ -102,12 +102,12 @@ jobs:
         env:
           CONFIG: ${{ inputs.config }}
 
-      # Terraform Destroy
-      - name: Terraform Destroy
-        working-directory: ${{ inputs.working_directory }}
-        run: |
-          terraform apply -var-file="../../config/${CONFIG}/vars.tfvars" -auto-approve -input=false -destroy
-        env:
-          CONFIG: ${{ inputs.config }}
-          TF_VAR_bot_oauth_client_id: ${{ secrets.BOT_OAUTH_CLIENT_ID }}
-          TF_VAR_bot_oauth_client_secret: ${{ secrets.BOT_OAUTH_CLIENT_SECRET }}
+      # # Terraform Destroy
+      # - name: Terraform Destroy
+      #   working-directory: ${{ inputs.working_directory }}
+      #   run: |
+      #     terraform apply -var-file="../../config/${CONFIG}/vars.tfvars" -auto-approve -input=false -destroy
+      #   env:
+      #     CONFIG: ${{ inputs.config }}
+      #     TF_VAR_bot_oauth_client_id: ${{ secrets.BOT_OAUTH_CLIENT_ID }}
+      #     TF_VAR_bot_oauth_client_secret: ${{ secrets.BOT_OAUTH_CLIENT_SECRET }}
