@@ -25,6 +25,12 @@ async def on_error(context: TurnContext, error: Exception) -> None:
     """
     await MSTeamsHandler.handle_error_response(context=context, error=error)
 
+    # End response stream if active
+    try:
+        await context.streaming_response.end_stream()
+    except RuntimeError as e:
+        logger.info(f"Response stream has already ended: '{e}'")
+
 
 @copilot_apps["msteams"].activity(
     ConversationUpdateTypes.MEMBERS_ADDED, auth_handlers=auth_handlers
