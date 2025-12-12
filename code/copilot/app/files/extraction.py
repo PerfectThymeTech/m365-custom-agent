@@ -1,6 +1,6 @@
 import asyncio
-import json
 import base64
+import json
 import zlib
 
 import aiohttp
@@ -34,7 +34,7 @@ class FileExtractionClient:
     async def extract_data(self, file_url: str) -> dict:
         """
         Extract data from a document at the given URL.
-        
+
         :param self: The instance of the FileExtractionClient.
         :type self: FileExtractionClient
         :param file_url: The URL of the file to extract data from.
@@ -57,7 +57,7 @@ class FileExtractionClient:
     ) -> dict:
         """
         Extract data from a document at the given URL using specified features.
-        
+
         :param self: The instance of the FileExtractionClient.
         :type self: FileExtractionClient
         :param file_url: The URL of the file to extract data from.
@@ -93,7 +93,7 @@ class FileExtractionClient:
     def clean_extracted_data(self, data: dict) -> str:
         """
         Clean and minify the extracted data.
-        
+
         :param self: The instance of the FileExtractionClient.
         :type self: FileExtractionClient
         :param data: The data to clean.
@@ -144,12 +144,12 @@ class FileExtractionClient:
         cleaned_data_minified = json.dumps(cleaned_data, separators=(",", ":"))
 
         return cleaned_data_minified
-    
+
     @staticmethod
     def compress_string(input_string: str) -> str:
         """
         Compress a string using zlib and encode it with base64.
-        
+
         :param input_string: The string to compress.
         :type input_string: str
         :return: The compressed and base64-encoded string.
@@ -157,12 +157,12 @@ class FileExtractionClient:
         """
         compressed = zlib.compress(input_string.encode("utf-8"), level=9)
         return base64.b64encode(compressed).decode("utf-8")
-    
+
     @staticmethod
     def decompress_string(compressed_string: str) -> str:
         """
         Decompress a base64-encoded zlib-compressed string.
-        
+
         :param compressed_string: The compressed string to decompress.
         :type compressed_string: str
         :return: The decompressed string.
