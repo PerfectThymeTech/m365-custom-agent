@@ -25,6 +25,60 @@ class MSTeamsHandler(AbstractHandler):
     """
 
     @staticmethod
+    async def handle_commands(context: TurnContext, user_state_store_item: UserStateStoreItem):
+        """
+        Handle default commands.
+
+        :param context: The TurnContext object for the current turn.
+        :type context: TurnContext
+        :param user_state_store_item: The UserStateStoreItem object for the current user.
+        :type user_state_store_item: UserStateStoreItem
+        :return: The updated UserStateStoreItem object after processing the agent response and a string specifying whether a pre-defined command was processed.
+        :rtype: Tuple[UserStateStoreItem, bool]
+        """
+        # Define variable
+        command = False
+
+        # Define user prompt
+        user_prompt = (
+            context.activity.text
+            if context.activity.text
+            else get_html_from_attachment(attachments=context.activity.attachments)
+        )
+
+        match user_prompt.lower().strip():
+            case "/reset":
+                logger.info("Reset ('/reset') command detected.")
+
+                # Send informative update to user
+                context.streaming_response.queue_informative_update(
+                    "Resetting context... "
+                )
+
+                # Reset user state
+                user_state_store_item.file_uploaded = False
+                user_state_store_item.instructions = None
+                user_state_store_item.last_response_id = None
+                user_state_store_item.suggested_actions = {}
+
+                # Update user that we have 
+                await stream_string_in_chunks(
+                    context=context,
+                    text="Your conversation has been reset. You can start fresh now! Please upload a new file when you are ready to reason over the file.",
+                )
+
+                # Update command variable
+                command = True
+            case _:
+                logger.info("No command detected.")
+
+                # Update command variable
+                command = False
+        
+        return (user_state_store_item, command)
+
+
+    @staticmethod
     async def handle_attachments(
         context: TurnContext, user_state_store_item: UserStateStoreItem
     ) -> UserStateStoreItem:
@@ -174,8 +228,8 @@ class MSTeamsHandler(AbstractHandler):
         :type context: TurnContext
         :param user_state_store_item: The UserStateStoreItem object for the current user.
         :type user_state_store_item: UserStateStoreItem
-        :return: The updated UserStateStoreItem object after processing the agent response.
-        :rtype: UserStateStoreItem
+        :return: The updated UserStateStoreItem object after processing the agent response and the string response.
+        :rtype: Tuple[UserStateStoreItem, string]
         """
         # Send informative update to user
         context.streaming_response.queue_informative_update(
@@ -200,7 +254,7 @@ class MSTeamsHandler(AbstractHandler):
         user_prompt = (
             context.activity.text
             if context.activity.text
-            else get_html_from_attachment()
+            else get_html_from_attachment(attachments=context.activity.attachments)
         )
 
         # Check for suggested action prompt scenarios

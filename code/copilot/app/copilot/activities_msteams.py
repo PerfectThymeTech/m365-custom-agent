@@ -86,8 +86,13 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         target_cls=UserStateStoreItem,
     )
 
+    # Check for pre-defined command
+    user_state_store_item, command = await MSTeamsHandler.handle_commands(
+        context=context, user_state_store_item=user_state_store_item
+    )
+
     # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
-    if len(context.activity.attachments or []) > 1:
+    if not command and len(context.activity.attachments or []) > 1:
         # Handle attachments
         user_state_store_item = await MSTeamsHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
@@ -104,7 +109,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         )
 
     # Use agent to process user prompt if file is uploaded and instructions are set
-    elif user_state_store_item.file_uploaded and user_state_store_item.instructions:
+    elif not command and user_state_store_item.file_uploaded and user_state_store_item.instructions:
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item
@@ -180,38 +185,4 @@ async def on_turn(context: TurnContext, state: TurnState) -> None:
     """
     logger.info(
         f"Received activity of type: '{context.activity.type}' from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'."
-    )
-
-
-@copilot_apps["msteams"].message("/reset", auth_handlers=auth_handlers)
-async def on_reset_command(context: TurnContext, state: TurnState) -> None:
-    """
-    Handle the /reset command to reset the conversation.
-
-    :param context: The TurnContext object for the current turn.
-    :type context: TurnContext
-    :param state: The TurnState object for maintaining state across turns.
-    :type state: TurnState
-    :return: None
-    """
-    # Load user state
-    user_state_store_item: UserStateStoreItem = state.get_value(
-        name="ConversationState.user_state_store_item",
-        default_value_factory=lambda: UserStateStoreItem(),
-        target_cls=UserStateStoreItem,
-    )
-    # Reset user state
-    user_state_store_item.file_uploaded = False
-    user_state_store_item.instructions = None
-    user_state_store_item.last_response_id = None
-    user_state_store_item.suggested_actions = {}
-
-    # Save store item back to state
-    state.set_value(
-        path="ConversationState.user_state_store_item", value=user_state_store_item
-    )
-
-    # Send confirmation message
-    await context.send_activity(
-        "Your conversation has been reset. You can start fresh now!"
     )
