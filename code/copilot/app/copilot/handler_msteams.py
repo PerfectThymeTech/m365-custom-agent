@@ -25,7 +25,9 @@ class MSTeamsHandler(AbstractHandler):
     """
 
     @staticmethod
-    async def handle_commands(context: TurnContext, user_state_store_item: UserStateStoreItem):
+    async def handle_commands(
+        context: TurnContext, user_state_store_item: UserStateStoreItem
+    ):
         """
         Handle default commands.
 
@@ -61,7 +63,7 @@ class MSTeamsHandler(AbstractHandler):
                 user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
 
-                # Update user that we have 
+                # Update user that we have
                 await stream_string_in_chunks(
                     context=context,
                     text="Your conversation has been reset. You can start fresh now! Please upload a new file when you are ready to reason over the file.",
@@ -74,9 +76,8 @@ class MSTeamsHandler(AbstractHandler):
 
                 # Update command variable
                 command = False
-        
-        return (user_state_store_item, command)
 
+        return (user_state_store_item, command)
 
     @staticmethod
     async def handle_attachments(

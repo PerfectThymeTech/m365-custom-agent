@@ -111,7 +111,11 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         )
 
     # Use agent to process user prompt if file is uploaded and instructions are set
-    elif not command and user_state_store_item.file_uploaded and user_state_store_item.instructions:
+    elif (
+        not command
+        and user_state_store_item.file_uploaded
+        and user_state_store_item.instructions
+    ):
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item

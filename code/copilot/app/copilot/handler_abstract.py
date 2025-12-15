@@ -36,5 +36,7 @@ class AbstractHandler(ABC):
 
     @staticmethod
     @abstractmethod
-    async def handle_commands(context: TurnContext, user_state_store_item: UserStateStoreItem) -> Tuple[UserStateStoreItem, bool]:
+    async def handle_commands(
+        context: TurnContext, user_state_store_item: UserStateStoreItem
+    ) -> Tuple[UserStateStoreItem, bool]:
         pass
