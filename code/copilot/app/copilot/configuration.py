@@ -3,7 +3,7 @@ from app.models.copilot import (
     CopilotConfiguration,
     CopilotConnections,
     CopilotServiceConnection,
-    CopilotSettings,
+    CopilotServiceConnectionSettings,
 )
 from app.models.core import AuthorizationTypes
 
@@ -14,11 +14,11 @@ def get_copilot_configuration() -> CopilotConfiguration:
 
     RETURNS (CopilotConfiguration): The copilot configuration.
     """
-    copilot_settings = None
+    copilot_service_connection_settings = None
 
     match settings.AUTH_TYPE:
         case AuthorizationTypes.CLIENT_SECRET:
-            copilot_settings = CopilotSettings(
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
@@ -28,7 +28,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
             )
 
         case AuthorizationTypes.USER_MANAGED_IDENTITY:
-            copilot_settings = CopilotSettings(
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
@@ -36,13 +36,13 @@ def get_copilot_configuration() -> CopilotConfiguration:
             )
 
         case AuthorizationTypes.SYSTEM_MANAGED_IDENTITY:
-            copilot_settings = CopilotSettings(
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
                 auth_type=settings.AUTH_TYPE,
                 scopes=settings.SCOPES,
             )
 
         case AuthorizationTypes.FEDERATED_CREDENTIALS:
-            copilot_settings = CopilotSettings(
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
@@ -52,7 +52,7 @@ def get_copilot_configuration() -> CopilotConfiguration:
             )
 
         case AuthorizationTypes.WORKLOAD_IDENTITY:
-            copilot_settings = CopilotSettings(
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
                 auth_type=settings.AUTH_TYPE,
                 tenant_id=settings.TENANT_ID,
                 client_id=settings.CLIENT_ID,
@@ -68,6 +68,8 @@ def get_copilot_configuration() -> CopilotConfiguration:
         agent_application={},
         connections_map={},
         connections=CopilotConnections(
-            service_connection=CopilotServiceConnection(settings=copilot_settings)
+            service_connection=CopilotServiceConnection(
+                settings=copilot_service_connection_settings
+            )
         ),
     )

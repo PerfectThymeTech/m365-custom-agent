@@ -69,6 +69,11 @@ variable "bot_oauth_scopes" {
   description = "Specifies the scopes of the Entra ID oauth app."
   type        = list(string)
   sensitive   = false
+  default = [
+    "openid",
+    "profile",
+    "User.Read",
+  ]
 }
 
 # Logging variables

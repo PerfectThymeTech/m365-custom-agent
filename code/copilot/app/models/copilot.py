@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, field_serializer
 from pydantic.alias_generators import to_camel
 
 
-def copilot_settings_alias_generator(string: str) -> str:
+def copilot_service_connection_settings_alias_generator(string: str) -> str:
     return to_camel(string).upper()
 
 
@@ -21,7 +21,7 @@ def copilot_configuration_alias_generator(string: str) -> str:
     return to_camel(string).upper()
 
 
-class CopilotSettings(BaseModel):
+class CopilotServiceConnectionSettings(BaseModel):
     auth_type: AuthorizationTypes
     tenant_id: Optional[str] = None
     client_id: Optional[str] = None
@@ -32,13 +32,13 @@ class CopilotSettings(BaseModel):
     scopes: list[str]
 
     model_config = ConfigDict(
-        alias_generator=copilot_settings_alias_generator,
+        alias_generator=copilot_service_connection_settings_alias_generator,
         populate_by_name=True,
     )
 
 
 class CopilotServiceConnection(BaseModel):
-    settings: CopilotSettings
+    settings: CopilotServiceConnectionSettings
 
     model_config = ConfigDict(
         alias_generator=copilot_service_connection_alias_generator,

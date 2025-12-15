@@ -35,10 +35,10 @@ module "bot_service" {
   customer_managed_key                         = local.customer_managed_key
 }
 
-resource "azurerm_bot_connection" "bot_connection_aadv2_oauth" {
+resource "azurerm_bot_connection" "bot_connection_user_authorization_graph_oauth" {
   count = var.bot_oauth_client_id != "" && var.bot_oauth_client_secret != "" ? 1 : 0
 
-  name                = local.bot_connection_aadv2_oauth_name
+  name                = local.bot_connection_user_authorization_graph_oauth_name
   bot_name            = module.bot_service.bot_service_name
   location            = "global"
   resource_group_name = azurerm_resource_group.resource_group_consumption.name

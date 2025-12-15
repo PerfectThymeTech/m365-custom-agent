@@ -1,8 +1,10 @@
 resource "time_rotating" "expiration" {
+  count = var.entra_application_enabled ? 1 : 0
+
   rotation_days = 180
 }
 
-resource "random_uuid" "uuid_application_app_role" {}
+resource "random_uuid" "uuid_application_api_oauth2_permission_scope_id" {}
 
 resource "azuread_application" "application" {
   count = var.entra_application_enabled ? 1 : 0
@@ -10,7 +12,7 @@ resource "azuread_application" "application" {
   display_name = local.application_name
   description  = "Azure AD OAuth Bot App"
 
-  notes                         = "Some Notes"
+  notes                         = "Azure AD OAuth Bot App"
   oauth2_post_response_required = false
   owners                        = [data.azuread_client_config.current.object_id]
   prevent_duplicate_names       = true
@@ -18,8 +20,23 @@ resource "azuread_application" "application" {
 
   password {
     display_name = "bot-login"
-    start_date   = time_rotating.expiration.id
-    end_date     = timeadd(time_rotating.expiration.id, "4320h")
+    start_date   = one(time_rotating.expiration[*].id)
+    end_date     = timeadd(one(time_rotating.expiration[*].id), "4320h")
+  }
+  api {
+    mapped_claims_enabled          = false
+    requested_access_token_version = 2
+
+    oauth2_permission_scope {
+      admin_consent_description  = "Teams can call the app's web APIs as the current user."
+      admin_consent_display_name = "Teams can access user profile"
+      enabled                    = true
+      id                         = random_uuid.uuid_application_api_oauth2_permission_scope_id.result
+      type                       = "User"
+      user_consent_description   = "Teams can access the user profile and make requests on behalf of the user."
+      user_consent_display_name  = "Teams can access user profile"
+      value                      = "access_as_user"
+    }
   }
   required_resource_access {
     resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
@@ -46,6 +63,33 @@ resource "azuread_application" "application" {
       # "https://login.microsoftonline.com",
     ]
   }
+
+  lifecycle {
+    ignore_changes = [
+      identifier_uris
+    ]
+  }
+}
+
+resource "azuread_application_identifier_uri" "application_identifier_uri" {
+  count = var.entra_application_enabled ? 1 : 0
+
+  application_id = one(azuread_application.application[*].id)
+
+  identifier_uri = "api://botid-${one(azuread_application.application[*].client_id)}"
+}
+
+resource "azuread_application_pre_authorized" "application_pre_authorized" {
+  for_each = var.entra_application_enabled ? local.application_known_client_applications : {}
+
+  application_id       = one(azuread_application.application[*].id)
+  authorized_client_id = each.value
+
+  permission_ids = [random_uuid.uuid_application_api_oauth2_permission_scope_id.result]
+
+  depends_on = [
+    azuread_application_identifier_uri.application_identifier_uri,
+  ]
 }
 
 resource "azuread_service_principal" "service_principal" {
@@ -58,7 +102,7 @@ resource "azuread_service_principal" "service_principal" {
   alternative_names            = []
   app_role_assignment_required = false
   description                  = "Service Principal for AAD Auth."
-  notes                        = "Service Principal for AAD in teh Bot Frameowork."
+  notes                        = "Service Principal for AAD in the Bot Framework."
   owners = [
     data.azuread_client_config.current.object_id
   ]

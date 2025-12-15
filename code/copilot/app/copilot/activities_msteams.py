@@ -157,3 +157,19 @@ async def on_sign_in_success(
     logger.info(
         f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'."
     )
+
+
+@copilot_apps["msteams"].on_turn
+async def on_turn(context: TurnContext, state: TurnState) -> None:
+    """
+    Handle all turn activities.
+
+    :param context: The TurnContext object for the current turn.
+    :type context: TurnContext
+    :param state: The TurnState object for maintaining state across turns.
+    :type state: TurnState
+    :return: None
+    """
+    logger.info(
+        f"Received activity of type: '{context.activity.type}' from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'."
+    )

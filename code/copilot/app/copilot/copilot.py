@@ -112,6 +112,7 @@ def get_copilot_app(
         authorization=authorization,
         adapter=cloud_adapter,
         storage=storage,
+        **config,
     )
     return agent_app
 
