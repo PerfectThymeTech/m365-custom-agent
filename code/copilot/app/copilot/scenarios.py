@@ -34,7 +34,7 @@ class DocumentScenarioInstructions:
             - Discrepancies could include conflicting information, missing details, or any other irregularities.
 
             4. Create response
-            - Create a response accordiing to the response format below.
+            - Create a response according to the response format below.
 
             # Response Format
             - Provide the results in markdown format.

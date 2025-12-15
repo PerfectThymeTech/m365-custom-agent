@@ -1,6 +1,6 @@
 from app.copilot.action import SuggestedActionHandler
 from app.copilot.common import configure_context, get_suggested_actions_from_agent
-from app.copilot.copilot import copilot_apps
+from app.copilot.copilot import auth_handlers, copilot_apps
 from app.copilot.handler_msteams import MSTeamsHandler
 from app.copilot.scenarios import DocumentScenarios
 from app.core.settings import settings
@@ -25,8 +25,16 @@ async def on_error(context: TurnContext, error: Exception) -> None:
     """
     await MSTeamsHandler.handle_error_response(context=context, error=error)
 
+    # End response stream if active
+    try:
+        await context.streaming_response.end_stream()
+    except RuntimeError as e:
+        logger.info(f"Response stream has already ended: '{e}'")
 
-@copilot_apps["msteams"].activity(ConversationUpdateTypes.MEMBERS_ADDED)
+
+@copilot_apps["msteams"].activity(
+    ConversationUpdateTypes.MEMBERS_ADDED, auth_handlers=auth_handlers["default"]
+)
 async def on_members_added(context: TurnContext, state: TurnState) -> None:
     """
     Handle members added activities.
@@ -47,7 +55,9 @@ async def on_members_added(context: TurnContext, state: TurnState) -> None:
     return True
 
 
-@copilot_apps["msteams"].activity(ActivityTypes.message)
+@copilot_apps["msteams"].activity(
+    ActivityTypes.message, auth_handlers=auth_handlers["default"]
+)
 async def on_message(context: TurnContext, state: TurnState) -> None:
     """
     Handle incoming message activities.
@@ -78,8 +88,13 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         target_cls=UserStateStoreItem,
     )
 
+    # Check for pre-defined command
+    user_state_store_item, command = await MSTeamsHandler.handle_commands(
+        context=context, user_state_store_item=user_state_store_item
+    )
+
     # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
-    if len(context.activity.attachments or []) > 1:
+    if not command and len(context.activity.attachments or []) > 1:
         # Handle attachments
         user_state_store_item = await MSTeamsHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
@@ -96,7 +111,11 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         )
 
     # Use agent to process user prompt if file is uploaded and instructions are set
-    elif user_state_store_item.file_uploaded and user_state_store_item.instructions:
+    elif (
+        not command
+        and user_state_store_item.file_uploaded
+        and user_state_store_item.instructions
+    ):
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item
@@ -156,4 +175,20 @@ async def on_sign_in_success(
     """
     logger.info(
         f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'."
+    )
+
+
+@copilot_apps["msteams"].on_turn
+async def on_turn(context: TurnContext, state: TurnState) -> None:
+    """
+    Handle all turn activities.
+
+    :param context: The TurnContext object for the current turn.
+    :type context: TurnContext
+    :param state: The TurnState object for maintaining state across turns.
+    :type state: TurnState
+    :return: None
+    """
+    logger.info(
+        f"Received activity of type: '{context.activity.type}' from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'."
     )

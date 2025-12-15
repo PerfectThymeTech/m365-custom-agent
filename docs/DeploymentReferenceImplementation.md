@@ -7,6 +7,7 @@ This document provides step-by-step instructions to deploy the Microsoft 365 Cus
 Before proceeding with the deployment, ensure that you have completed the steps outlined in the following documents:
 - [Deployment Prerequisites](/docs/DeploymentPrerequisites.md)
 - [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md)
+- Request access to GPT 5.2 by [submitting this form](https://customervoice.microsoft.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR7en2Ais5pxKtso_Pz4b1_xUQ1VGQUEzRlBIMVU2UFlHSFpSNkpOR0paRSQlQCN0PWcu).
 
 ## Deployment Steps
 
@@ -18,7 +19,7 @@ Before proceeding with the deployment, ensure that you have completed the steps 
 
 2. **Update Terraform Variable File**:
 
-    1. If you have used the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md) to set up your environment, review and update the `vars.tf` file that has been automatically created in this directory. Ensure that the variables such as resource names, locations, and sizes align with your baseline deployment.
+    1. If you have used the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md) to set up your environment, review and update the `vars.tf` file that has been automatically created in this directory. Ensure that the variables such as resource names, locations, and sizes align with your baseline deployment. If you haven't enabled the creation of the Entra ID App Registrations, you must provide your own client ID and client secret in the `vars.tfvars` file. Ensure you follow the documentation for creating these credentials manually which you can find in the [Entra ID App Registration](./EntraIDAppRegistrationSetup.md) setup guide.
 
     2. If you are using your own resources, create a `vars.tfvars` file in this directory and define the necessary variables to customize the deployment parameters according to your requirements. Use the baseline provided below as a reference:
 
@@ -33,8 +34,8 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     # Service variables
     web_app_app_settings    = {}
     web_app_code_path       = "../copilot"
-    bot_oauth_client_id     = ""
-    bot_oauth_client_secret = ""
+    bot_oauth_client_id     = "<your-bot-oauth-client-id>" # Required to enable SSO
+    bot_oauth_client_secret = "<your-bot-oauth-client-secret>" # Required to enable SSO
     bot_oauth_scopes = [
         "openid",
         "profile",
@@ -62,6 +63,8 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     private_dns_zone_id_cosmos_sql               = "/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Network/privateDnsZones/privatelink.documents.azure.com"
     private_dns_zone_id_blob                     = "/subscriptions/<your-subscription-id>/resourceGroups/<your-resource-group>/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
     ```
+
+    If you want to enable SSO for the bot, make sure to provide the `bot_oauth_client_id` and `bot_oauth_client_secret` values corresponding to your Entra ID App Registration. To configure the App Registration for SSO, refer to the [Entra ID App Registration Setup](/docs/EntraIDAppRegistrationSetup.md) document.
 
 3. **Update Terraform Backend Configuration**: Open the `terraform.tf` file and remove the following section:
 

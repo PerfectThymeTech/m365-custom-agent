@@ -25,6 +25,61 @@ class MSTeamsHandler(AbstractHandler):
     """
 
     @staticmethod
+    async def handle_commands(
+        context: TurnContext, user_state_store_item: UserStateStoreItem
+    ):
+        """
+        Handle default commands.
+
+        :param context: The TurnContext object for the current turn.
+        :type context: TurnContext
+        :param user_state_store_item: The UserStateStoreItem object for the current user.
+        :type user_state_store_item: UserStateStoreItem
+        :return: The updated UserStateStoreItem object after processing the agent response and a string specifying whether a pre-defined command was processed.
+        :rtype: Tuple[UserStateStoreItem, bool]
+        """
+        # Define variable
+        command = False
+
+        # Define user prompt
+        user_prompt = (
+            context.activity.text
+            if context.activity.text
+            else get_html_from_attachment(attachments=context.activity.attachments)
+        )
+
+        match user_prompt.lower().strip():
+            case "/restart":
+                logger.info("Restart ('/restart') command detected.")
+
+                # Send informative update to user
+                context.streaming_response.queue_informative_update(
+                    "Restarting conversation and resetting context... "
+                )
+
+                # Reset user state
+                user_state_store_item.file_uploaded = False
+                user_state_store_item.instructions = None
+                user_state_store_item.last_response_id = None
+                user_state_store_item.suggested_actions = {}
+
+                # Update user that we have
+                await stream_string_in_chunks(
+                    context=context,
+                    text="Your conversation has been reset. You can start fresh now! Please upload a new file when you are ready to reason over the file.",
+                )
+
+                # Update command variable
+                command = True
+            case _:
+                logger.info("No command detected.")
+
+                # Update command variable
+                command = False
+
+        return (user_state_store_item, command)
+
+    @staticmethod
     async def handle_attachments(
         context: TurnContext, user_state_store_item: UserStateStoreItem
     ) -> UserStateStoreItem:
@@ -132,11 +187,13 @@ class MSTeamsHandler(AbstractHandler):
                     text=f"\n\nNote: I could see that you uploaded the following supported files: {supported_attachments_names}. However, I only support one document at a time. Only the first item has been added to the context (`{supported_attachments[0].name}`). You can upload a new file at any time to replace it. ",
                 )
 
+            # Encode instructions with extracted data
+            instructions = settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\n{cleaned_data}"
+            compressed_instructions = FileExtractionClient.compress_string(instructions)
+
             # Update store item
             user_state_store_item.file_uploaded = True
-            user_state_store_item.instructions = (
-                settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\n{cleaned_data}"
-            )
+            user_state_store_item.instructions = compressed_instructions
         else:
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
@@ -172,12 +229,17 @@ class MSTeamsHandler(AbstractHandler):
         :type context: TurnContext
         :param user_state_store_item: The UserStateStoreItem object for the current user.
         :type user_state_store_item: UserStateStoreItem
-        :return: The updated UserStateStoreItem object after processing the agent response.
-        :rtype: UserStateStoreItem
+        :return: The updated UserStateStoreItem object after processing the agent response and the string response.
+        :rtype: Tuple[UserStateStoreItem, string]
         """
         # Send informative update to user
         context.streaming_response.queue_informative_update(
             "Let me think about that... "
+        )
+
+        # Decompress instructions before creating the agent
+        decompressed_instructions = FileExtractionClient.decompress_string(
+            user_state_store_item.instructions
         )
 
         # Create agent
@@ -185,7 +247,7 @@ class MSTeamsHandler(AbstractHandler):
             api_key=settings.AZURE_OPENAI_API_KEY,
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
-            instructions=user_state_store_item.instructions,
+            instructions=decompressed_instructions,
             reasoning_effort="none",
         )
 
@@ -193,7 +255,7 @@ class MSTeamsHandler(AbstractHandler):
         user_prompt = (
             context.activity.text
             if context.activity.text
-            else get_html_from_attachment()
+            else get_html_from_attachment(attachments=context.activity.attachments)
         )
 
         # Check for suggested action prompt scenarios
@@ -261,9 +323,17 @@ class MSTeamsHandler(AbstractHandler):
         logger.error(f"Error occurred: {error}", exc_info=True)
         await stream_string_in_chunks(
             context,
-            "I'm sorry, but something went wrong while processing your request. Please try again later.",
+            "\n\n\nI'm sorry, but something went wrong while processing your request. Please try again later.",
         )
         await stream_string_in_chunks(
             context,
-            f"\nReference: \nConversation ID: {context.activity.conversation.id} \nActivity ID: {context.activity.id}",
+            f"\n\nReference:\n",
+        )
+        await stream_string_in_chunks(
+            context,
+            f"\n\nConversation ID: {context.activity.conversation.id}",
+        )
+        await stream_string_in_chunks(
+            context,
+            f"\n\nActivity ID: {context.activity.id}",
         )

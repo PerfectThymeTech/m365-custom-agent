@@ -18,8 +18,17 @@ locals {
     india  = "https://india.token.botframework.com/.auth/web/redirect"
     gov    = "https://token.botframework.azure.us/.auth/web/redirect"
   }
-  application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : ""
-  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : ""
+  application_known_client_applications = {
+    teams_mobile_and_desktop             = "1fec8e78-bce4-4aaf-ab1b-5451cc387264", # Teams mobile or desktop application
+    teams_web                            = "5e3ce6c0-2b1f-4285-8d4b-75ee78787346", # Teams web application
+    microsoft_365_web                    = "4765445b-32c6-49b0-83e6-1d93765276ca", # Microsoft 365 web application
+    microsoft_365_desktop                = "0ec893e0-5785-4de6-99da-4ed124e5296c", # Microsoft 365 desktop application
+    microsoft_365_mobile_outlook_desktop = "d3590ed6-52b3-4102-aeff-aad2292ab01c", # Microsoft 365 mobile application/Outlook desktop application
+    outlook_web                          = "bc59ab01-8403-45c6-8796-ac3ef710b3e3", # Outlook web application
+    outlook_mobile                       = "27922004-5251-4030-b22d-91ecd9a37ea4", # Outlook mobile application
+  }
+  application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : "<your-client-id>"
+  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : "<your-client-secret>"
 
   # DNS variables
   private_dns_zone_names = {
