@@ -47,12 +47,12 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         match user_prompt.lower().strip():
-            case "/reset":
-                logger.info("Reset ('/reset') command detected.")
+            case "/restart":
+                logger.info("Restart ('/restart') command detected.")
 
                 # Send informative update to user
                 context.streaming_response.queue_informative_update(
-                    "Resetting context... "
+                    "Restarting conversation and resetting context... "
                 )
 
                 # Reset user state
