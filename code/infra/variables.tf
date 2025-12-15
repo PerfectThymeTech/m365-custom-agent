@@ -57,18 +57,31 @@ variable "bot_oauth_client_id" {
   description = "Specifies the client id of the Entra ID oauth app."
   type        = string
   sensitive   = true
+  validation {
+    condition     = length(var.bot_oauth_client_id) >= 2
+    error_message = "Please specify a valid bot oauth client id."
+  }
 }
 
 variable "bot_oauth_client_secret" {
   description = "Specifies the client secret of the Entra ID oauth app."
   type        = string
   sensitive   = true
+  validation {
+    condition     = length(var.bot_oauth_client_secret) >= 2
+    error_message = "Please specify a valid bot oauth client secret."
+  }
 }
 
 variable "bot_oauth_scopes" {
   description = "Specifies the scopes of the Entra ID oauth app."
   type        = list(string)
   sensitive   = false
+  default = [
+    "openid",
+    "profile",
+    "User.Read",
+  ]
 }
 
 # Logging variables

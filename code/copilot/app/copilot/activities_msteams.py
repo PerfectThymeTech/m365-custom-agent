@@ -33,7 +33,7 @@ async def on_error(context: TurnContext, error: Exception) -> None:
 
 
 @copilot_apps["msteams"].activity(
-    ConversationUpdateTypes.MEMBERS_ADDED, auth_handlers=auth_handlers
+    ConversationUpdateTypes.MEMBERS_ADDED, auth_handlers=auth_handlers["default"]
 )
 async def on_members_added(context: TurnContext, state: TurnState) -> None:
     """
@@ -55,7 +55,9 @@ async def on_members_added(context: TurnContext, state: TurnState) -> None:
     return True
 
 
-@copilot_apps["msteams"].activity(ActivityTypes.message, auth_handlers=auth_handlers)
+@copilot_apps["msteams"].activity(
+    ActivityTypes.message, auth_handlers=auth_handlers["default"]
+)
 async def on_message(context: TurnContext, state: TurnState) -> None:
     """
     Handle incoming message activities.

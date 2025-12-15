@@ -27,8 +27,8 @@ locals {
     outlook_web                          = "bc59ab01-8403-45c6-8796-ac3ef710b3e3", # Outlook web application
     outlook_mobile                       = "27922004-5251-4030-b22d-91ecd9a37ea4", # Outlook mobile application
   }
-  application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : ""
-  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : ""
+  application_client_id = var.entra_application_enabled ? one(azuread_service_principal.service_principal[*].client_id) : "<your-client-id>"
+  application_password  = var.entra_application_enabled ? tolist(one(azuread_application.application[*].password)).0.value : "<your-client-secret>"
 
   # DNS variables
   private_dns_zone_names = {

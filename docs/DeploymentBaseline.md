@@ -43,7 +43,7 @@ Before proceeding with the deployment, ensure that you have followed the steps i
     | `prefix`                    | A unique prefix for naming resources. |
     | `tags`                      | Tags to apply to all taggable resources. |
     | `data_residency`            | Data residency requirement (e.g., `none`, `europe`, `us`, `india`, `gov`). |
-    | `entra_application_enabled` | Set to `true` to create Entra ID App Registrations for SSO, or `false` to skip. Only set this to `true` if you have the following Entra ID permissions: `Application Administrator` or `Global Administrator`. If you deploy with a service principal, you need one of the following permissions: `Application.ReadWrite.OwnedBy` or `Application.ReadWrite.All`. |
+    | `entra_application_enabled` | Set to `true` to create Entra ID App Registrations for SSO, or `false` to skip. Only set this to `true` if you have the following Entra ID permissions: `Application Administrator` or `Global Administrator`. If you deploy with a service principal, you need one of the following permissions: `Application.ReadWrite.OwnedBy` or `Application.ReadWrite.All`. If you don't create the Entra ID App Registrations, you must provide your own client ID and client secret in the `vars.tfvars` file in the next deployment step. Ensure you follow the documentation for creating these credentials manually which you can find in the [Entra ID App Registration](./EntraIDAppRegistrationSetup.md) setup guide. |
     | `virtual_network_address_space` | Address space for the virtual network. |
 
 4. **Set Environment Variables**: Set the necessary environment variables for Terraform. This includes specifying the Azure subscription ID.

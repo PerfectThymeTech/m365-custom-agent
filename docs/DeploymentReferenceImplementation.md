@@ -19,7 +19,7 @@ Before proceeding with the deployment, ensure that you have completed the steps 
 
 2. **Update Terraform Variable File**:
 
-    1. If you have used the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md) to set up your environment, review and update the `vars.tf` file that has been automatically created in this directory. Ensure that the variables such as resource names, locations, and sizes align with your baseline deployment.
+    1. If you have used the [Deployment of the Baseline infrastructure](/docs/DeploymentBaseline.md) to set up your environment, review and update the `vars.tf` file that has been automatically created in this directory. Ensure that the variables such as resource names, locations, and sizes align with your baseline deployment. If you haven't enabled the creation of the Entra ID App Registrations, you must provide your own client ID and client secret in the `vars.tfvars` file. Ensure you follow the documentation for creating these credentials manually which you can find in the [Entra ID App Registration](./EntraIDAppRegistrationSetup.md) setup guide.
 
     2. If you are using your own resources, create a `vars.tfvars` file in this directory and define the necessary variables to customize the deployment parameters according to your requirements. Use the baseline provided below as a reference:
 
@@ -34,8 +34,8 @@ Before proceeding with the deployment, ensure that you have completed the steps 
     # Service variables
     web_app_app_settings    = {}
     web_app_code_path       = "../copilot"
-    bot_oauth_client_id     = "<your-bot-oauth-client-id>" # Only required if you want to enable SSO (recommended)
-    bot_oauth_client_secret = "<your-bot-oauth-client-secret>" # Only required if you want to enable SSO (recommended)
+    bot_oauth_client_id     = "<your-bot-oauth-client-id>" # Required to enable SSO
+    bot_oauth_client_secret = "<your-bot-oauth-client-secret>" # Required to enable SSO
     bot_oauth_scopes = [
         "openid",
         "profile",

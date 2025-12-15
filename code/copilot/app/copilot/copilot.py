@@ -154,13 +154,9 @@ def get_auth_handlers() -> list[str]:
     :rtype: list[str]
     """
     logger.info("Getting authentication handlers for Copilot")
-    auth_handlers = []
-    if settings.AAD_OAUTH_CONNECTION_NAME:
-        auth_handlers.append("GRAPH")
+    auth_handlers = {"default": ["GRAPH"]}
 
-    if len(auth_handlers) > 0:
-        return auth_handlers
-    return None
+    return auth_handlers
 
 
 # Initialize Copilot components
