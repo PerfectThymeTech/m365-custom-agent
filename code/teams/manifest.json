@@ -45,6 +45,11 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "https://<your-web-app-url>.azurewebsites.net/api/v1/messages/message"
-  ]
+    "https://<your-web-app-url>.azurewebsites.net/api/v1/messages/message",
+    "token.botframework.com"
+  ],
+  "webApplicationInfo": {
+    "id": "<your-bot-oauth-client-id>",
+    "resource": "<your-bot-oauth-identifier-uri (e.g. api://botid-.../access_as_user)>"
+  }
 }

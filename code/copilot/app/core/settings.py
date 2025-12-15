@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     FEDERATED_TOKEN_FILE: Optional[str] = None
     SCOPES: list[str] = ["https://api.botframework.com/.default"]
 
+    # User authorization settings
+    USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME: str
+
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str
     AZURE_DOCUMENT_INTELLIGENCE_API_KEY: str
