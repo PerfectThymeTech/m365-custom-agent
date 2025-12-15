@@ -88,8 +88,13 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         target_cls=UserStateStoreItem,
     )
 
+    # Check for pre-defined command
+    user_state_store_item, command = await MSTeamsHandler.handle_commands(
+        context=context, user_state_store_item=user_state_store_item
+    )
+
     # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
-    if len(context.activity.attachments or []) > 1:
+    if not command and len(context.activity.attachments or []) > 1:
         # Handle attachments
         user_state_store_item = await MSTeamsHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
@@ -106,7 +111,11 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         )
 
     # Use agent to process user prompt if file is uploaded and instructions are set
-    elif user_state_store_item.file_uploaded and user_state_store_item.instructions:
+    elif (
+        not command
+        and user_state_store_item.file_uploaded
+        and user_state_store_item.instructions
+    ):
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item

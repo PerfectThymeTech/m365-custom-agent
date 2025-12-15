@@ -33,3 +33,10 @@ class AbstractHandler(ABC):
     @abstractmethod
     async def handle_error_response(context: TurnContext, error: Exception) -> None:
         pass
+
+    @staticmethod
+    @abstractmethod
+    async def handle_commands(
+        context: TurnContext, user_state_store_item: UserStateStoreItem
+    ) -> Tuple[UserStateStoreItem, bool]:
+        pass
