@@ -14,6 +14,7 @@ from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from app.models.attachments import AttachmentContent
 from microsoft_agents.hosting.core import TurnContext
+from openai import APIError, BadRequestError
 from pydantic import ValidationError
 
 logger = setup_logging(__name__)
@@ -320,20 +321,43 @@ class MSTeamsHandler(AbstractHandler):
         :return: None
         :rtype: None
         """
-        logger.error(f"Error occurred: {error}", exc_info=True)
-        await stream_string_in_chunks(
-            context,
-            "\n\n\nI'm sorry, but something went wrong while processing your request. Please try again later.",
+        logger.error(
+            f"Error occurred in conversation: {context.activity.conversation.id}, activity: {context.activity.id}",
+            exc_info=True,
         )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nReference:\n",
-        )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nConversation ID: {context.activity.conversation.id}",
-        )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nActivity ID: {context.activity.id}",
-        )
+
+        match error:
+            case APIError() as api_error:
+                # Capture OpenAI APIError specifically
+                logger.error(f"OpenAI APIError occurred: {api_error}", exc_info=True)
+
+                await stream_string_in_chunks(
+                    context,
+                    "We are very sorry, but our agent currently experiences issues when processing your request. Please try again later.",
+                )
+
+            case BadRequestError() as bad_request_error:
+                # Capture OpenAI BadRequestError specifically
+                logger.error(
+                    f"OpenAI BadRequestError occurred: {bad_request_error}",
+                    exc_info=True,
+                )
+
+                if bad_request_error.code == "string_above_max_length":
+                    await stream_string_in_chunks(
+                        context,
+                        "The document is too large for me to process. Please upload a smaller document to proceed.",
+                    )
+                else:
+                    await stream_string_in_chunks(
+                        context,
+                        "We are very sorry, but our agent currently experiences issues when processing your request. Please try again later.",
+                    )
+            case _:
+                # Capture any other unexpected errors
+                logger.error(f"An unexpected error occurred: {error}", exc_info=True)
+
+                await stream_string_in_chunks(
+                    context,
+                    "I'm sorry, but something went wrong while processing your request. Please try again later.",
+                )
