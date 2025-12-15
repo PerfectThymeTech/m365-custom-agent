@@ -68,18 +68,16 @@ def get_copilot_configuration() -> CopilotConfiguration:
         case _:
             raise ValueError(f"Unsupported AUTH_TYPE: {settings.AUTH_TYPE}")
 
-    copilot_user_authorization = CopilotUserAuthorization()
-    if settings.AAD_OAUTH_CONNECTION_NAME:
-        copilot_user_authorization = CopilotUserAuthorization(
-            handlers={
-                "GRAPH": CopilotHandler(
-                    settings=CopilotHandlerSettings(
-                        azure_bot_oauth_connection_name=settings.AAD_OAUTH_CONNECTION_NAME
-                    )
+    # Configure user authorization
+    copilot_user_authorization = CopilotUserAuthorization(
+        handlers={
+            "GRAPH": CopilotHandler(
+                settings=CopilotHandlerSettings(
+                    azure_bot_oauth_connection_name=settings.USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME
                 )
-            }
-        )
-        pass
+            )
+        }
+    )
 
     return CopilotConfiguration(
         agent_application=CopilotAgentApplication(
