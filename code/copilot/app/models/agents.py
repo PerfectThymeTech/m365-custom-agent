@@ -41,3 +41,8 @@ class SuggestedAction(BaseModel):
 
 class SuggestedActionsAgentResponse(BaseModel):
     suggested_actions: list[SuggestedAction] = Field(..., alias="suggested_actions")
+
+
+class TableSummaryAgentResponse(BaseModel):
+    table_key: str = Field(..., alias="table_key")
+    summary: str = Field(..., alias="summary")
