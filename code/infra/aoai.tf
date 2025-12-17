@@ -40,6 +40,22 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_2" {
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
 
+resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_1" {
+  name                 = "gpt-5.1"
+  cognitive_account_id = module.azure_open_ai.cognitive_account_id
+
+  model {
+    format  = "OpenAI"
+    name    = "gpt-5.1"
+    version = "2025-11-13"
+  }
+  sku {
+    capacity = 250
+    name     = "GlobalStandard"
+  }
+  version_upgrade_option = "OnceNewDefaultVersionAvailable"
+}
+
 resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_mini" {
   name                 = "gpt-5-mini"
   cognitive_account_id = module.azure_open_ai.cognitive_account_id
