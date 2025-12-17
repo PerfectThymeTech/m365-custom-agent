@@ -1,20 +1,22 @@
 from typing import Tuple
 
-from app.logs import setup_logging
-from microsoft_agents.hosting.core import TurnContext
 from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
+from app.logs import setup_logging
+from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
-from openai.types.shared.reasoning import Reasoning
 from openai.types.responses import ResponseTextDeltaEvent
+from openai.types.shared.reasoning import Reasoning
 
 logger = setup_logging(__name__)
+
 
 class RootAgent:
     """
     Root base class for different types of agents.
     """
+
     def __init__(
         self,
         api_key: str,
@@ -42,7 +44,7 @@ class RootAgent:
     ):
         """
         Create and configure the agent.
-        
+
         param api_key: The API key for authentication.
         type api_key: str
         param endpoint: The API endpoint URL.
@@ -86,13 +88,11 @@ class RootAgent:
     ):
         """
         Log token usage details for the agent.
-        
+
         param usage: The Usage object containing token usage details.
         type usage: Usage
         """
-        logger.info(
-            f"Document Agent usage. Total tokens: {usage.total_tokens}"
-        )
+        logger.info(f"Document Agent usage. Total tokens: {usage.total_tokens}")
         logger.info(
             f"Document Agent usage. Input tokens: {usage.input_tokens}, Input token details: {usage.input_tokens_details}"
         )
@@ -133,7 +133,8 @@ class RootAgent:
                     response += event.data.delta
         except Exception as e:
             logger.error(f"Error streaming agent response: {e}", exc_info=True)
-        
+            raise e
+
         # Track consumed tokens
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
@@ -141,13 +142,12 @@ class RootAgent:
         # Return last response id and the full response
         return result.last_response_id, response
 
-
     async def _get_response(
         self, input: str, last_response_id: str | None = None
     ) -> str:
         """
         Internal method to get the full response from the agent.
-        
+
         param input: The user input to process.
         type input: str
         param last_response_id: The ID of the last response for context continuity.

@@ -1,5 +1,5 @@
-from app.logs import setup_logging
 from app.agents.root import RootAgent
+from app.logs import setup_logging
 from app.models.agents import SuggestedActionsAgentResponse
 from pydantic import ValidationError
 
@@ -13,7 +13,7 @@ class SuggestedActionsAgent(RootAgent):
     ) -> SuggestedActionsAgentResponse:
         """
         Get suggested actions from the agent based on the input.
-        
+
         param input: The user input to process.
         type input: str
         param last_response_id: The ID of the last response for context continuity.

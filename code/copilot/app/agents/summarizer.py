@@ -1,5 +1,5 @@
-from app.logs import setup_logging
 from app.agents.root import RootAgent
+from app.logs import setup_logging
 from app.models.agents import TableSummaryAgentResponse
 from pydantic import ValidationError
 
@@ -7,7 +7,7 @@ logger = setup_logging(__name__)
 
 
 class SummarizerAgent(RootAgent):
-    
+
     async def get_table_summary(
         self, table: str, last_response_id: str | None = None
     ) -> TableSummaryAgentResponse | None:
@@ -21,8 +21,8 @@ class SummarizerAgent(RootAgent):
         # Parse the response into SuggestedActionsAgentResponse
         try:
             logger.info("Parsing table summary response from agent.")
-            table_summary_response = (
-                TableSummaryAgentResponse.model_validate_json(result)
+            table_summary_response = TableSummaryAgentResponse.model_validate_json(
+                result
             )
         except ValidationError as e:
             logger.error(f"Error parsing table summary response: {e}")
