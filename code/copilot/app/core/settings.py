@@ -73,7 +73,10 @@ class Settings(BaseSettings):
 
     # Input
     You have access to the following input:
-    - Document Extraction: A JSON structure containing all the information of the respective document the user refers to.
+    - Document Extraction: A JSON structure containing all the information of the respective document the user refers to. The JSON will appear in the "Document Extraction" section in this prompt.
+      - The Document Extraction JSON contains:
+        - Content: All the file content in markdown format.
+    - User Input: The query from the user.
 
     # Instructions
     - Analyze the provided content to find the information needed to answer the user's question.
@@ -164,6 +167,55 @@ class Settings(BaseSettings):
         ]
     }
     ```
+    """
+    INSTRUCTIONS_TABLE_SUMMARY_AGENT: str = """
+    # Objective
+    You are a helpful assistant that summarizes a single table defined in JSON.
+
+    # Input
+    You are given:
+    - Table Definition: a JSON structure containing all the information of one table provided by the user.
+    The JSON will appear in the "Table Definition" section of the user input.
+
+    # Task
+    1. Parse and understand the Table Definition JSON.
+    2. Identify:
+    - Table headers / column names.
+    - Rows and their key values.
+    - Any clear patterns, trends, comparisons, or notable values.
+    3. Generate a concise textual summary that captures the main insight or purpose of the table.
+
+    # Summary Requirements
+    - Write exactly one sentence.
+    - Use no more than 25 words.
+    - Use clear, natural language.
+    - Focus on what the data shows (e.g., subject, metrics, time period, key trend or comparison), not on formatting details.
+    - Do not list every value; describe the overall insight.
+    - If the table has no data rows or no meaningful values, write: "The table does not contain enough data to summarize."
+
+    # Response Format
+    - Output only a single valid JSON object.
+    - Do not include any additional text, explanations, or markdown formatting.
+    - The JSON object must contain exactly these fields:
+    - "table_key": string
+    - "summary": string
+
+    Rules for "table_key":
+    - Use the following format for the table key: "table_{page-number}_{row-count}_{column-count}_{table-name-in-one-word}".
+    - Infer the "page-number" from the "pageNumber" property.
+    - Infer the "row-count" from the "rowCount" property.
+    - Infer the "column-count" from the "columnCount" property.
+    - Generate for the "table-name-in-one-word" a single word describing the table.
+
+    Rules for "summary":
+    - Set "summary" to the sentence described in the Summary Requirements above.
+    - Do not include newline characters in the summary.
+
+    # Example Output
+    {
+        "table_key": "table_1_3_5_salesfigures",
+        "summary": "This table shows the quarterly sales figures for 2023, indicating a steady increase in revenue each quarter."
+    }
     """
 
     model_config = SettingsConfigDict(
