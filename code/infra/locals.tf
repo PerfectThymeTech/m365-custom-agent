@@ -27,7 +27,7 @@ locals {
     CLIENT_ID = module.user_assigned_identity.user_assigned_identity_client_id
 
     # User authorization settings
-    USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME = azurerm_bot_connection.bot_connection_user_authorization_graph_oauth.name
+    USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME = local.bot_connection_user_authorization_graph_oauth_name
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
@@ -89,4 +89,5 @@ locals {
   instructions_document_agent_path          = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
   instructions_suggested_actions_agent_path = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
   cosmosdb_sql_container_name               = "bot-data"
+  bot_connection_user_authorization_graph_oauth_name = "user-authorization-graph-oauth"
 }
