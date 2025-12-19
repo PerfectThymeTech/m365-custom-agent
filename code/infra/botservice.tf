@@ -36,7 +36,7 @@ module "bot_service" {
 }
 
 resource "azurerm_bot_connection" "bot_connection_user_authorization_graph_oauth" {
-  name                = "user-authorization-graph-oauth"
+  name                = local.bot_connection_user_authorization_graph_oauth_name
   bot_name            = module.bot_service.bot_service_name
   location            = "global"
   resource_group_name = azurerm_resource_group.resource_group_consumption.name

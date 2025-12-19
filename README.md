@@ -38,12 +38,12 @@ To get started with the reference implementation, follow these steps:
 
     For Windows:
     ```bash
-    venv\Scripts\activate
+    .venv\Scripts\activate
     ```
 
     For Linux/MacOS:
     ```bash
-    source venv/bin/activate
+    source .venv/bin/activate
     ```
 
 4. **Set Environment Variables**:

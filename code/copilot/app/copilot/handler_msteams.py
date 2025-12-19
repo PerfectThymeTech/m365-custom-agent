@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from agents.exceptions import ModelBehaviorError
 from app.agents.document import DocumentAgent
 from app.copilot.common import (
     filter_attachments_by_type,
@@ -14,6 +15,7 @@ from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from app.models.attachments import AttachmentContent
 from microsoft_agents.hosting.core import TurnContext
+from openai import APIError, BadRequestError
 from pydantic import ValidationError
 
 logger = setup_logging(__name__)
@@ -161,8 +163,16 @@ class MSTeamsHandler(AbstractHandler):
                 await stream_string_in_chunks(
                     context=context, text="\n( 80%) Cleaning extracted data ... "
                 )
-                cleaned_data = file_extraction_client.clean_extracted_data(
-                    data=extracted_data
+                cleaned_data, _ = await file_extraction_client.clean_extracted_data(
+                    data=extracted_data,
+                    keep_paragraphs=False,
+                    keep_tables=False,
+                    summarize_tables=False,
+                    api_key=settings.AZURE_OPENAI_API_KEY,
+                    endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                    model_name=settings.AZURE_OPENAI_MODEL_SLM_NAME,
+                    instructions=settings.INSTRUCTIONS_TABLE_SUMMARY_AGENT,
+                    reasoning_effort="minimal",
                 )
                 logger.debug(
                     f"Cleaned Data from file {attachment.name}: {cleaned_data}"
@@ -320,20 +330,53 @@ class MSTeamsHandler(AbstractHandler):
         :return: None
         :rtype: None
         """
-        logger.error(f"Error occurred: {error}", exc_info=True)
-        await stream_string_in_chunks(
-            context,
-            "\n\n\nI'm sorry, but something went wrong while processing your request. Please try again later.",
+        logger.error(
+            f"Error occurred in conversation: {context.activity.conversation.id}, activity: {context.activity.id}",
+            exc_info=True,
         )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nReference:\n",
-        )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nConversation ID: {context.activity.conversation.id}",
-        )
-        await stream_string_in_chunks(
-            context,
-            f"\n\nActivity ID: {context.activity.id}",
-        )
+
+        match error:
+            case APIError() as api_error:
+                # Capture OpenAI APIError specifically
+                logger.error(f"OpenAI APIError occurred: {api_error}", exc_info=True)
+
+                await stream_string_in_chunks(
+                    context,
+                    "I'm sorry, but I encountered an issue while trying to process your request. Please try again in a few moments.",
+                )
+
+            case BadRequestError() as bad_request_error:
+                # Capture OpenAI BadRequestError specifically
+                logger.error(
+                    f"OpenAI BadRequestError occurred: {bad_request_error}",
+                    exc_info=True,
+                )
+
+                if bad_request_error.code == "string_above_max_length":
+                    await stream_string_in_chunks(
+                        context,
+                        "The document is too large for me to process. Please upload a smaller document to proceed.",
+                    )
+                else:
+                    await stream_string_in_chunks(
+                        context,
+                        "I'm sorry, but I encountered an issue while trying to process your request. Please try again later.",
+                    )
+            case ModelBehaviorError() as model_behavior_error:
+                # Capture ModelBehaviorError specifically
+                logger.error(
+                    f"ModelBehaviorError occurred: {model_behavior_error}",
+                    exc_info=True,
+                )
+                await stream_string_in_chunks(
+                    context,
+                    "I'm sorry, but I encountered an issue while trying to process your request. Please resend your question. If the issue persists, try uploading the document again.",
+                )
+            case _:
+                # Capture any other unexpected errors
+                logger.error(f"An unexpected error occurred: {error}", exc_info=True)
+
+                await stream_string_in_chunks(
+                    context,
+                    "I'm sorry, but something went wrong while processing your request. Please try again later.",
+                )
