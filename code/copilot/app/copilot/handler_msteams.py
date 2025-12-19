@@ -343,7 +343,7 @@ class MSTeamsHandler(AbstractHandler):
 
                 await stream_string_in_chunks(
                     context,
-                    "I'm sorry, but I encountered an issue while trying to process your request. Please try again later.",
+                    "I'm sorry, but I encountered an issue while trying to process your request. Please try again in a few moments.",
                 )
 
             case BadRequestError() as bad_request_error:
