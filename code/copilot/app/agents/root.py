@@ -73,7 +73,7 @@ class RootAgent:
             truncation="auto",
             max_tokens=128000,
             reasoning=Reasoning(effort=reasoning_effort),
-            verbosity="low"
+            verbosity="low",
         )
 
         # Define the agent

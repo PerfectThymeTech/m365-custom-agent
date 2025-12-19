@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from agents.exceptions import ModelBehaviorError
 from app.agents.document import DocumentAgent
 from app.copilot.common import (
     filter_attachments_by_type,
@@ -14,10 +15,8 @@ from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from app.models.attachments import AttachmentContent
 from microsoft_agents.hosting.core import TurnContext
-from pydantic import ValidationError
-from agents.exceptions import ModelBehaviorError
 from openai import APIError, BadRequestError
-
+from pydantic import ValidationError
 
 logger = setup_logging(__name__)
 
@@ -366,7 +365,8 @@ class MSTeamsHandler(AbstractHandler):
             case ModelBehaviorError() as model_behavior_error:
                 # Capture ModelBehaviorError specifically
                 logger.error(
-                    f"ModelBehaviorError occurred: {model_behavior_error}", exc_info=True
+                    f"ModelBehaviorError occurred: {model_behavior_error}",
+                    exc_info=True,
                 )
                 await stream_string_in_chunks(
                     context,
