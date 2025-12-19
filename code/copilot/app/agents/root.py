@@ -68,7 +68,12 @@ class RootAgent:
             openai_client=openai_client,
         )
         model_settings = ModelSettings(
+            tool_choice="auto",
+            parallel_tool_calls=True,
+            truncation="auto",
+            max_tokens=128000,
             reasoning=Reasoning(effort=reasoning_effort),
+            verbosity="low"
         )
 
         # Define the agent
