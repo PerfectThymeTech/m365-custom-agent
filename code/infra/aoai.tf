@@ -15,7 +15,7 @@ module "azure_open_ai" {
   cognitive_account_firewall_bypass_azure_services        = false
   cognitive_account_outbound_network_access_restricted    = true
   cognitive_account_outbound_network_access_allowed_fqdns = []
-  cognitive_account_local_auth_enabled                    = true # TODO: Change to false in a follow-up PR after updating code to use Managed Identity
+  cognitive_account_local_auth_enabled                    = false
   cognitive_account_deployments                           = {}
   diagnostics_configurations                              = local.diagnostics_configurations
   subnet_id                                               = azapi_resource.subnet_private_endpoints.id

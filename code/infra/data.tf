@@ -38,3 +38,9 @@ data "archive_file" "file_web_app" {
   source_dir  = "${path.module}/${var.web_app_code_path}"
   output_path = "${path.module}/${format("webapp-${azurerm_linux_web_app.linux_web_app.name}-%s.zip", formatdate("YYYY-MM-DD'-'hh_mm_ss", timestamp()))}"
 }
+
+data "azurerm_cosmosdb_sql_role_definition" "cosmosdb_sql_role_definition" {
+  resource_group_name = azurerm_resource_group.resource_group_consumption.name
+  account_name        = module.cosmosdb_account.cosmosdb_account_name
+  role_definition_id  = "00000000-0000-0000-0000-000000000002"
+}
