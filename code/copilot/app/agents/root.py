@@ -4,11 +4,11 @@ from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
 from app.logs import setup_logging
+from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
-from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 
 logger = setup_logging(__name__)
 
@@ -71,9 +71,10 @@ class RootAgent:
             api_key = get_bearer_token_provider(
                 DefaultAzureCredential(
                     managed_identity_client_id=managed_identity_client_id,
-                ), "https://cognitiveservices.azure.com/.default"
+                ),
+                "https://cognitiveservices.azure.com/.default",
             )
-        
+
         # Define the model and client
         openai_client = AsyncOpenAI(
             api_key=api_key,

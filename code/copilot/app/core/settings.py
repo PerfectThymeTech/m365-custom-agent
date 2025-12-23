@@ -50,7 +50,9 @@ class Settings(BaseSettings):
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT: str
-    AZURE_COSMOS_KEY: str # = "" # Still needed for SDK because Entra ID auth not supported yet
+    AZURE_COSMOS_KEY: (
+        str  # = "" # Still needed for SDK because Entra ID auth not supported yet
+    )
     AZURE_COSMOS_DATABASE_ID: str
     AZURE_COSMOS_CONTAINER_ID: str = "user-state"
 

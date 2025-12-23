@@ -69,8 +69,6 @@ def setup_opentelemetry():
     # Add additional instrumentations and configurations
     AioHttpClientInstrumentor().instrument()
 
-    logging.info(f"OpenTelemetry has been configured for Azure Monitor with credential: {credential}.")
-
 
 class OpenTelemetryTranscriptLogger(TranscriptLogger):
     """

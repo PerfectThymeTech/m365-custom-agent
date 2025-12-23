@@ -20,7 +20,12 @@ logger = setup_logging(__name__)
 
 
 class FileExtractionClient:
-    def __init__(self, api_key: str, endpoint: str, managed_identity_client_id: str = None,):
+    def __init__(
+        self,
+        api_key: str,
+        endpoint: str,
+        managed_identity_client_id: str = None,
+    ):
         """
         Initialize the FileExtractionClient with Azure Document Intelligence credentials.
 
