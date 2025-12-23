@@ -14,12 +14,13 @@ from azure.ai.documentintelligence.models import (
     DocumentContentFormat,
 )
 from azure.core.credentials import AzureKeyCredential
+from azure.identity import DefaultAzureCredential
 
 logger = setup_logging(__name__)
 
 
 class FileExtractionClient:
-    def __init__(self, api_key: str, endpoint: str):
+    def __init__(self, api_key: str, endpoint: str, managed_identity_client_id: str = None,):
         """
         Initialize the FileExtractionClient with Azure Document Intelligence credentials.
 
@@ -29,9 +30,17 @@ class FileExtractionClient:
         :type api_key: str
         :param endpoint: The endpoint URL for Azure Document Intelligence.
         :type endpoint: str
+        :param managed_identity_client_id: The client id of the managed identity.
+        :type managed_identity_client_id: str
         """
+        if api_key:
+            credential = AzureKeyCredential(key=api_key)
+        else:
+            credential = DefaultAzureCredential(
+                managed_identity_client_id=managed_identity_client_id,
+            )
         self.document_intelligence_client = DocumentIntelligenceClient(
-            endpoint=endpoint, credential=AzureKeyCredential(key=api_key)
+            endpoint=endpoint, credential=credential
         )
 
     async def extract_data(self, file_url: str) -> dict:
@@ -106,6 +115,7 @@ class FileExtractionClient:
         endpoint: str,
         model_name: str,
         instructions: str,
+        managed_identity_client_id: str = None,
         reasoning_effort: str = "minimal",
     ) -> Tuple[dict, dict]:
         """
@@ -123,6 +133,8 @@ class FileExtractionClient:
         :type model_name: str
         :param instructions: The instructions for the agent.
         :type instructions: str
+        :param managed_identity_client_id: The client id of the managed identity.
+        :type managed_identity_client_id: str
         :param reasoning_effort: The level of reasoning effort for the agent.
         :type reasoning_effort: str
         :return: A tuple containing the table summaries and the table collection.
@@ -138,6 +150,7 @@ class FileExtractionClient:
             endpoint=endpoint,
             model_name=model_name,
             instructions=instructions,
+            managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
         )
 
