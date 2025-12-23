@@ -20,6 +20,8 @@ locals {
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
     SCM_DO_BUILD_DURING_DEPLOYMENT             = "1"
     WEBSITE_CONTENTOVERVNET                    = "1"
+    APPLICATIONINSIGHTS_AUTHENTICATION_STRING  = "Authorization=AAD;ClientId=${module.user_assigned_identity.user_assigned_identity_client_id}"
+    MANAGED_IDENTITY_CLIENT_ID                 = module.user_assigned_identity.user_assigned_identity_client_id
 
     # Auth app settings
     AUTH_TYPE = "UserManagedIdentity"
@@ -31,17 +33,17 @@ locals {
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
-    AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = module.document_intelligence.cognitive_account_primary_access_key
+    AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = ""
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT     = module.cosmosdb_account.cosmosdb_account_endpoint
-    AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key
+    AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key # Entra ID auth not supported by SDK yet
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
 
     # Azure Open AI app settings
     AZURE_OPENAI_ENDPOINT       = module.azure_open_ai.cognitive_account_endpoint
-    AZURE_OPENAI_API_KEY        = module.azure_open_ai.cognitive_account_primary_access_key
+    AZURE_OPENAI_API_KEY        = ""
     AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
     AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_mini.name
 

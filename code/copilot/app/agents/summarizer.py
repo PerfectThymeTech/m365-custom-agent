@@ -18,7 +18,7 @@ class SummarizerAgent(RootAgent):
             input=model_input, last_response_id=last_response_id
         )
 
-        # Parse the response into SuggestedActionsAgentResponse
+        # Parse the response into TableSummaryAgentResponse
         try:
             logger.info("Parsing table summary response from agent.")
             table_summary_response = TableSummaryAgentResponse.model_validate_json(

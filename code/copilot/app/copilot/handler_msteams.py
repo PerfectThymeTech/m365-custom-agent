@@ -126,6 +126,7 @@ class MSTeamsHandler(AbstractHandler):
             file_extraction_client = FileExtractionClient(
                 api_key=settings.AZURE_DOCUMENT_INTELLIGENCE_API_KEY,
                 endpoint=settings.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT,
+                managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             )
 
             # Process each supported attachment
@@ -258,6 +259,7 @@ class MSTeamsHandler(AbstractHandler):
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
             instructions=decompressed_instructions,
+            managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )
 

@@ -39,17 +39,17 @@ def setup_opentelemetry():
         level=settings.LOGGING_LEVEL,
     )
 
-    if settings.APPLICATIONINSIGHTS_CONNECTION_STRING:
-        credential = None
-        connection_string = settings.APPLICATIONINSIGHTS_CONNECTION_STRING
+    if settings.APPLICATIONINSIGHTS_AUTHENTICATION_STRING:
+        credential = DefaultAzureCredential(
+            managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
+        )
     else:
-        credential = DefaultAzureCredential()
-        connection_string = None
+        credential = None
 
     # Configure azure monitor
     configure_azure_monitor(
         credential=credential,
-        connection_string=connection_string,
+        connection_string=settings.APPLICATIONINSIGHTS_CONNECTION_STRING,
         enable_live_metrics=True,
         enable_performance_counters=True,
         enable_trace_based_sampling_for_logs=False,

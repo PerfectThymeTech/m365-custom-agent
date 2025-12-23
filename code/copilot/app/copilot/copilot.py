@@ -4,7 +4,7 @@ from typing import Any
 from app.copilot.configuration import get_copilot_configuration
 from app.core.settings import settings
 from app.logs import OpenTelemetryTranscriptLogger, setup_logging
-from azure.identity import DefaultAzureCredential
+from azure.identity.aio import DefaultAzureCredential
 from microsoft_agents.authentication.msal import MsalConnectionManager
 from microsoft_agents.hosting.core import (
     AgentApplication,
@@ -67,9 +67,14 @@ def get_copilot_app(
     if settings.AZURE_COSMOS_KEY:
         auth_key = settings.AZURE_COSMOS_KEY
         credential = None
+        url = ""
     else:
-        auth_key = ""
-        credential = DefaultAzureCredential()
+        auth_key = "UNDEFINED"
+        credential = DefaultAzureCredential(
+            managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
+        )
+        url = settings.AZURE_COSMOS_ENDPOINT
+    logger.info(f"Credential: {credential}")
     storage = (
         CosmosDBStorage(
             config=CosmosDBStorageConfig(
@@ -81,6 +86,7 @@ def get_copilot_app(
                 container_throughput=0,
                 key_suffix="",
                 compatibility_mode=False,
+                url=url,
                 credential=credential,
             )
         )

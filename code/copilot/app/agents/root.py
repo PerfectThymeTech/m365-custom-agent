@@ -4,6 +4,7 @@ from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
 from app.logs import setup_logging
+from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
@@ -23,6 +24,7 @@ class RootAgent:
         endpoint: str,
         model_name: str,
         instructions: str,
+        managed_identity_client_id: str = None,
         reasoning_effort: str = "none",
     ):
         self.agent = self._create_agent(
@@ -30,6 +32,7 @@ class RootAgent:
             endpoint,
             model_name=model_name,
             instructions=instructions,
+            managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
         )
         self.runner = Runner()
@@ -40,24 +43,38 @@ class RootAgent:
         endpoint: str,
         model_name: str,
         instructions: str,
+        managed_identity_client_id: str = None,
         reasoning_effort: str = "none",
     ):
         """
         Create and configure the agent.
 
-        param api_key: The API key for authentication.
-        type api_key: str
-        param endpoint: The API endpoint URL.
-        type endpoint: str
-        param model_name: The name of the model to use.
-        type model_name: str
-        param instructions: The instructions for the agent.
-        type instructions: str
-        param reasoning_effort: The level of reasoning effort for the agent.
-        type reasoning_effort: str
-        return: Configured Agent instance.
-        rtype: Agent
+        :param api_key: The API key for authentication.
+        :type api_key: str
+        :param endpoint: The API endpoint URL.
+        :type endpoint: str
+        :param model_name: The name of the model to use.
+        :type model_name: str
+        :param instructions: The instructions for the agent.
+        :type instructions: str
+        :param managed_identity_client_id: The client id of the managed identity.
+        :type managed_identity_client_id: str
+        :param reasoning_effort: The level of reasoning effort for the agent.
+        :type reasoning_effort: str
+        :return: Configured Agent instance.
+        :rtype: Agent
         """
+        # Define authentication
+        if api_key:
+            api_key = api_key
+        else:
+            api_key = get_bearer_token_provider(
+                DefaultAzureCredential(
+                    managed_identity_client_id=managed_identity_client_id,
+                ),
+                "https://cognitiveservices.azure.com/.default",
+            )
+
         # Define the model and client
         openai_client = AsyncOpenAI(
             api_key=api_key,
@@ -94,8 +111,8 @@ class RootAgent:
         """
         Log token usage details for the agent.
 
-        param usage: The Usage object containing token usage details.
-        type usage: Usage
+        :param usage: The Usage object containing token usage details.
+        :type usage: Usage
         """
         logger.info(f"Document Agent usage. Total tokens: {usage.total_tokens}")
         logger.info(
@@ -111,14 +128,14 @@ class RootAgent:
         """
         Stream the agent's response based on the input.
 
-        param input: The user input to process.
-        type input: str
-        param context: The TurnContext for the current turn.
-        type context: TurnContext
-        param last_response_id: The ID of the last response for context continuity.
-        type last_response_id: str | None
-        return: A tuple containing the last response ID and the full response text.
-        rtype: Tuple[str, str]
+        :param input: The user input to process.
+        :type input: str
+        :param context: The TurnContext for the current turn.
+        :type context: TurnContext
+        :param last_response_id: The ID of the last response for context continuity.
+        :type last_response_id: str | None
+        :return: A tuple containing the last response ID and the full response text.
+        :rtype: Tuple[str, str]
         """
         # Generate agent response
         result = self.runner.run_streamed(
@@ -153,12 +170,12 @@ class RootAgent:
         """
         Internal method to get the full response from the agent.
 
-        param input: The user input to process.
-        type input: str
-        param last_response_id: The ID of the last response for context continuity.
-        type last_response_id: str | None
-        return: The final response text from the agent.
-        rtype: str
+        :param input: The user input to process.
+        :type input: str
+        :param last_response_id: The ID of the last response for context continuity.
+        :type last_response_id: str | None
+        :return: The final response text from the agent.
+        :rtype: str
         """
         # Generate agent response
         result = await self.runner.run(

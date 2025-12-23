@@ -4,11 +4,16 @@ module "application_insights" {
     azurerm = azurerm
   }
 
-  location                                        = var.location
-  resource_group_name                             = azurerm_resource_group.resource_group_consumption.name
-  tags                                            = var.tags
-  application_insights_name                       = "${local.prefix}-appi001"
-  application_insights_application_type           = "web"
-  application_insights_log_analytics_workspace_id = var.log_analytics_workspace_id
-  diagnostics_configurations                      = local.diagnostics_configurations
+  location                                           = var.location
+  resource_group_name                                = azurerm_resource_group.resource_group_consumption.name
+  tags                                               = var.tags
+  application_insights_name                          = "${local.prefix}-appi001"
+  application_insights_application_type              = "web"
+  application_insights_internet_ingestion_enabled    = true
+  application_insights_internet_query_enabled        = true
+  application_insights_local_authentication_disabled = true
+  application_insights_retention_in_days             = 90
+  application_insights_sampling_percentage           = 100
+  application_insights_log_analytics_workspace_id    = var.log_analytics_workspace_id
+  diagnostics_configurations                         = local.diagnostics_configurations
 }

@@ -38,7 +38,7 @@ module "cosmosdb_account" {
     }
   ]
   cosmosdb_account_kind                          = "GlobalDocumentDB"
-  cosmosdb_account_local_authentication_disabled = false
+  cosmosdb_account_local_authentication_disabled = false # Disable once Entra ID auth is supported by the SDK
   cosmosdb_account_mongo_server_version          = null
   cosmosdb_account_partition_merge_enabled       = false
   diagnostics_configurations                     = []

@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         ...,
         alias=AliasChoices("BASE_URL", "CONTAINER_APP_HOSTNAME", "WEBSITE_HOSTNAME"),
     )
+    MANAGED_IDENTITY_CLIENT_ID: str = ""
 
     # Logging settings
     DEBUG: bool = False
@@ -28,7 +29,8 @@ class Settings(BaseSettings):
     LOGGING_SAMPLING_RATIO: float = 1.0
     LOGGING_SCHEDULE_DELAY: int = 5000
     LOGGING_FORMAT: str = "[%(asctime)s] [%(levelname)s] [%(module)-8.8s] %(message)s"
-    APPLICATIONINSIGHTS_CONNECTION_STRING: str = None
+    APPLICATIONINSIGHTS_CONNECTION_STRING: str
+    APPLICATIONINSIGHTS_AUTHENTICATION_STRING: str = ""
 
     # Agent SDK settings
     AUTH_TYPE: AuthorizationTypes = AuthorizationTypes.CLIENT_SECRET
@@ -44,17 +46,19 @@ class Settings(BaseSettings):
 
     # Azure Document Intelligence settings
     AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str
-    AZURE_DOCUMENT_INTELLIGENCE_API_KEY: str
+    AZURE_DOCUMENT_INTELLIGENCE_API_KEY: str = ""
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT: str
-    AZURE_COSMOS_KEY: str
+    AZURE_COSMOS_KEY: (
+        str  # = "" # Still needed for SDK because Entra ID auth not supported yet
+    )
     AZURE_COSMOS_DATABASE_ID: str
     AZURE_COSMOS_CONTAINER_ID: str = "user-state"
 
     # Open AI settings
     AZURE_OPENAI_ENDPOINT: str
-    AZURE_OPENAI_API_KEY: str
+    AZURE_OPENAI_API_KEY: str = ""
     AZURE_OPENAI_MODEL_NAME: str = Field(
         default="gpt-5.1",
         alias=AliasChoices("AZURE_OPENAI_MODEL_NAME", "AZURE_OPENAI_DEPLOYMENT_NAME"),
@@ -75,23 +79,28 @@ class Settings(BaseSettings):
     You have access to the following input:
     - Document Extraction: A JSON structure containing all the information of the respective document the user refers to. The JSON will appear in the "Document Extraction" section in this prompt.
       - The Document Extraction JSON contains:
-        - Content: All the file content in markdown format.
+        - Content: All the file content in markdown format generated from a complex OCR process.
     - User Input: The query from the user.
 
     # Instructions
-    - Analyze the provided content to find the information needed to answer the user's question.
-    - Use the JSON data to assist in extracting the required information.
+    - Analyze the provided Document Extraction content to find the information needed to answer the user's question.
+    - Use the Document Extraction JSON data to assist in extracting the required information.
     - Assume the JSON data is accurate and complete.
     - Validate the extracted data for accuracy and completeness by cross-referencing with the provided JSON.
+    - You cannot generate files or images, only tables in a response.
+      - Never suggest generating a fiel output.
+      - If the user asks for a file, then apologize and mention that you cannot do that.
+      - Generate tables in markdown where appropriate.
 
     # Response Format
     - Provide all responses in markdown format.
     - Provide structured answers with headers and bullet points.
     - Provide clear, short and concise answers, citing specific sections or pages from the PDF when relevant.
-    - Always suggest exactly 3 follow-up activities at the end.
+    - Always suggest exactly 3 follow-up activities at the end of your response.
+      - Use a header called "Suggested Next Steps".
+      - Use a separate bullet point for each suggested follow-up activity.
 
     # Context
-
     ## Document Extraction
     """
     INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT: str = """
