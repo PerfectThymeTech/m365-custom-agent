@@ -33,6 +33,7 @@ SUPPORTED_FILE_TYPES = [
     "jpg",
     "jpeg",
     "bmp",
+    "tiff",
 ]
 IGNORED_CONTENT_TYPES = [
     "text/html",
