@@ -21,6 +21,24 @@ from pydantic import ValidationError
 logger = setup_logging(__name__)
 
 
+SUPPORTED_CONTENT_TYPES = [
+    "application/vnd.microsoft.teams.file.download.info",
+]
+SUPPORTED_FILE_TYPES = [
+    "pdf",
+    "xlsx",
+    "pptx",
+    "docx",
+    "png",
+    "jpg",
+    "jpeg",
+    "bmp",
+]
+IGNORED_CONTENT_TYPES = [
+    "text/html",
+]
+
+
 class MSTeamsHandler(AbstractHandler):
     """
     Handler for Microsoft Teams specific message and event handling.
@@ -105,15 +123,9 @@ class MSTeamsHandler(AbstractHandler):
         logger.info("Filtering attachments for document processing.")
         supported_attachments, unsupported_attachments = filter_attachments_by_type(
             attachments=context.activity.attachments or [],
-            supported_content_types=[
-                "application/vnd.microsoft.teams.file.download.info",
-            ],
-            supported_file_types=[
-                "pdf",
-            ],
-            ignored_content_types=[
-                "text/html",
-            ],
+            supported_content_types=SUPPORTED_CONTENT_TYPES,
+            supported_file_types=SUPPORTED_FILE_TYPES,
+            ignored_content_types=IGNORED_CONTENT_TYPES,
         )
 
         # Handle supported documents
@@ -209,7 +221,7 @@ class MSTeamsHandler(AbstractHandler):
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
                 context=context,
-                text="I could not find any supported document in the attachments you uploaded. Please upload PDF documents only. ",
+                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {SUPPORTED_FILE_TYPES}. ",
             )
 
         if len(unsupported_attachments) > 0:
@@ -224,7 +236,7 @@ class MSTeamsHandler(AbstractHandler):
             if len(unsupported_attachments) > 0:
                 await stream_string_in_chunks(
                     context=context,
-                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload PDF documents only. ",
+                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload a supported file type: {SUPPORTED_FILE_TYPES}. ",
                 )
 
         return user_state_store_item
