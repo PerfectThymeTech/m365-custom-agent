@@ -93,7 +93,7 @@ class MSTeamsHandler(AbstractHandler):
                 # Update user that we have
                 await stream_string_in_chunks(
                     context=context,
-                    text="Your conversation has been reset. You can start fresh now! Please upload a new file when you are ready to reason over the file.",
+                    text=f"Your conversation has been reset. You can start fresh now! Please upload a new file when you are ready to reason over the file. Supported file types are: {', '.join(SUPPORTED_FILE_TYPES)}. ",
                 )
 
                 # Update command variable
@@ -236,7 +236,7 @@ class MSTeamsHandler(AbstractHandler):
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
                 context=context,
-                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {SUPPORTED_FILE_TYPES}. ",
+                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {', '.join(SUPPORTED_FILE_TYPES)}. ",
             )
 
         if len(unsupported_attachments) > 0:
@@ -251,7 +251,7 @@ class MSTeamsHandler(AbstractHandler):
             if len(unsupported_attachments) > 0:
                 await stream_string_in_chunks(
                     context=context,
-                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload only supported file types: {SUPPORTED_FILE_TYPES}. ",
+                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload only supported file types: {', '.join(SUPPORTED_FILE_TYPES)}. ",
                 )
 
         return user_state_store_item
