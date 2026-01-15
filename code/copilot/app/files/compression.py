@@ -1,10 +1,9 @@
-
 import base64
 import zlib
 
+
 class DataCompressionClient:
-    """Custom exception for file compression errors."""
-    
+
     @staticmethod
     def compress_string(input_string: str) -> str:
         """

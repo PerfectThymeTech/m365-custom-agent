@@ -1,7 +1,7 @@
+from app.files.compression import DataCompressionClient
+from app.models.attachments import DocumentExtractionResults
 from microsoft_agents.hosting.core import StoreItem
 from pydantic import BaseModel, Field
-from app.models.attachments import DocumentExtractionResults
-from app.files.compression import DataCompressionClient
 
 
 class UserStateStoreItem(StoreItem):
@@ -19,8 +19,12 @@ class UserStateStoreItem(StoreItem):
 
     def store_item_to_json(self) -> dict:
         # Compress document extraction results
-        document_extraction_results_json = self.document_extraction_results.model_dump_json(indent=None)
-        document_extraction_results_compressed = DataCompressionClient.compress_string(document_extraction_results_json)
+        document_extraction_results_json = (
+            self.document_extraction_results.model_dump_json(indent=None)
+        )
+        document_extraction_results_compressed = DataCompressionClient.compress_string(
+            document_extraction_results_json
+        )
 
         return {
             "file_uploaded": self.file_uploaded,
@@ -37,11 +41,13 @@ class UserStateStoreItem(StoreItem):
                 json_data.get("document_extraction_results")
             )
         else:
-            decompressed_data = '{}'
+            decompressed_data = "{}"
 
         return UserStateStoreItem(
             file_uploaded=json_data.get("file_uploaded", False),
-            document_extraction_results=DocumentExtractionResults.model_validate_json(decompressed_data),
+            document_extraction_results=DocumentExtractionResults.model_validate_json(
+                decompressed_data
+            ),
             last_response_id=json_data.get("last_response_id", None),
             suggested_actions=json_data.get("suggested_actions", {}),
         )

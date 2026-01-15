@@ -84,7 +84,9 @@ class MSTeamsHandler(AbstractHandler):
 
                 # Reset user state
                 user_state_store_item.file_uploaded = False
-                user_state_store_item.document_extraction_results = DocumentExtractionResults()
+                user_state_store_item.document_extraction_results = (
+                    DocumentExtractionResults()
+                )
                 user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
 
@@ -140,8 +142,12 @@ class MSTeamsHandler(AbstractHandler):
             )
 
             # Initialize variables
-            document_extraction_results = user_state_store_item.document_extraction_results
-            processed_attachment_names = [document.title for document in document_extraction_results.documents]
+            document_extraction_results = (
+                user_state_store_item.document_extraction_results
+            )
+            processed_attachment_names = [
+                document.title for document in document_extraction_results.documents
+            ]
 
             # Create file extraction client
             file_extraction_client = FileExtractionClient(
@@ -216,7 +222,9 @@ class MSTeamsHandler(AbstractHandler):
                 processed_attachment_names.append(attachment.name)
 
             # Add info about files in context
-            logger.info(f"Updating user about added files to context. Files in context: {processed_attachment_names}")
+            logger.info(
+                f"Updating user about added files to context. Files in context: {processed_attachment_names}"
+            )
             await stream_string_in_chunks(
                 context=context,
                 text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context.",
@@ -268,7 +276,13 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
-        instructions = settings.INSTRUCTIONS_DOCUMENT_AGENT + "\n\n" + user_state_store_item.document_extraction_results.model_dump_json(indent=None)
+        instructions = (
+            settings.INSTRUCTIONS_DOCUMENT_AGENT
+            + "\n\n"
+            + user_state_store_item.document_extraction_results.model_dump_json(
+                indent=None
+            )
+        )
 
         # Create agent
         agent = DocumentAgent(
