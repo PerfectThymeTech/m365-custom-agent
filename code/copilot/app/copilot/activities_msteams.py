@@ -84,7 +84,9 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Load user state
     user_state_store_item: UserStateStoreItem = state.get_value(
         name="ConversationState.user_state_store_item",
-        default_value_factory=lambda: UserStateStoreItem(instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\nMISSING DOCUMENT"),
+        default_value_factory=lambda: UserStateStoreItem(
+            instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\nMISSING DOCUMENT"
+        ),
         target_cls=UserStateStoreItem,
     )
 

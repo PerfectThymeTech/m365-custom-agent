@@ -13,8 +13,11 @@ from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
-from app.models.attachments import DataExtractionResults, DataExtractionResult
-from app.models.attachments import AttachmentContent
+from app.models.attachments import (
+    AttachmentContent,
+    DataExtractionResult,
+    DataExtractionResults,
+)
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
 from pydantic import ValidationError
