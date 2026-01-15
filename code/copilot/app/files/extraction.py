@@ -284,7 +284,7 @@ class FileExtractionClient:
                     instructions=instructions,
                     reasoning_effort=reasoning_effort,
                 )
-            cleaned_data["tables"] = table_summaries
+                cleaned_data["tables"] = table_summaries
 
         # Minify JSON structure by removing unnecessary whitespace
         cleaned_data_minified = json.dumps(cleaned_data, separators=(",", ":"))

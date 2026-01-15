@@ -84,7 +84,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Load user state
     user_state_store_item: UserStateStoreItem = state.get_value(
         name="ConversationState.user_state_store_item",
-        default_value_factory=lambda: UserStateStoreItem(),
+        default_value_factory=lambda: UserStateStoreItem(instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\nMISSING DOCUMENT"),
         target_cls=UserStateStoreItem,
     )
 
@@ -93,7 +93,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         context=context, user_state_store_item=user_state_store_item
     )
 
-    # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
+    # Only listen for attachments if more than one attachment is present since Teams sends a html text message attachment by default
     if not command and len(context.activity.attachments or []) > 1:
         # Handle attachments
         user_state_store_item = await MSTeamsHandler.handle_attachments(

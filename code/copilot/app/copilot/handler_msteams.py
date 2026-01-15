@@ -13,6 +13,7 @@ from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
+from app.models.attachments import DataExtractionResults, DataExtractionResult
 from app.models.attachments import AttachmentContent
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
@@ -135,6 +136,9 @@ class MSTeamsHandler(AbstractHandler):
                 f"Supported attachments detected. Count: {len(supported_attachments)}"
             )
 
+            # Initialize variables
+            document_extracted_data = DataExtractionResults(documents=[])
+
             # Create file extraction client
             file_extraction_client = FileExtractionClient(
                 api_key=settings.AZURE_DOCUMENT_INTELLIGENCE_API_KEY,
@@ -198,8 +202,13 @@ class MSTeamsHandler(AbstractHandler):
                     context=context, text="\n(100%) File processing completed.\n"
                 )
 
-                # Only process the first supported attachment for now
-                break
+                # Append the data to the extracted data list
+                document_extracted_data.documents.append(
+                    DataExtractionResult(
+                        title=attachment.name,
+                        data=cleaned_data,
+                    )
+                )
 
             # Update user about not processed documents
             supported_attachments_names = [
