@@ -93,7 +93,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         context=context, user_state_store_item=user_state_store_item
     )
 
-    # Only listen for attachments if more than one attachment is present since Teams sends a text message attachment by default
+    # Only listen for attachments if more than one attachment is present since Teams sends a html text message attachment by default
     if not command and len(context.activity.attachments or []) > 1:
         # Handle attachments
         user_state_store_item = await MSTeamsHandler.handle_attachments(
@@ -114,7 +114,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     elif (
         not command
         and user_state_store_item.file_uploaded
-        and user_state_store_item.instructions
+        and len(user_state_store_item.document_extraction_results.documents) > 0
     ):
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
