@@ -373,9 +373,15 @@ class MSTeamsHandler(AbstractHandler):
                 # Capture OpenAI APIError specifically
                 logger.error(f"OpenAI APIError occurred: {api_error}", exc_info=True)
 
+                if api_error.code == "string_above_max_length":
+                    await stream_string_in_chunks(
+                        context,
+                        "The document is too large for me to process. Please restart the conversation by sending `/restart` to me.",
+                    )
+
                 await stream_string_in_chunks(
                     context,
-                    "I'm sorry, but I encountered an issue while trying to process your request. Please try again in a few moments.",
+                    "I'm sorry, but I encountered an issue while trying to process your request. Please try again in a few moments.  If the issue persists, `/restart` the conversation and reupload the document again.",
                 )
 
             case BadRequestError() as bad_request_error:
@@ -388,12 +394,12 @@ class MSTeamsHandler(AbstractHandler):
                 if bad_request_error.code == "string_above_max_length":
                     await stream_string_in_chunks(
                         context,
-                        "The document is too large for me to process. Please upload a smaller document to proceed.",
+                        "The document is too large for me to process. Please restart the conversation by sending `/restart` to me.",
                     )
                 else:
                     await stream_string_in_chunks(
                         context,
-                        "I'm sorry, but I encountered an issue while trying to process your request. Please try again later.",
+                        "I'm sorry, but I encountered an issue while trying to process your request. Please try again later.  If the issue persists, `/restart` the conversation and reupload the document again.",
                     )
             case ModelBehaviorError() as model_behavior_error:
                 # Capture ModelBehaviorError specifically
@@ -403,7 +409,7 @@ class MSTeamsHandler(AbstractHandler):
                 )
                 await stream_string_in_chunks(
                     context,
-                    "I'm sorry, but I encountered an issue while trying to process your request. Please resend your question. If the issue persists, try uploading the document again.",
+                    "I'm sorry, but I encountered an issue while trying to process your request. Please resend your question. If the issue persists, `/restart` the conversation and reupload the document again.",
                 )
             case _:
                 # Capture any other unexpected errors
@@ -411,5 +417,5 @@ class MSTeamsHandler(AbstractHandler):
 
                 await stream_string_in_chunks(
                     context,
-                    "I'm sorry, but something went wrong while processing your request. Please try again later.",
+                    "I'm sorry, but something went wrong while processing your request. Please try again later. If the issue persists, `/restart` the conversation and reupload the document again.",
                 )
