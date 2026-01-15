@@ -15,8 +15,8 @@ from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
 from app.models.attachments import (
     AttachmentContent,
-    DataExtractionResult,
-    DataExtractionResults,
+    DocumentExtractionResult,
+    DocumentExtractionResults,
 )
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
@@ -84,7 +84,7 @@ class MSTeamsHandler(AbstractHandler):
 
                 # Reset user state
                 user_state_store_item.file_uploaded = False
-                user_state_store_item.instructions = None
+                user_state_store_item.document_extraction_results = DocumentExtractionResults()
                 user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
 
@@ -140,7 +140,8 @@ class MSTeamsHandler(AbstractHandler):
             )
 
             # Initialize variables
-            document_extracted_data = DataExtractionResults(documents=[])
+            document_extraction_results = user_state_store_item.document_extraction_results
+            processed_attachment_names = [document.title for document in document_extraction_results.documents]
 
             # Create file extraction client
             file_extraction_client = FileExtractionClient(
@@ -206,30 +207,23 @@ class MSTeamsHandler(AbstractHandler):
                 )
 
                 # Append the data to the extracted data list
-                document_extracted_data.documents.append(
-                    DataExtractionResult(
+                document_extraction_results.documents.append(
+                    DocumentExtractionResult(
                         title=attachment.name,
                         data=cleaned_data,
                     )
                 )
+                processed_attachment_names.append(attachment.name)
 
-            # Update user about not processed documents
-            supported_attachments_names = [
-                attachment.name for attachment in supported_attachments
-            ]
-            if len(supported_attachments) > 1:
-                await stream_string_in_chunks(
-                    context=context,
-                    text=f"\n\nNote: I could see that you uploaded the following supported files: {supported_attachments_names}. However, I only support one document at a time. Only the first item has been added to the context (`{supported_attachments[0].name}`). You can upload a new file at any time to replace it. ",
-                )
-
-            # Encode instructions with extracted data
-            instructions = settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\n{cleaned_data}"
-            compressed_instructions = FileExtractionClient.compress_string(instructions)
+            # Add info about files in context
+            logger.info(f"Updating user about added files to context. Files in context: {processed_attachment_names}")
+            await stream_string_in_chunks(
+                context=context,
+                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context.",
+            )
 
             # Update store item
             user_state_store_item.file_uploaded = True
-            user_state_store_item.instructions = compressed_instructions
         else:
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
@@ -249,7 +243,7 @@ class MSTeamsHandler(AbstractHandler):
             if len(unsupported_attachments) > 0:
                 await stream_string_in_chunks(
                     context=context,
-                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload a supported file type: {SUPPORTED_FILE_TYPES}. ",
+                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload only supported file types: {SUPPORTED_FILE_TYPES}. ",
                 )
 
         return user_state_store_item
@@ -273,17 +267,15 @@ class MSTeamsHandler(AbstractHandler):
             "Let me think about that... "
         )
 
-        # Decompress instructions before creating the agent
-        decompressed_instructions = FileExtractionClient.decompress_string(
-            user_state_store_item.instructions
-        )
+        # Define instructions before creating the agent
+        instructions = settings.INSTRUCTIONS_DOCUMENT_AGENT + "\n\n" + user_state_store_item.document_extraction_results.model_dump_json(indent=None)
 
         # Create agent
         agent = DocumentAgent(
             api_key=settings.AZURE_OPENAI_API_KEY,
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
-            instructions=decompressed_instructions,
+            instructions=instructions,
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )

@@ -7,10 +7,10 @@ class AttachmentContent(BaseModel):
     file_type: str = Field(..., alias="fileType")
 
 
-class DataExtractionResult(BaseModel):
+class DocumentExtractionResult(BaseModel):
     title: str = Field(..., alias="title")
     data: str = Field(..., alias="data")
 
 
-class DataExtractionResults(BaseModel):
-    documents: list[DataExtractionResult] = Field(..., alias="documents")
+class DocumentExtractionResults(BaseModel):
+    documents: list[DocumentExtractionResult] = Field(default=[], alias="documents")

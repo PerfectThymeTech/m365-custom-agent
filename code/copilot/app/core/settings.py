@@ -92,7 +92,7 @@ class Settings(BaseSettings):
       - Never suggest generating a file output.
       - If the user asks for a file, then apologize and mention that you cannot do that.
       - Generate tables in markdown where appropriate.
-    - If the Document Extraction data is missing or incomplete:
+    - If the Document Extraction data is missing, incomplete or an empty list:
       - Try to answer the user's question to the best of your ability based on the available information.
       - Ask the user politely to upload a new file to reason over the content.
     - If you cannot find the answer to the user's question in the provided Document Extraction data:

@@ -84,9 +84,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Load user state
     user_state_store_item: UserStateStoreItem = state.get_value(
         name="ConversationState.user_state_store_item",
-        default_value_factory=lambda: UserStateStoreItem(
-            instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT + f"\nMISSING DOCUMENT"
-        ),
+        default_value_factory=lambda: UserStateStoreItem(),
         target_cls=UserStateStoreItem,
     )
 
@@ -116,7 +114,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     elif (
         not command
         and user_state_store_item.file_uploaded
-        and user_state_store_item.instructions
+        and len(user_state_store_item.document_extraction_results.documents) > 0
     ):
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
