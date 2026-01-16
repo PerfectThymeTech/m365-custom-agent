@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenarios",
+  "description": "A schema for the scenario definitions.",
+  "properties": {
+    "scenarios": {
+      "description": "Specifies the list of pre-defined scenarios.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "Specifies the title of the scenario.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Specifies the description of the scenario.",
+            "type": "string"
+          },
+          "prompt": {
+            "description": "Specifies the prompt of the scenario.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "prompt"
+        ],
+        "additionalProperties": false
+      }
+      
+    }
+  },
+  "required": [
+    "scenarios"
+  ]
+}
