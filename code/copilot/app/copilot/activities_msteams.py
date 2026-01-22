@@ -2,7 +2,7 @@ from app.copilot.action import SuggestedActionHandler
 from app.copilot.common import configure_context, get_suggested_actions_from_agent
 from app.copilot.copilot import auth_handlers, copilot_apps
 from app.copilot.handler_msteams import MSTeamsHandler
-from app.copilot.scenarios import DocumentScenarios
+from app.copilot.scenarios import ScenarioHandler
 from app.core.settings import settings
 from app.logs import setup_logging
 from app.models.agents import UserStateStoreItem
@@ -100,46 +100,37 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             context=context, user_state_store_item=user_state_store_item
         )
 
-        # Add suggested actions for next steps to suggested action handler
-        suggested_action_handler.add_suggested_action(
-            title="Legal Descriptions and Discrepancies",
-            prompt=DocumentScenarios.LEGAL_DESCRIPTIONS_AND_DISCREPANCIES.value,
-        )
-        suggested_action_handler.add_suggested_action(
-            title="Summarize the Document",
-            prompt=DocumentScenarios.SUMMARIZE_DOCUMENT.value,
+        # Send default scenario as carousel
+        await ScenarioHandler(scenario_definitions=settings.SCENARIO_DEFINITIONS).send(
+            context=context
         )
 
-    # Use agent to process user prompt if file is uploaded and instructions are set
-    elif (
-        not command
-        and user_state_store_item.file_uploaded
-        and len(user_state_store_item.document_extraction_results.documents) > 0
-    ):
+    # Use agent to process user prompt
+    if not command:
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item
         )
 
-        # Get suggested actions from agent
-        suggested_actions_response = await get_suggested_actions_from_agent(
-            user_input=context.activity.text,
-            agent_response=response,
-            agent_instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT,
-        )
-        # Add suggested actions for next steps to suggested action handler
-        for suggested_action in suggested_actions_response.suggested_actions:
-            logger.info(
-                f"Adding suggested action: '{suggested_action.title}' with value: '{suggested_action.value}'"
+        # Get suggested actions from agent if files have been uploaded
+        if (
+            user_state_store_item.file_uploaded
+            and len(user_state_store_item.document_extraction_results.documents) > 0
+        ):
+            suggested_actions_response = await get_suggested_actions_from_agent(
+                user_input=context.activity.text,
+                agent_response=response,
+                agent_instructions=settings.INSTRUCTIONS_DOCUMENT_AGENT,
             )
-            suggested_action_handler.add_suggested_action(
-                title=suggested_action.title,
-                prompt=suggested_action.prompt,
-            )
-
-    # Use default response if file has not been uploaded yet
-    else:
-        await MSTeamsHandler.handle_default_response(context=context)
+            # Add suggested actions for next steps to suggested action handler
+            for suggested_action in suggested_actions_response.suggested_actions:
+                logger.info(
+                    f"Adding suggested action: '{suggested_action.title}' with value: '{suggested_action.value}'"
+                )
+                suggested_action_handler.add_suggested_action(
+                    title=suggested_action.title,
+                    prompt=suggested_action.prompt,
+                )
 
     # Send suggested actions if any
     await suggested_action_handler.send(context=context)

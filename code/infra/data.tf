@@ -30,6 +30,10 @@ data "local_file" "file_instructions_suggested_actions_agent" {
   filename = local.instructions_suggested_actions_agent_path
 }
 
+data "local_file" "file_scenario_definitions" {
+  filename = local.scenario_definitions_path
+}
+
 data "archive_file" "file_web_app" {
   count = var.web_app_code_path != "" ? 1 : 0
 
