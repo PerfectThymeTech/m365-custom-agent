@@ -1,69 +1,63 @@
-from enum import Enum
+from app.logs import setup_logging
+from app.models.scenarios import ScenarioDefinitions
+from microsoft_agents.activity import ActionTypes, CardAction
+from microsoft_agents.activity.hero_card import HeroCard
+from microsoft_agents.hosting.core import MessageFactory, TurnContext
+from microsoft_agents.hosting.core.card_factory import CardFactory
+
+logger = setup_logging(__name__)
 
 
-class DocumentScenarios(str, Enum):
-    LEGAL_DESCRIPTIONS_AND_DISCREPANCIES = (
-        "Extract the legal descriptions and list the identified discrepancies!"
-    )
-    SUMMARIZE_DOCUMENT = "Summarize the document!"
+class ScenarioHandler:
+    def __init__(self, scenario_definitions: ScenarioDefinitions) -> None:
+        self.activity = MessageFactory.carousel(
+            attachments=[],
+            text="Here are a few pre-defined scenarios you can select from. Click on a scenario to get started.",
+        )
+        self._add_scenarios(scenario_definitions=scenario_definitions)
 
+    def _add_scenarios(self, scenario_definitions: ScenarioDefinitions) -> None:
+        """
+        Add scenario cards to the activity attachments.
 
-class DocumentScenarioInstructions:
-    INSTRUCTIONS = {
-        DocumentScenarios.LEGAL_DESCRIPTIONS_AND_DISCREPANCIES: (
-            """
-            # Objective
-            Extract legal descriptions from the provided document and identify any discrepancies present.
+        :return: None
+        """
+        for scenario_definition in scenario_definitions.scenarios:
+            # Create card for each scenario
+            card = HeroCard(
+                title=scenario_definition.title,
+                text=scenario_definition.description,
+                tap=CardAction(
+                    type=ActionTypes.message_back,
+                    title=scenario_definition.title,
+                    text=scenario_definition.title,
+                    display_text=scenario_definition.title,
+                ),
+                buttons=[
+                    CardAction(
+                        type=ActionTypes.message_back,
+                        title="Select",
+                        text=scenario_definition.title,
+                        display_text=scenario_definition.title,
+                    )
+                ],
+            )
 
-            # Instructions
-            - You must extract all legal descriptions found within the document.
-            - Identify and list any discrepancies related to the legal descriptions.
-            - Only list on the discrepancies that pertain to legal descriptions and similarities.
-            - Solve this step by step to ensure accuracy.
+            # Add the card to the carousel attachments
+            self.activity.attachments.append(CardFactory.hero_card(card=card))
 
-            # Steps to Follow
+    async def send(self, context: TurnContext) -> None:
+        """
+        Send the scenario selection activity to the user.
 
-            1. Locate legal descriptions
-            - Carefully read through the entire document to locate legal descriptions.
-
-            2. Extract legal descriptions
-            - For each legal description found, extract the complete text and note its location within the document
-
-            3. Identify discrepancies
-            - Analyze the extracted legal descriptions to identify any discrepancies or inconsistencies.
-            - Discrepancies could include conflicting information, missing details, or any other irregularities.
-
-            4. Create response
-            - Create a response according to the response format below.
-
-            # Response Format
-            - Provide the results in markdown format.
-            - First list all extracted legal descriptions under a section titled "Extracted Legal Descriptions".
-              - Each legal description must be presented as a bullet point.
-              - Only include the key points of each legal description and avoid unnecessary details.
-            - Then, list all identified discrepancies under a section titled "Identified Discrepancies".
-              - Present each discrepancy as a numbered list item.
-              - Provide a brief explanation for each discrepancy identified.
-              - Paraphrase the discrepancies to ensure clarity and avoid direct copying from the document.
-            """
-        ),
-        DocumentScenarios.SUMMARIZE_DOCUMENT: (
-            """
-            # Objective
-            Provide a concise summary of the provided document.
-
-            # Instructions
-            - Read through the entire document carefully.
-            - Identify the main points and key information presented in the document.
-            - Create a summary that captures the essence of the document in a clear and concise manner.
-            - Ensure the summary is easy to understand and free of jargon.
-
-            # Response Format
-            - Provide the summary in markdown format.
-            - The summary must be presented as a series of bullet points.
-            - Each bullet point should highlight a key aspect or main point from the document.
-            - Avoid including unnecessary details or lengthy explanations.
-            - Ensure the summary is well-organized and logically structured.
-            """
-        ),
-    }
+        :param context: The TurnContext object for the current turn.
+        :type context: TurnContext
+        :return: None
+        """
+        if len(self.activity.attachments) > 0:
+            logger.info("Send carousel activity with pre-defined scenarios.")
+            await context.send_activity(self.activity)
+        else:
+            logger.info(
+                "Carousel activity has no pre-defined scenarios. Skipping send."
+            )

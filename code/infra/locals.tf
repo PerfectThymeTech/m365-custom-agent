@@ -50,6 +50,7 @@ locals {
     # Prompt settings
     INSTRUCTIONS_DOCUMENT_AGENT          = data.local_file.file_instructions_document_agent.content
     INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT = data.local_file.file_instructions_suggested_actions_agent.content
+    SCENARIO_DEFINITIONS                 = jsonencode(yamldecode(data.local_file.file_scenario_definitions.content))
   }
   web_app_app_settings = merge(local.app_settings_default, var.web_app_app_settings)
 
@@ -90,6 +91,7 @@ locals {
   # Other locals
   instructions_document_agent_path                   = "${path.module}/../../docs/INSTRUCTIONS_DOCUMENT_AGENT.txt"
   instructions_suggested_actions_agent_path          = "${path.module}/../../docs/INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT.txt"
+  scenario_definitions_path                          = "${path.module}/../../docs/SCENARIO_DEFINITIONS.yaml"
   cosmosdb_sql_container_name                        = "bot-data"
   bot_connection_user_authorization_graph_oauth_name = "user-authorization-graph-oauth"
 }

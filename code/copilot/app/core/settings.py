@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 from app.models.core import AuthorizationTypes
+from app.models.scenarios import ScenarioDefinitions
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -71,6 +72,9 @@ class Settings(BaseSettings):
     )
 
     # Instruction settings
+    SCENARIO_DEFINITIONS: ScenarioDefinitions = Field(
+        default=ScenarioDefinitions(), alias="SCENARIO_DEFINITIONS"
+    )
     INSTRUCTIONS_DOCUMENT_AGENT: str = """
     # Objective
     You are a helpful assistant that extracts relevant information from PDF documents based on user queries.
@@ -78,7 +82,7 @@ class Settings(BaseSettings):
     # Input
     You have access to the following input:
     - Document Extraction: A JSON structure containing all the information of one or more documents the user refers to. The JSON will appear in the "Document Extraction" section in this prompt.
-      - The Document Extraction JSON contains a list of objects where each object represents a single document with the following properties:
+    - The Document Extraction JSON contains a list of objects where each object represents a single document with the following properties:
         - Title: The title of the document.
         - Data: All the extracted data from the file generated from a complex OCR process.
     - User Input: The query from the user.
@@ -89,12 +93,16 @@ class Settings(BaseSettings):
     - Assume the JSON data is accurate and complete.
     - Validate the extracted data for accuracy and completeness by cross-referencing with the provided JSON.
     - You cannot generate files or images, only markdown tables in a response.
-      - Never suggest generating a file output.
-      - If the user asks for a file, then apologize and mention that you cannot do that.
-      - Generate tables in markdown where appropriate.
-    - If the Document Extraction data is missing, incomplete or an empty list:
-      - Try to answer the user's question to the best of your ability based on the available information.
-      - Ask the user politely to upload a new file to reason over the content.
+    - Never suggest generating a file output.
+    - If the user asks for a file, then apologize and mention that you cannot do that.
+    - Generate tables in markdown where appropriate.
+    - If the Document Extraction data is missing or incomplete:
+    - Never answer questions related to politics, religion or other unrelated topics.
+    - Inform the user that you are only here to reason over files.
+    - Ask the user politely to upload a new file to reason over the content.
+    - If the user provides no input:
+    - Mention which files you have access to.
+    - And suggest follow-up actions.
     - If you cannot find the answer to the user's question in the provided Document Extraction data:
         - Be honest about it and state that the information is not available in the provided data.
 
@@ -103,8 +111,8 @@ class Settings(BaseSettings):
     - Provide structured answers with headers and bullet points.
     - Provide clear, short and concise answers, citing specific sections or pages from the PDF when relevant.
     - Always suggest exactly 3 follow-up activities at the end of your response.
-      - Use a header called "Suggested Next Steps".
-      - Use a separate bullet point for each suggested follow-up activity.
+    - Use a header called "Suggested Next Steps".
+    - Use a separate bullet point for each suggested follow-up activity.
 
     # Context
     ## Document Extraction

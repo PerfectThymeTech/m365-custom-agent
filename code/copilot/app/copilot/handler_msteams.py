@@ -8,7 +8,6 @@ from app.copilot.common import (
     stream_string_in_chunks,
 )
 from app.copilot.handler_abstract import AbstractHandler
-from app.copilot.scenarios import DocumentScenarioInstructions, DocumentScenarios
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
@@ -313,14 +312,15 @@ class MSTeamsHandler(AbstractHandler):
                 f"User prompt does not match any suggested action. Proceeding with default instructions."
             )
 
-        # try:
-        #     document_scenario = DocumentScenarios(user_prompt)
-        #     user_prompt = DocumentScenarioInstructions.INSTRUCTIONS[document_scenario]
-        #     logger.info(f"User prompt matches predefined scenario '{document_scenario.value}'. Using corresponding instructions.")
-        # except ValueError as e:
-        #     logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
-        # except ValidationError as e:
-        #     logger.info(f"User prompt does not match any predefined scenario. Proceeding with default instructions.")
+        # Check for pre-defined prompt scenario
+        logger.info("Checking for pre-defined prompt scenario.")
+        for scenario in settings.SCENARIO_DEFINITIONS.scenarios:
+            if user_prompt == scenario.title:
+                user_prompt = scenario.prompt
+                logger.info(
+                    f"User prompt matches predefined scenario '{scenario.title}'. Using corresponding prompt."
+                )
+                break
 
         # Stream agent response
         logger.info(
