@@ -3,11 +3,6 @@ name: Web App Test Template
 on:
   workflow_call:
     inputs:
-      python_version:
-        required: true
-        type: string
-        default: "3.11"
-        description: "Specifies the python version."
       webapp_directory:
         required: true
         type: string
@@ -25,23 +20,34 @@ jobs:
         id: checkout_repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      # Setup Python
-      - name: Setup Python
-        id: python_setup
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      # Setup uv
+      - name: Setup uv
+        id: uv_setup
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          python-version: ${{ inputs.python_version }}
-          cache: "pip"
-          cache-dependency-path: |
-            ${{ inputs.webapp_directory }}/requirements.txt
-            requirements.txt
+          version-file: "pyproject.toml"
+          working-directory: ${{ inputs.webapp_directory }}
+          enable-cache: true
+          cache-suffix: "copilot"
+
+      # Install uv dependencies
+      - name: Install uv dependencies
+        id: uv_dependencies
+        working-directory: ${{ inputs.webapp_directory }}
+        run: |
+          # Create and activate venv
+          uv venv webapp-env
+          source webapp-env/bin/activate
+          
+          # Sync dependencies
+          uv lock
+          uv sync
 
       # Run Python Tests
       - name: Run Python Tests
-        id: python_test
+        id: uv_test
+        working-directory: ${{ inputs.webapp_directory }}
         run: |
-          pip install -r "${WEBAPP_DIRECTORY}/requirements.txt" -q
-          pip install -r requirements.txt -q
-          pytest
+          uv run pytest tests/
         env:
           WEBAPP_DIRECTORY: ${{ inputs.webapp_directory }}
