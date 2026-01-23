@@ -38,7 +38,7 @@ jobs:
           # Create and activate venv
           uv venv webapp-env
           source webapp-env/bin/activate
-          
+
           # Sync dependencies
           uv lock
           uv sync
