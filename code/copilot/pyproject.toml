@@ -23,4 +23,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pre-commit>=4.5.0",
+    "pytest>=9.0.2",
 ]
+
+[tool.uv]
+required-version = ">=0.8.9"

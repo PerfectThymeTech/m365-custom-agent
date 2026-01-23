@@ -37,19 +37,19 @@ jobs:
       BOT_OAUTH_CLIENT_ID: ${{ secrets.BOT_OAUTH_CLIENT_ID }}
       BOT_OAUTH_CLIENT_SECRET: ${{ secrets.BOT_OAUTH_CLIENT_SECRET }}
 
-  terraform_dev_destroy:
-    uses: ./.github/workflows/_terraformDestroyTemplate.yml
-    name: "Dev - Destroy"
-    needs: [terraform_dev]
-    with:
-      environment: "dev"
-      config: "PerfectThymeTech"
-      terraform_version: "1.14.1"
-      node_version: 20
-      working_directory: "./code/infra"
-      tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
-      subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
-    secrets:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      BOT_OAUTH_CLIENT_ID: ${{ secrets.BOT_OAUTH_CLIENT_ID }}
-      BOT_OAUTH_CLIENT_SECRET: ${{ secrets.BOT_OAUTH_CLIENT_SECRET }}
+  # terraform_dev_destroy:
+  #   uses: ./.github/workflows/_terraformDestroyTemplate.yml
+  #   name: "Dev - Destroy"
+  #   needs: [terraform_dev]
+  #   with:
+  #     environment: "dev"
+  #     config: "PerfectThymeTech"
+  #     terraform_version: "1.14.1"
+  #     node_version: 20
+  #     working_directory: "./code/infra"
+  #     tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
+  #     subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
+  #   secrets:
+  #     CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  #     BOT_OAUTH_CLIENT_ID: ${{ secrets.BOT_OAUTH_CLIENT_ID }}
+  #     BOT_OAUTH_CLIENT_SECRET: ${{ secrets.BOT_OAUTH_CLIENT_SECRET }}

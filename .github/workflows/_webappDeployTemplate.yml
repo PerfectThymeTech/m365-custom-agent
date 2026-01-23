@@ -8,11 +8,6 @@ on:
         type: string
         default: "dev"
         description: "Specifies the environment of the deployment."
-      python_version:
-        required: true
-        type: string
-        default: "3.11"
-        description: "Specifies the python version."
       webapp_directory:
         required: true
         type: string
@@ -54,27 +49,31 @@ jobs:
         id: checkout_repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      # Setup Python
-      - name: Setup Python
-        id: python_setup
-        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      # Setup uv
+      - name: Setup uv
+        id: uv_setup
+        uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
         with:
-          python-version: ${{ inputs.python_version }}
-          cache: "pip"
-          cache-dependency-path: |
-            ${{ inputs.webapp_directory }}/requirements.txt
+          version-file: "pyproject.toml"
+          working-directory: ${{ inputs.webapp_directory }}
+          enable-cache: true
+          cache-suffix: "copilot"
 
-      # Install Web App Dependencies
-      - name: Resolve Web App Dependencies
-        id: webapp_dependencies
-        shell: bash
+      # Install uv dependencies
+      - name: Install uv dependencies
+        id: uv_dependencies
+        working-directory: ${{ inputs.webapp_directory }}
         run: |
-          pushd "${WEBAPP_DIRECTORY}"
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-          popd
-        env:
-          WEBAPP_DIRECTORY: ${{ inputs.webapp_directory }}
+          # Create and activate venv
+          uv venv webapp-env
+          source webapp-env/bin/activate
+
+          # Sync dependencies
+          uv lock
+          uv sync --no-dev
+
+          # Remove venv
+          rm -rf webapp-env
 
       # Azure login
       - name: Azure login
@@ -85,12 +84,12 @@ jobs:
           tenant-id: ${{ inputs.tenant_id }}
           subscription-id: ${{ inputs.subscription_id }}
 
-      # # Deploy Web App
-      # - name: Deploy Web App
-      #   id: webapp_deploy
-      #   uses: Azure/webapps-deploy@657f0700ea5214d56a0400d8ac5e8023c963d25d  # v3.0.6
-      #   with:
-      #     app-name: ${{ inputs.webapp_name }}
-      #     package: ${{ inputs.webapp_directory }}
-      #     startup-command: "gunicorn --bind 0.0.0.0 --worker-class uvicorn.workers.UvicornWorker --timeout 600 app.main:app"
-      #     # restart: true
+      # Deploy Web App
+      - name: Deploy Web App
+        id: webapp_deploy
+        uses: Azure/webapps-deploy@657f0700ea5214d56a0400d8ac5e8023c963d25d  # v3.0.6
+        with:
+          app-name: ${{ inputs.webapp_name }}
+          package: ${{ inputs.webapp_directory }}
+          startup-command: "gunicorn --bind 0.0.0.0 --worker-class uvicorn.workers.UvicornWorker --timeout 600 app.main:app"
+          # restart: true

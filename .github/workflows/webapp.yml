@@ -7,7 +7,6 @@ on:
       - "**.py"
       - "code/copilot/**"
       - "config/**"
-      - "tests/**"
       - "requirements.txt"
 
   pull_request:
@@ -17,7 +16,6 @@ on:
       - "**.py"
       - "code/copilot/**"
       - "config/**"
-      - "tests/**"
       - "requirements.txt"
 
 jobs:
@@ -25,7 +23,6 @@ jobs:
     uses: ./.github/workflows/_webappTestTemplate.yml
     name: "Web App Test"
     with:
-      python_version: "3.13"
       webapp_directory: "./code/copilot"
 
   webapp_dev:
@@ -34,9 +31,8 @@ jobs:
     needs: [webapp_test]
     with:
       environment: "dev"
-      python_version: "3.13"
       webapp_directory: "./code/copilot"
-      webapp_name: "bfr-dev-app001"
+      webapp_name: "cop-dev-app001"
       tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
       subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
     secrets:
