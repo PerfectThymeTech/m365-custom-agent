@@ -122,6 +122,7 @@ class RootAgent:
             f"Document Agent usage. Output tokens: {usage.output_tokens}, Output token details: {usage.output_tokens_details}"
         )
 
+    # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
         self, input: str, context: TurnContext, last_response_id: str | None = None
     ) -> Tuple[str, str]:
@@ -164,6 +165,7 @@ class RootAgent:
         # Return last response id and the full response
         return result.last_response_id, response
 
+    # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def _get_response(
         self, input: str, last_response_id: str | None = None
     ) -> str:
