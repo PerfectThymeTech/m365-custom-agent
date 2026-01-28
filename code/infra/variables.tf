@@ -203,6 +203,17 @@ variable "private_dns_zone_id_bot_framework_token" {
   }
 }
 
+variable "private_dns_zone_id_ai_services" {
+  description = "Specifies the resource ID of the private DNS zone for Azure Foundry (AI Services). Not required if DNS A-records get created via Azure Policy."
+  type        = string
+  sensitive   = false
+  default     = ""
+  validation {
+    condition     = var.private_dns_zone_id_ai_services == "" || (length(split("/", var.private_dns_zone_id_ai_services)) == 9 && endswith(var.private_dns_zone_id_ai_services, "privatelink.services.ai.azure.com"))
+    error_message = "Please specify a valid resource ID for the private DNS Zone."
+  }
+}
+
 variable "private_dns_zone_id_cognitive_account" {
   description = "Specifies the resource ID of the private DNS zone for Azure Cognitive Services. Not required if DNS A-records get created via Azure Policy."
   type        = string
