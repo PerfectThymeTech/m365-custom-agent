@@ -29,7 +29,7 @@ module "ai_foundry" {
   private_dns_zone_id_ai_services       = var.private_dns_zone_id_ai_services
   private_dns_zone_id_cognitive_account = var.private_dns_zone_id_cognitive_account
   private_dns_zone_id_open_ai           = var.private_dns_zone_id_open_ai
-  customer_managed_key                  = null
+  customer_managed_key                  = local.customer_managed_key
 }
 
 resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_2" {
