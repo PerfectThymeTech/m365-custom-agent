@@ -32,7 +32,7 @@ module "ai_foundry" {
   customer_managed_key                  = null
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_2" {
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_2" {
   name                 = "gpt-5.2"
   cognitive_account_id = module.ai_foundry.ai_services_id
 
@@ -48,7 +48,7 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_2" {
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_gpt_5_mini" {
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_mini" {
   name                 = "gpt-5-mini"
   cognitive_account_id = module.ai_foundry.ai_services_id
 
