@@ -36,7 +36,7 @@ locals {
     AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = ""
 
     # Azure Content Understanding settings
-    AZURE_CONTENT_UNDERSTANDING_ENDPOINT = "https://${module.ai_foundry.ai_services_name}.services.ai.azure.com/"
+    AZURE_CONTENT_UNDERSTANDING_ENDPOINT = module.ai_foundry.ai_services_cognitive_endpoint
     AZURE_CONTENT_UNDERSTANDING_API_KEY  = ""
 
     # Cosmos DB settings
@@ -46,7 +46,11 @@ locals {
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
 
     # Azure Open AI app settings
-    AZURE_OPENAI_ENDPOINT       = "https://${module.ai_foundry.ai_services_name}.openai.azure.com/"
+    AZURE_AI_FOUNDRY_PROJECT_ENDPOINT = module.ai_foundry.ai_services_project_endpoints["project001"]["AI Foundry API"]
+    AZURE_AI_FOUNDRY_PROJECT_ID       = module.ai_foundry.ai_services_project_ids["project001"]
+
+    # Azure Open AI app settings
+    AZURE_OPENAI_ENDPOINT       = module.ai_foundry.ai_services_openai_endpoint
     AZURE_OPENAI_API_KEY        = ""
     AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_2.name
     AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_mini.name
