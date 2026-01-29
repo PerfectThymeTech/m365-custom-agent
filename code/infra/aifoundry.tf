@@ -63,3 +63,38 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_m
   }
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
+
+resource "azapi_resource" "ai_foundry_project_connection_appinsights" { # Blocked by some network issue
+  count = var.ai_foundry_project_details.enabled && var.ai_foundry_account_details.enabled ? 1 : 0
+
+  type      = "Microsoft.CognitiveServices/accounts/connections@2025-10-01-preview"
+  name      = "appinsights"
+  parent_id = module.ai_foundry.ai_services_id
+
+  body = {
+    properties = {
+      authType = "ApiKey"
+      category = "AppInsights"
+      credentials = {
+        key = module.application_insights.application_insights_connection_string
+      }
+      error         = null
+      expiryTime    = null
+      isSharedToAll = false
+      metadata = {
+        ApiType    = "Azure"
+        ResourceId = module.application_insights.application_insights_id
+        location   = var.location
+      }
+      peRequirement               = "NotRequired"
+      target                      = module.application_insights.application_insights_id
+      useWorkspaceManagedIdentity = true
+    }
+  }
+
+  response_export_values    = []
+  schema_validation_enabled = false
+  locks                     = []
+  ignore_casing             = false
+  ignore_missing_property   = true
+}
