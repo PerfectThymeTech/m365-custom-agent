@@ -65,8 +65,6 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_m
 }
 
 resource "azapi_resource" "ai_foundry_project_connection_appinsights" { # Blocked by some network issue
-  count = var.ai_foundry_project_details.enabled && var.ai_foundry_account_details.enabled ? 1 : 0
-
   type      = "Microsoft.CognitiveServices/accounts/connections@2025-10-01-preview"
   name      = "appinsights"
   parent_id = module.ai_foundry.ai_services_id
