@@ -45,15 +45,16 @@ locals {
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
 
-    # Azure Open AI app settings
+    # Azure AI Foundry app settings
     AZURE_AI_FOUNDRY_PROJECT_ENDPOINT = module.ai_foundry.ai_services_project_endpoints["project001"]["AI Foundry API"]
     AZURE_AI_FOUNDRY_PROJECT_ID       = module.ai_foundry.ai_services_project_ids["project001"]
 
     # Azure Open AI app settings
-    AZURE_OPENAI_ENDPOINT       = module.ai_foundry.ai_services_openai_endpoint
-    AZURE_OPENAI_API_KEY        = ""
-    AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_2.name
-    AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_mini.name
+    AZURE_OPENAI_ENDPOINT        = module.ai_foundry.ai_services_openai_endpoint
+    AZURE_OPENAI_API_KEY         = ""
+    AZURE_OPENAI_MODEL_NAME      = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_2.name
+    AZURE_OPENAI_MODEL_SLM_NAME  = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_mini.name
+    AZURE_OPENAI_MODEL_NANO_NAME = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_nano.name
 
     # Prompt settings
     INSTRUCTIONS_DOCUMENT_AGENT          = data.local_file.file_instructions_document_agent.content

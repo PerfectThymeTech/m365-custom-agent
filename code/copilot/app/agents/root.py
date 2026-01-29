@@ -4,6 +4,7 @@ from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
 from app.logs import setup_logging, setup_tracing
+from app.models.copilot import AgentTurnContext
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
@@ -24,17 +25,21 @@ class RootAgent:
         api_key: str,
         endpoint: str,
         model_name: str,
+        agent_name: str,
         instructions: str,
         managed_identity_client_id: str = None,
         reasoning_effort: str = "none",
+        output_guardrails: list[callable] = [],
     ):
         self.agent = self._create_agent(
             api_key,
             endpoint,
             model_name=model_name,
+            agent_name=agent_name,
             instructions=instructions,
             managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
+            output_guardrails=output_guardrails,
         )
         self.runner = Runner()
 
@@ -43,9 +48,11 @@ class RootAgent:
         api_key: str,
         endpoint: str,
         model_name: str,
+        agent_name: str,
         instructions: str,
         managed_identity_client_id: str = None,
         reasoning_effort: str = "none",
+        output_guardrails: list[callable] = [],
     ):
         """
         Create and configure the agent.
@@ -56,12 +63,16 @@ class RootAgent:
         :type endpoint: str
         :param model_name: The name of the model to use.
         :type model_name: str
+        :param agent_name: The name of the agent.
+        :type agent_name: str
         :param instructions: The instructions for the agent.
         :type instructions: str
         :param managed_identity_client_id: The client id of the managed identity.
         :type managed_identity_client_id: str
         :param reasoning_effort: The level of reasoning effort for the agent.
         :type reasoning_effort: str
+        :param output_guardrails: The output guardrails of the agent.
+        :type output_guardrails: list[callable]
         :return: Configured Agent instance.
         :rtype: Agent
         """
@@ -96,12 +107,13 @@ class RootAgent:
 
         # Define the agent
         agent = Agent(
-            name="Suggested Actions Agent",
+            name=agent_name,
             tools=[],
             mcp_servers=[],
             instructions=instructions,
             model=model,
             model_settings=model_settings,
+            output_guardrails=output_guardrails,
         )
         return agent
 
@@ -139,26 +151,32 @@ class RootAgent:
         :return: A tuple containing the last response ID and the full response text.
         :rtype: Tuple[str, str]
         """
-        with tracer.start_as_current_span("RootAgent.stream_response"):
-            # Generate agent response
-            result = self.runner.run_streamed(
-                starting_agent=self.agent,
-                input=input,
-                previous_response_id=last_response_id,
-            )
+        # Create turn context
+        agent_turn_context = AgentTurnContext(
+            query=input,
+        )
 
-            # Return the streamed response
-            response = ""
-            try:
-                async for event in result.stream_events():
-                    if event.type == "raw_response_event" and isinstance(
-                        event.data, ResponseTextDeltaEvent
-                    ):
-                        context.streaming_response.queue_text_chunk(event.data.delta)
-                        response += event.data.delta
-            except Exception as e:
-                logger.error(f"Error streaming agent response: {e}", exc_info=True)
-                raise e
+        # with tracer.start_as_current_span("RootAgent.stream_response"):
+        # Generate agent response
+        result = self.runner.run_streamed(
+            starting_agent=self.agent,
+            input=input,
+            previous_response_id=last_response_id,
+            context=agent_turn_context,
+        )
+
+        # Return the streamed response
+        response = ""
+        try:
+            async for event in result.stream_events():
+                if event.type == "raw_response_event" and isinstance(
+                    event.data, ResponseTextDeltaEvent
+                ):
+                    context.streaming_response.queue_text_chunk(event.data.delta)
+                    response += event.data.delta
+        except Exception as e:
+            logger.error(f"Error streaming agent response: {e}", exc_info=True)
+            raise e
 
         # Track consumed tokens
         usage = result.context_wrapper.usage
@@ -181,13 +199,19 @@ class RootAgent:
         :return: The final response text from the agent.
         :rtype: str
         """
-        with tracer.start_as_current_span("RootAgent._get_response"):
-            # Generate agent response
-            result = await self.runner.run(
-                starting_agent=self.agent,
-                input=input,
-                previous_response_id=last_response_id,
-            )
+        # Create turn context
+        agent_turn_context = AgentTurnContext(
+            query=input,
+        )
+
+        # with tracer.start_as_current_span("RootAgent._get_response"):
+        # Generate agent response
+        result = await self.runner.run(
+            starting_agent=self.agent,
+            input=input,
+            previous_response_id=last_response_id,
+            context=agent_turn_context,
+        )
 
         # Track token usage
         self._track_token_usage(result.context_wrapper.usage)

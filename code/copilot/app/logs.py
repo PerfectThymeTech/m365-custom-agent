@@ -4,11 +4,11 @@ import os
 from app.core.settings import settings
 from azure.identity import DefaultAzureCredential
 from azure.monitor.opentelemetry import configure_azure_monitor
-from opentelemetry import trace
-from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
 from microsoft_agents.activity import Activity
 from microsoft_agents.hosting.core.storage.transcript_logger import TranscriptLogger
+from opentelemetry import trace
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
 
 
 def setup_logging(module) -> logging.Logger:
@@ -31,7 +31,7 @@ def setup_tracing(module) -> trace.Tracer:
     """Setup tracing.
 
     :return: The tracer object to trace activities.
-    :rtype: trace.Tracer 
+    :rtype: trace.Tracer
     """
     tracer = trace.get_tracer(__name__)
     return tracer

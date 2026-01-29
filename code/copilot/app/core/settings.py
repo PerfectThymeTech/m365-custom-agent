@@ -80,6 +80,12 @@ class Settings(BaseSettings):
             "AZURE_OPENAI_MODEL_SLM_NAME", "AZURE_OPENAI_SLM_DEPLOYMENT_NAME"
         ),
     )
+    AZURE_OPENAI_MODEL_NANO_NAME: str = Field(
+        default="gpt-5-nano",
+        alias=AliasChoices(
+            "AZURE_OPENAI_MODEL_NANO_NAME", "AZURE_OPENAI_NANO_DEPLOYMENT_NAME"
+        ),
+    )
 
     # Instruction settings
     SCENARIO_DEFINITIONS: ScenarioDefinitions = Field(

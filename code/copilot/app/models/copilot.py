@@ -1,8 +1,12 @@
 from typing import Any, Dict, Optional
 
 from app.models.core import AuthorizationTypes
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
+
+
+class AgentTurnContext(BaseModel):
+    query: str
 
 
 def copilot_service_connection_settings_alias_generator(string: str) -> str:

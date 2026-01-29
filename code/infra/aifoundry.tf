@@ -64,6 +64,22 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_m
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
 
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_nano" {
+  name                 = "gpt-5-nano"
+  cognitive_account_id = module.ai_foundry.ai_services_id
+
+  model {
+    format  = "OpenAI"
+    name    = "gpt-5-nano"
+    version = "2025-08-07"
+  }
+  sku {
+    capacity = 250
+    name     = "GlobalStandard"
+  }
+  version_upgrade_option = "OnceNewDefaultVersionAvailable"
+}
+
 resource "azapi_resource" "ai_foundry_project_connection_appinsights" { # Blocked by some network issue
   type      = "Microsoft.CognitiveServices/accounts/connections@2025-10-01-preview"
   name      = "appinsights"
