@@ -57,6 +57,16 @@ class Settings(BaseSettings):
     AZURE_COSMOS_DATABASE_ID: str
     AZURE_COSMOS_CONTAINER_ID: str = "user-state"
 
+    # Azure AI Foundry app settings
+    AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: str = Field(
+        default=None,
+        alias=AliasChoices("AZURE_AI_FOUNDRY_PROJECT_ENDPOINT"),
+    )
+    AZURE_AI_FOUNDRY_PROJECT_ID: str = Field(
+        default=None,
+        alias=AliasChoices("AZURE_AI_FOUNDRY_PROJECT_ID"),
+    )
+
     # Open AI settings
     AZURE_OPENAI_ENDPOINT: str
     AZURE_OPENAI_API_KEY: str = ""

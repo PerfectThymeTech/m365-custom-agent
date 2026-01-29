@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "aiohttp>=3.13.2",
     "azure-ai-documentintelligence>=1.0.2",
+    "azure-ai-evaluation>=1.14.0",
     "azure-monitor-opentelemetry>=1.8.2",
     "fastapi[standard]>=0.123.4",
     "microsoft-agents-activity>=0.6.1",
@@ -17,6 +18,8 @@ dependencies = [
     "microsoft-agents-storage-cosmos>=0.6.1",
     "openai-agents>=0.6.1",
     "opentelemetry-instrumentation-aiohttp-client>=0.59b0",
+    "opentelemetry-instrumentation-openai-agents>=0.51.1",
+    "opentelemetry-sdk>=1.38.0",
     "pydantic-settings>=2.12.0",
 ]
 

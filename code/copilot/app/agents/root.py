@@ -3,7 +3,7 @@ from typing import Tuple
 from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
-from app.logs import setup_logging
+from app.logs import setup_logging, setup_tracing
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
@@ -11,6 +11,7 @@ from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
 
 logger = setup_logging(__name__)
+tracer = setup_tracing(__name__)
 
 
 class RootAgent:
@@ -138,25 +139,26 @@ class RootAgent:
         :return: A tuple containing the last response ID and the full response text.
         :rtype: Tuple[str, str]
         """
-        # Generate agent response
-        result = self.runner.run_streamed(
-            starting_agent=self.agent,
-            input=input,
-            previous_response_id=last_response_id,
-        )
+        with tracer.start_as_current_span("RootAgent.stream_response"):
+            # Generate agent response
+            result = self.runner.run_streamed(
+                starting_agent=self.agent,
+                input=input,
+                previous_response_id=last_response_id,
+            )
 
-        # Return the streamed response
-        response = ""
-        try:
-            async for event in result.stream_events():
-                if event.type == "raw_response_event" and isinstance(
-                    event.data, ResponseTextDeltaEvent
-                ):
-                    context.streaming_response.queue_text_chunk(event.data.delta)
-                    response += event.data.delta
-        except Exception as e:
-            logger.error(f"Error streaming agent response: {e}", exc_info=True)
-            raise e
+            # Return the streamed response
+            response = ""
+            try:
+                async for event in result.stream_events():
+                    if event.type == "raw_response_event" and isinstance(
+                        event.data, ResponseTextDeltaEvent
+                    ):
+                        context.streaming_response.queue_text_chunk(event.data.delta)
+                        response += event.data.delta
+            except Exception as e:
+                logger.error(f"Error streaming agent response: {e}", exc_info=True)
+                raise e
 
         # Track consumed tokens
         usage = result.context_wrapper.usage
@@ -179,12 +181,13 @@ class RootAgent:
         :return: The final response text from the agent.
         :rtype: str
         """
-        # Generate agent response
-        result = await self.runner.run(
-            starting_agent=self.agent,
-            input=input,
-            previous_response_id=last_response_id,
-        )
+        with tracer.start_as_current_span("RootAgent._get_response"):
+            # Generate agent response
+            result = await self.runner.run(
+                starting_agent=self.agent,
+                input=input,
+                previous_response_id=last_response_id,
+            )
 
         # Track token usage
         self._track_token_usage(result.context_wrapper.usage)
