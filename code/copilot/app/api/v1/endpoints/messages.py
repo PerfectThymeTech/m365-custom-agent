@@ -5,7 +5,7 @@ from app.copilot.copilot import copilot_apps
 from app.logs import setup_logging
 from fastapi import APIRouter, Request, BackgroundTasks
 from microsoft_agents.hosting.fastapi import start_agent_process
-# from app.core.collections import BACKGROUND_TASKS_DICT
+from app.core.globals import BACKGROUND_TASKS_DICT
 
 logger = setup_logging(__name__)
 
@@ -25,10 +25,11 @@ async def post_message(request: Request, background_tasks: BackgroundTasks) -> A
 
     # Get payload
     payload = await request.json()
-    logger.info(f"Message payload: {payload}")
+    logger.debug(f"Message payload: {payload}")
 
     # Add background tasks to global dict
-    # BACKGROUND_TASKS_DICT[id(request)] = background_tasks
+    activity_id = payload.get("id", id(request))
+    BACKGROUND_TASKS_DICT[activity_id] = background_tasks
 
     # Start agent process
     result = await start_agent_process(
@@ -38,6 +39,6 @@ async def post_message(request: Request, background_tasks: BackgroundTasks) -> A
     )
 
     # Remove background tasks from global dict
-    # BACKGROUND_TASKS_DICT.pop(id(request), None)
+    _ = BACKGROUND_TASKS_DICT.pop(activity_id, None)
 
     return result

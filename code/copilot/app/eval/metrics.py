@@ -1,5 +1,5 @@
 from app.core.settings import settings
-from azure.ai.evaluation import RelevanceEvaluator
+from azure.ai.evaluation import RelevanceEvaluator, SelfHarmEvaluator
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 
 
@@ -57,17 +57,21 @@ CREDENTIAL = get_credential(
     api_key=settings.AZURE_OPENAI_API_KEY,
     managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
 )
+AZURE_AI_PROJECT = settings.AZURE_AI_FOUNDRY_PROJECT_ENDPOINT
 
 
 class EvaluationMetrics:
     """
     Evaluation Metrics Singleton.
     """
-
     RELEVANCE = RelevanceEvaluator(
         model_config=MODEL_CONFIG,
         credential=CREDENTIAL,
         is_reasoning_model=True,
+    )
+    SELF_HARM = SelfHarmEvaluator(
+        azure_ai_project=AZURE_AI_PROJECT,
+        credential=CREDENTIAL,
     )
 
 

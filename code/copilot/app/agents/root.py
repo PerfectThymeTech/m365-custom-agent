@@ -10,6 +10,8 @@ from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
+from app.core.globals import BACKGROUND_TASKS_DICT
+from app.eval.evaluation import Evaluator
 
 logger = setup_logging(__name__)
 tracer = setup_tracing(__name__)
@@ -181,6 +183,13 @@ class RootAgent:
         # Track consumed tokens
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
+
+        # Create background task to evaluate agent response
+        BACKGROUND_TASKS_DICT[context.activity.id].add_task(
+            Evaluator(agent_name=self.agent.name).evaluate_all_metrics(
+                query=input, response=response
+            )
+        )
 
         # Return last response id and the full response
         return result.last_response_id, response

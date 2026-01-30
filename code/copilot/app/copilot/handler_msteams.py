@@ -2,7 +2,6 @@ from typing import Tuple
 
 from agents.exceptions import ModelBehaviorError
 from app.agents.document import DocumentAgent
-from app.agents.guardrails import relevance_guardrail
 from app.copilot.common import (
     filter_attachments_by_type,
     get_html_from_attachment,
@@ -290,7 +289,7 @@ class MSTeamsHandler(AbstractHandler):
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
             agent_name="Document Reasoning Agent",
             instructions=instructions,
-            output_guardrails=[relevance_guardrail],
+            output_guardrails=[],
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )
