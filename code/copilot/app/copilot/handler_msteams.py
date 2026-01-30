@@ -20,7 +20,6 @@ from app.models.attachments import (
 )
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
-from pydantic import ValidationError
 
 logger = setup_logging(__name__)
 
