@@ -7,6 +7,7 @@ from app.copilot.common import (
     get_html_from_attachment,
     stream_string_in_chunks,
 )
+from app.agents.guardrails import relevance_guardrail
 from app.copilot.handler_abstract import AbstractHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
@@ -290,6 +291,7 @@ class MSTeamsHandler(AbstractHandler):
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
             agent_name="Document Reasoning Agent",
             instructions=instructions,
+            output_guardrails=[relevance_guardrail],
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )

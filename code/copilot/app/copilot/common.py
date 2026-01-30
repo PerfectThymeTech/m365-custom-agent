@@ -1,7 +1,6 @@
 import asyncio
 
 from app.agents.actions import SuggestedActionsAgent
-from app.agents.guardrails import relevance_guardrail
 from app.core.settings import settings
 from app.logs import setup_logging
 from app.models.agents import SuggestedActionsAgentResponse
@@ -158,7 +157,7 @@ async def get_suggested_actions_from_agent(
         instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT,
         managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
         reasoning_effort="minimal",
-        output_guardrails=[relevance_guardrail],
+        output_guardrails=[],
     )
 
     # Get suggested actions from agent
