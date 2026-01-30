@@ -2,12 +2,12 @@ from typing import Tuple
 
 from agents.exceptions import ModelBehaviorError
 from app.agents.document import DocumentAgent
+from app.agents.guardrails import relevance_guardrail
 from app.copilot.common import (
     filter_attachments_by_type,
     get_html_from_attachment,
     stream_string_in_chunks,
 )
-from app.agents.guardrails import relevance_guardrail
 from app.copilot.handler_abstract import AbstractHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
