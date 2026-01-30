@@ -1,6 +1,6 @@
+from app.core.settings import settings
 from azure.ai.evaluation import RelevanceEvaluator
 from azure.identity import DefaultAzureCredential
-from core.settings import settings
 from pydantic import BaseModel
 
 
