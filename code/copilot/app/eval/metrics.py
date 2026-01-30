@@ -25,7 +25,9 @@ def get_model_config(endpoint: str, api_key: str, deployment: str) -> dict:
     return model_config
 
 
-def get_credential(api_key: str, managed_identity_client_id: str) -> DefaultAzureCredential | None:
+def get_credential(
+    api_key: str, managed_identity_client_id: str
+) -> DefaultAzureCredential | None:
     """
     Get credential based on the presence of an API key.
 
@@ -48,7 +50,10 @@ MODEL_CONFIG = get_model_config(
     endpoint=settings.AZURE_OPENAI_ENDPOINT,
     deployment=settings.AZURE_OPENAI_MODEL_NANO_NAME,
 )
-CREDENTIAL = get_credential(api_key=settings.AZURE_OPENAI_API_KEY, managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID)
+CREDENTIAL = get_credential(
+    api_key=settings.AZURE_OPENAI_API_KEY,
+    managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
+)
 
 
 class EvaluationMetrics:
