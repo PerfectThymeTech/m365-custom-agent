@@ -1,6 +1,6 @@
 from app.core.settings import settings
 from azure.ai.evaluation import RelevanceEvaluator
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 
 
 def get_model_config(endpoint: str, api_key: str, deployment: str) -> dict:
@@ -40,9 +40,12 @@ def get_credential(
     """
     if api_key:
         return None
-    return DefaultAzureCredential(
-        managed_identity_client_id=managed_identity_client_id,
+    return ManagedIdentityCredential(
+        client_id=managed_identity_client_id,
     )
+    # return DefaultAzureCredential(
+    #     managed_identity_client_id=managed_identity_client_id,
+    # )
 
 
 MODEL_CONFIG = get_model_config(
@@ -64,6 +67,7 @@ class EvaluationMetrics:
     RELEVANCE = RelevanceEvaluator(
         model_config=MODEL_CONFIG,
         credential=CREDENTIAL,
+        is_reasoning_model=True,
     )
 
 
