@@ -8,7 +8,7 @@ class Evaluator:
     def __init__(self, agent_name: str):
         self.agent_name = agent_name
         self.metrics = EVALUATION_METRICS
-    
+
     def evaluate_all_metrics(self, query: str, response: str) -> dict:
         results = {
             "relevance": self.evaluate_relevance(query, response),

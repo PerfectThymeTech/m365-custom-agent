@@ -3,6 +3,8 @@ from typing import Tuple
 from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
+from app.core.globals import BACKGROUND_TASKS_DICT
+from app.eval.evaluation import Evaluator
 from app.logs import setup_logging, setup_tracing
 from app.models.copilot import AgentTurnContext
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
@@ -10,8 +12,6 @@ from microsoft_agents.hosting.core import TurnContext
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
-from app.core.globals import BACKGROUND_TASKS_DICT
-from app.eval.evaluation import Evaluator
 
 logger = setup_logging(__name__)
 tracer = setup_tracing(__name__)

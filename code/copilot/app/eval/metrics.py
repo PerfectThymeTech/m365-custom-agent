@@ -64,6 +64,7 @@ class EvaluationMetrics:
     """
     Evaluation Metrics Singleton.
     """
+
     RELEVANCE = RelevanceEvaluator(
         model_config=MODEL_CONFIG,
         credential=CREDENTIAL,
