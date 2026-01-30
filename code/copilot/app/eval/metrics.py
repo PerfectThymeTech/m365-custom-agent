@@ -1,7 +1,6 @@
 from app.core.settings import settings
 from azure.ai.evaluation import RelevanceEvaluator
 from azure.identity import DefaultAzureCredential
-from pydantic import BaseModel
 
 
 def get_model_config(endpoint: str, api_key: str, deployment: str) -> dict:
@@ -48,7 +47,7 @@ MODEL_CONFIG = get_model_config(
 CREDENTIAL = get_credential(settings.AZURE_OPENAI_API_KEY)
 
 
-class EvaludationMetrics(BaseModel):
+class EvaluationMetrics:
     """
     Evaluation Metrics Singleton.
     """
@@ -59,4 +58,4 @@ class EvaludationMetrics(BaseModel):
     )
 
 
-EVALUATION_METRICS = EvaludationMetrics()
+EVALUATION_METRICS = EvaluationMetrics()
