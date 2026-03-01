@@ -87,7 +87,7 @@ jobs:
       # Deploy Web App
       - name: Deploy Web App
         id: webapp_deploy
-        uses: Azure/webapps-deploy@657f0700ea5214d56a0400d8ac5e8023c963d25d  # v3.0.6
+        uses: Azure/webapps-deploy@84a80cfe7e9889f35148ed88c307e6e93bf02578  # v3.0.7
         with:
           app-name: ${{ inputs.webapp_name }}
           package: ${{ inputs.webapp_directory }}
