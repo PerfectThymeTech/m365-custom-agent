@@ -68,14 +68,14 @@ jobs:
       # Setup Node
       - name: Setup Node
         id: node_setup
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: ${{ inputs.node_version }}
 
       # Setup Terraform
       - name: Setup Terraform
         id: terraform_setup
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4.0.0
         with:
           terraform_version: ${{ inputs.terraform_version }}
           terraform_wrapper: true
@@ -88,7 +88,7 @@ jobs:
       # Azure login
       - name: Azure login
         id: azure_login
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ inputs.tenant_id }}
