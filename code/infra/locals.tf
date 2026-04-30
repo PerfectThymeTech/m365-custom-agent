@@ -37,7 +37,6 @@ locals {
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT     = module.cosmosdb_account.cosmosdb_account_endpoint
-    AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key # Entra ID auth not supported by SDK yet
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
 
