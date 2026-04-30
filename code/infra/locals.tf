@@ -41,7 +41,6 @@ locals {
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT     = module.cosmosdb_account.cosmosdb_account_endpoint
-    AZURE_COSMOS_KEY          = module.cosmosdb_account.cosmosdb_account_primary_key # Entra ID auth not supported by SDK yet
     AZURE_COSMOS_DATABASE_ID  = azurerm_cosmosdb_sql_database.cosmosdb_sql_database.name
     AZURE_COSMOS_CONTAINER_ID = local.cosmosdb_sql_container_name
 
@@ -52,9 +51,9 @@ locals {
     # Azure Open AI app settings
     AZURE_OPENAI_ENDPOINT        = module.ai_foundry.ai_services_openai_endpoint
     AZURE_OPENAI_API_KEY         = ""
-    AZURE_OPENAI_MODEL_NAME      = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_2.name
-    AZURE_OPENAI_MODEL_SLM_NAME  = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_mini.name
-    AZURE_OPENAI_MODEL_NANO_NAME = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_nano.name
+    AZURE_OPENAI_MODEL_NAME      = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_4.name
+    AZURE_OPENAI_MODEL_SLM_NAME  = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_4_mini.name
+    AZURE_OPENAI_MODEL_NANO_NAME = azurerm_cognitive_deployment.cognitive_deployment_ai_foundry_gpt_5_4_nano.name
 
     # Prompt settings
     INSTRUCTIONS_DOCUMENT_AGENT          = data.local_file.file_instructions_document_agent.content
