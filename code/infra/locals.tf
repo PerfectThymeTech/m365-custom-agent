@@ -43,8 +43,8 @@ locals {
     # Azure Open AI app settings
     AZURE_OPENAI_ENDPOINT       = module.azure_open_ai.cognitive_account_endpoint
     AZURE_OPENAI_API_KEY        = ""
-    AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_1.name
-    AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_mini.name
+    AZURE_OPENAI_MODEL_NAME     = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_4.name
+    AZURE_OPENAI_MODEL_SLM_NAME = azurerm_cognitive_deployment.cognitive_deployment_gpt_5_4_mini.name
 
     # Prompt settings
     INSTRUCTIONS_DOCUMENT_AGENT          = data.local_file.file_instructions_document_agent.content
