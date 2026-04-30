@@ -32,14 +32,14 @@ module "ai_foundry" {
   customer_managed_key                  = local.customer_managed_key
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_2" {
-  name                 = "gpt-5.2"
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_4" {
+  name                 = "gpt-5.4"
   cognitive_account_id = module.ai_foundry.ai_services_id
 
   model {
     format  = "OpenAI"
-    name    = "gpt-5.2"
-    version = "2025-12-11"
+    name    = "gpt-5.4"
+    version = "2026-03-05"
   }
   sku {
     capacity = 250
@@ -48,14 +48,14 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_2
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_mini" {
-  name                 = "gpt-5-mini"
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_4_mini" {
+  name                 = "gpt-5.4-mini"
   cognitive_account_id = module.ai_foundry.ai_services_id
 
   model {
     format  = "OpenAI"
-    name    = "gpt-5-mini"
-    version = "2025-08-07"
+    name    = "gpt-5.4-mini"
+    version = "2026-03-17"
   }
   sku {
     capacity = 250
@@ -64,14 +64,14 @@ resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_m
   version_upgrade_option = "OnceNewDefaultVersionAvailable"
 }
 
-resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_nano" {
-  name                 = "gpt-5-nano"
+resource "azurerm_cognitive_deployment" "cognitive_deployment_ai_foundry_gpt_5_4_nano" {
+  name                 = "gpt-5.4-nano"
   cognitive_account_id = module.ai_foundry.ai_services_id
 
   model {
     format  = "OpenAI"
-    name    = "gpt-5-nano"
-    version = "2025-08-07"
+    name    = "gpt-5.4-nano"
+    version = "2026-03-17"
   }
   sku {
     capacity = 250
