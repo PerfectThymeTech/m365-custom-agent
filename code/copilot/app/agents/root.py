@@ -153,32 +153,33 @@ class RootAgent:
         :return: A tuple containing the last response ID and the full response text.
         :rtype: Tuple[str, str]
         """
-        # Create turn context
-        agent_turn_context = AgentTurnContext(
-            query=input,
-        )
+        with tracer.start_as_current_span("agent_session[openai.agents]"):
+            # Create turn context
+            agent_turn_context = AgentTurnContext(
+                query=input,
+            )
 
-        # with tracer.start_as_current_span("RootAgent.stream_response"):
-        # Generate agent response
-        result = self.runner.run_streamed(
-            starting_agent=self.agent,
-            input=input,
-            previous_response_id=last_response_id,
-            context=agent_turn_context,
-        )
+            # with tracer.start_as_current_span("RootAgent.stream_response"):
+            # Generate agent response
+            result = self.runner.run_streamed(
+                starting_agent=self.agent,
+                input=input,
+                previous_response_id=last_response_id,
+                context=agent_turn_context,
+            )
 
-        # Return the streamed response
-        response = ""
-        try:
-            async for event in result.stream_events():
-                if event.type == "raw_response_event" and isinstance(
-                    event.data, ResponseTextDeltaEvent
-                ):
-                    context.streaming_response.queue_text_chunk(event.data.delta)
-                    response += event.data.delta
-        except Exception as e:
-            logger.error(f"Error streaming agent response: {e}", exc_info=True)
-            raise e
+            # Return the streamed response
+            response = ""
+            try:
+                async for event in result.stream_events():
+                    if event.type == "raw_response_event" and isinstance(
+                        event.data, ResponseTextDeltaEvent
+                    ):
+                        context.streaming_response.queue_text_chunk(event.data.delta)
+                        response += event.data.delta
+            except Exception as e:
+                logger.error(f"Error streaming agent response: {e}", exc_info=True)
+                raise e
 
         # Track consumed tokens
         usage = result.context_wrapper.usage
@@ -208,19 +209,20 @@ class RootAgent:
         :return: The final response text from the agent.
         :rtype: str
         """
-        # Create turn context
-        agent_turn_context = AgentTurnContext(
-            query=input,
-        )
+        with tracer.start_as_current_span("agent_session[openai.agents]"):
+            # Create turn context
+            agent_turn_context = AgentTurnContext(
+                query=input,
+            )
 
-        # with tracer.start_as_current_span("RootAgent._get_response"):
-        # Generate agent response
-        result = await self.runner.run(
-            starting_agent=self.agent,
-            input=input,
-            previous_response_id=last_response_id,
-            context=agent_turn_context,
-        )
+            # with tracer.start_as_current_span("RootAgent._get_response"):
+            # Generate agent response
+            result = await self.runner.run(
+                starting_agent=self.agent,
+                input=input,
+                previous_response_id=last_response_id,
+                context=agent_turn_context,
+            )
 
         # Track token usage
         self._track_token_usage(result.context_wrapper.usage)
