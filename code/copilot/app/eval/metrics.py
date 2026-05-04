@@ -1,5 +1,5 @@
 from app.core.settings import settings
-from azure.ai.evaluation import RelevanceEvaluator, SelfHarmEvaluator
+from azure.ai.evaluation import TaskAdherenceEvaluator, RelevanceEvaluator, SelfHarmEvaluator
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 
 
@@ -66,6 +66,11 @@ class EvaluationMetrics:
     """
 
     RELEVANCE = RelevanceEvaluator(
+        model_config=MODEL_CONFIG,
+        credential=CREDENTIAL,
+        is_reasoning_model=True,
+    )
+    TASK_ADHERENCE = TaskAdherenceEvaluator(
         model_config=MODEL_CONFIG,
         credential=CREDENTIAL,
         is_reasoning_model=True,
