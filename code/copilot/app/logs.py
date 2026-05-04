@@ -9,6 +9,7 @@ from microsoft_agents.hosting.core.storage.transcript_logger import TranscriptLo
 from opentelemetry import trace
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
+from opentelemetry.sdk.resources import Resource
 
 
 def setup_logging(module) -> logging.Logger:
@@ -60,6 +61,15 @@ def setup_opentelemetry():
     else:
         credential = None
 
+    # Create OTEL resource
+    resource = Resource.create(
+        attributes={
+            "service.name": settings.WEBSITE_NAME,
+            "service.namespace": settings.WEBSITE_NAME,
+            "service.instance.id": settings.WEBSITE_INSTANCE_ID,
+        }
+    )
+
     # Configure azure monitor
     configure_azure_monitor(
         credential=credential,
@@ -78,6 +88,7 @@ def setup_opentelemetry():
             "urllib3": {"enabled": False},
         },
         storage_directory=os.path.join(settings.HOME_DIRECTORY, "azure_monitor"),
+        resource=resource,
     )
 
     # Add additional instrumentations and configurations
