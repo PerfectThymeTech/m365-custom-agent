@@ -187,7 +187,9 @@ class RootAgent:
 
         # Create background task to evaluate agent response
         BACKGROUND_TASKS_DICT[context.activity.id].add_task(
-            Evaluator(agent_name=self.agent.name).evaluate_all_metrics, input, response
+            Evaluator(agent_name=self.agent.name).evaluate_all_metrics,
+            query=input,
+            response=response,
         )
 
         # Return last response id and the full response
