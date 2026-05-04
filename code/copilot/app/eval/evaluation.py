@@ -10,12 +10,21 @@ class Evaluator:
         self.agent_name = agent_name
         self.metrics = EVALUATION_METRICS
 
-    def evaluate_all_metrics(self, query: str, response: str, system_message: str, tool_definitions: list[dict], tool_calls: list[dict]) -> dict:
+    def evaluate_all_metrics(
+        self,
+        query: str,
+        response: str,
+        system_message: str,
+        tool_definitions: list[dict],
+        tool_calls: list[dict],
+    ) -> dict:
         with tracer.start_as_current_span("evaluate_all_metrics"):
             results = {
                 # "relevance": self.evaluate_relevance(query, response),
                 "self_harm": self.evaluate_self_harm(query, response),
-                "task_adherence": self.evaluate_task_adherence(query, response, system_message, tool_definitions, tool_calls),
+                "task_adherence": self.evaluate_task_adherence(
+                    query, response, system_message, tool_definitions, tool_calls
+                ),
             }
             logger.info(results)
             return results
@@ -33,7 +42,14 @@ class Evaluator:
         logger.info(result)
         return result
 
-    def evaluate_task_adherence(self, query: str, response: str, system_message: str, tool_definitions: list[dict], tool_calls: list[dict]) -> dict[str, str]:
+    def evaluate_task_adherence(
+        self,
+        query: str,
+        response: str,
+        system_message: str,
+        tool_definitions: list[dict],
+        tool_calls: list[dict],
+    ) -> dict[str, str]:
         result = self.metrics.TASK_ADHERENCE(
             query=query,
             response=response,

@@ -1,5 +1,9 @@
 from app.core.settings import settings
-from azure.ai.evaluation import TaskAdherenceEvaluator, RelevanceEvaluator, SelfHarmEvaluator
+from azure.ai.evaluation import (
+    RelevanceEvaluator,
+    SelfHarmEvaluator,
+    TaskAdherenceEvaluator,
+)
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 
 

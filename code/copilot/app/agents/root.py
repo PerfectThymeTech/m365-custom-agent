@@ -190,8 +190,8 @@ class RootAgent:
             Evaluator(agent_name=self.agent.name).evaluate_all_metrics,
             query=input,
             response=response,
-            system_message=self.agent.get_system_prompt(),
-            tool_definitions=self.agent.get_all_tools(),
+            system_message=self.agent.instructions,
+            tool_definitions=self.agent.tools,
             tool_calls=[],
         )
 
