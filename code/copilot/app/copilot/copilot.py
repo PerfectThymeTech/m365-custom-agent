@@ -140,6 +140,9 @@ def get_copilot_apps(
     teams_copilot_app = get_copilot_app(
         config=config, connection_manager=connection_manager
     )
+    webchat_copilot_app = get_copilot_app(
+        config=config, connection_manager=connection_manager
+    )
     default_copilot_app = get_copilot_app(
         config=config, connection_manager=connection_manager
     )
@@ -148,6 +151,7 @@ def get_copilot_apps(
     return {
         "msteams": teams_copilot_app,
         "msteams:COPILOT": teams_copilot_app,
+        "webchat": webchat_copilot_app,
         "default": default_copilot_app,
     }
 

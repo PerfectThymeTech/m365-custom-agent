@@ -25,7 +25,7 @@ logger = setup_logging(__name__)
 
 
 SUPPORTED_CONTENT_TYPES = [
-    "application/vnd.microsoft.teams.file.download.info",
+    "application/pdf",
 ]
 SUPPORTED_FILE_TYPES = [
     "pdf",
@@ -38,14 +38,12 @@ SUPPORTED_FILE_TYPES = [
     "bmp",
     "tiff",
 ]
-IGNORED_CONTENT_TYPES = [
-    "text/html",
-]
+IGNORED_CONTENT_TYPES = []
 
 
-class MSTeamsHandler(AbstractHandler):
+class WebchatHandler(AbstractHandler):
     """
-    Handler for Microsoft Teams specific message and event handling.
+    Handler for Webchat specific message and event handling.
     """
 
     @staticmethod
@@ -66,11 +64,7 @@ class MSTeamsHandler(AbstractHandler):
         command = False
 
         # Define user prompt
-        user_prompt = (
-            context.activity.text
-            if context.activity.text
-            else get_html_from_attachment(attachments=context.activity.attachments)
-        )
+        user_prompt = context.activity.text
 
         match user_prompt.lower().strip():
             case "/restart":
@@ -132,7 +126,7 @@ class MSTeamsHandler(AbstractHandler):
             supported_content_types=SUPPORTED_CONTENT_TYPES,
             supported_file_types=SUPPORTED_FILE_TYPES,
             ignored_content_types=IGNORED_CONTENT_TYPES,
-            validate_file_types=True,
+            validate_file_types=False,
         )
 
         # Handle supported documents
@@ -295,11 +289,7 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         # Define user prompt
-        user_prompt = (
-            context.activity.text
-            if context.activity.text
-            else get_html_from_attachment(attachments=context.activity.attachments)
-        )
+        user_prompt = context.activity.text
 
         # Check for suggested action prompt scenarios
         logger.info("Checking for suggested action prompt scenarios.")

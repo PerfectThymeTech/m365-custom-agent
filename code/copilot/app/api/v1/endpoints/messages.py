@@ -24,8 +24,14 @@ async def post_message(request: Request) -> Any:
 
     # Get payload
     payload = await request.json()
-    return await start_agent_process(
+    channel = payload.get("channelId")
+    logger.debug(f"Message payload: {payload}")
+
+    # Start agent process
+    result = await start_agent_process(
         request=request,
-        agent_application=copilot_apps["msteams"],
-        adapter=copilot_apps["msteams"].adapter,
+        agent_application=copilot_apps[channel],
+        adapter=copilot_apps[channel].adapter,
     )
+
+    return result
