@@ -26,18 +26,13 @@ logger = setup_logging(__name__)
 
 SUPPORTED_CONTENT_TYPES = [
     "application/pdf",
+    "image/jpg",
+    "image/jpeg",
+    "image/png",
+    "image/bmp",
+    "image/tiff",
 ]
-SUPPORTED_FILE_TYPES = [
-    "pdf",
-    "xlsx",
-    "pptx",
-    "docx",
-    "png",
-    "jpg",
-    "jpeg",
-    "bmp",
-    "tiff",
-]
+SUPPORTED_FILE_TYPES = []
 IGNORED_CONTENT_TYPES = []
 
 
@@ -163,17 +158,12 @@ class WebchatHandler(AbstractHandler):
                     context=context, text="\n(  0%) Loading file ... "
                 )
 
-                # Loading file content
-                attachment_content = AttachmentContent.model_validate(
-                    attachment.content
-                )
-
                 # Extract text from file using FileExtractionClient
                 await stream_string_in_chunks(
                     context=context, text="\n(  5%) Extracting text from file ... "
                 )
                 extracted_data = await file_extraction_client.extract_data(
-                    file_url=attachment_content.download_url
+                    file_url=attachment.content_url,
                 )
                 logger.debug(
                     f"Extracted Data from file {attachment.name}: {extracted_data}"
