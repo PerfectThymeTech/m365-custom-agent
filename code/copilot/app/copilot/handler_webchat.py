@@ -19,12 +19,21 @@ from app.models.attachments import (
 )
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
+from pydantic import ValidationError
 
 logger = setup_logging(__name__)
 
 
 SUPPORTED_CONTENT_TYPES = [
-    "application/vnd.microsoft.teams.file.download.info",
+    "application/pdf",
+    "application/vnd.ms-excel.sheet.macroenabled.12",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "image/jpg",
+    "image/jpeg",
+    "image/png",
+    "image/bmp",
+    "image/tiff",
 ]
 SUPPORTED_FILE_TYPES = [
     "pdf",
@@ -37,14 +46,12 @@ SUPPORTED_FILE_TYPES = [
     "bmp",
     "tiff",
 ]
-IGNORED_CONTENT_TYPES = [
-    "text/html",
-]
+IGNORED_CONTENT_TYPES = []
 
 
-class MSTeamsHandler(AbstractHandler):
+class WebchatHandler(AbstractHandler):
     """
-    Handler for Microsoft Teams specific message and event handling.
+    Handler for Webchat specific message and event handling.
     """
 
     @staticmethod
@@ -65,11 +72,7 @@ class MSTeamsHandler(AbstractHandler):
         command = False
 
         # Define user prompt
-        user_prompt = (
-            context.activity.text
-            if context.activity.text
-            else get_html_from_attachment(attachments=context.activity.attachments)
-        )
+        user_prompt = context.activity.text if context.activity.text else ""
 
         match user_prompt.lower().strip():
             case "/restart":
@@ -131,7 +134,7 @@ class MSTeamsHandler(AbstractHandler):
             supported_content_types=SUPPORTED_CONTENT_TYPES,
             supported_file_types=SUPPORTED_FILE_TYPES,
             ignored_content_types=IGNORED_CONTENT_TYPES,
-            validate_file_types=True,
+            validate_file_types=False,
         )
 
         # Handle supported documents
@@ -168,17 +171,12 @@ class MSTeamsHandler(AbstractHandler):
                     context=context, text="\n(  0%) Loading file ... "
                 )
 
-                # Loading file content
-                attachment_content = AttachmentContent.model_validate(
-                    attachment.content
-                )
-
                 # Extract text from file using FileExtractionClient
                 await stream_string_in_chunks(
                     context=context, text="\n(  5%) Extracting text from file ... "
                 )
                 extracted_data = await file_extraction_client.extract_data(
-                    file_url=attachment_content.download_url
+                    file_url=attachment.content_url,
                 )
                 logger.debug(
                     f"Extracted Data from file {attachment.name}: {extracted_data}"
@@ -288,19 +286,13 @@ class MSTeamsHandler(AbstractHandler):
             api_key=settings.AZURE_OPENAI_API_KEY,
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
-            agent_name="Document Reasoning Agent",
             instructions=instructions,
-            output_guardrails=[],
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )
 
         # Define user prompt
-        user_prompt = (
-            context.activity.text
-            if context.activity.text
-            else get_html_from_attachment(attachments=context.activity.attachments)
-        )
+        user_prompt = context.activity.text if context.activity.text else ""
 
         # Check for suggested action prompt scenarios
         logger.info("Checking for suggested action prompt scenarios.")

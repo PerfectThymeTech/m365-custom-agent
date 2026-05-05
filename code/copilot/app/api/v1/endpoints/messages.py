@@ -1,6 +1,8 @@
 from typing import Any
 
-from app.copilot.activities_msteams import on_message  # noqa: F401
+import app.copilot.activities_default as activities_default  # noqa: F401
+import app.copilot.activities_msteams as activities_msteams  # noqa: F401
+import app.copilot.activities_webchat as activities_webchat  # noqa: F401
 from app.copilot.copilot import copilot_apps
 from app.core.globals import BACKGROUND_TASKS_DICT
 from app.logs import setup_logging
@@ -27,15 +29,18 @@ async def post_message(request: Request, background_tasks: BackgroundTasks) -> A
     payload = await request.json()
     logger.debug(f"Message payload: {payload}")
 
-    # Add background tasks to global dict
+    # Get properties from payload
     activity_id = payload.get("id", id(request))
+    channel_id = payload.get("channelId")
+
+    # Add background tasks to global dict
     BACKGROUND_TASKS_DICT[activity_id] = background_tasks
 
     # Start agent process
     result = await start_agent_process(
         request=request,
-        agent_application=copilot_apps["msteams"],
-        adapter=copilot_apps["msteams"].adapter,
+        agent_application=copilot_apps[channel_id],
+        adapter=copilot_apps[channel_id].adapter,
     )
 
     # Remove background tasks from global dict

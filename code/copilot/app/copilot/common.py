@@ -29,6 +29,7 @@ def filter_attachments_by_type(
     supported_content_types: list[str],
     supported_file_types: list[str],
     ignored_content_types: list[str],
+    validate_file_types: bool = True,
 ) -> tuple[list[Attachment], list[Attachment]]:
     """
     Filter attachments by content type.
@@ -54,30 +55,33 @@ def filter_attachments_by_type(
                 f"Supported attachment '{attachment.name}' with content type '{attachment.content_type}' detected."
             )
 
-            try:
-                # Validate attachment content
-                attachment_content = AttachmentContent.model_validate(
-                    attachment.content
-                )
-
-                # Check if file type is supported
-                if attachment_content.file_type.lower() in supported_file_types:
-                    logger.info(
-                        f"Supported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+            if validate_file_types:
+                try:
+                    # Validate attachment content
+                    attachment_content = AttachmentContent.model_validate(
+                        attachment.content
                     )
-                    supported_attachments.append(attachment)
-                else:
-                    logger.info(
-                        f"Unsupported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+
+                    # Check if file type is supported
+                    if attachment_content.file_type.lower() in supported_file_types:
+                        logger.info(
+                            f"Supported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+                        )
+                        supported_attachments.append(attachment)
+                    else:
+                        logger.info(
+                            f"Unsupported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+                        )
+                        unsupported_attachments.append(attachment)
+
+                except ValidationError as e:
+                    # Unsupported file type
+                    logger.error(
+                        f"Failed to parse attachment content for {attachment.name}: {e}"
                     )
                     unsupported_attachments.append(attachment)
-
-            except ValidationError as e:
-                # Unsupported file type
-                logger.error(
-                    f"Failed to parse attachment content for {attachment.name}: {e}"
-                )
-                unsupported_attachments.append(attachment)
+            else:
+                supported_attachments.append(attachment)
         elif attachment.content_type in ignored_content_types:
             # Ignored content type
             logger.info(
@@ -156,7 +160,7 @@ async def get_suggested_actions_from_agent(
         agent_name="Suggested Actions Agent",
         instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT,
         managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
-        reasoning_effort="minimal",
+        reasoning_effort="low",
         output_guardrails=[],
     )
 
