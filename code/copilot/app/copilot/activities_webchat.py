@@ -93,11 +93,8 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         context=context, user_state_store_item=user_state_store_item
     )
 
-    # Only listen for attachments if more than one attachment is present since Teams sends a html text message attachment by default
-    logger.debug(f"Number of attachments: {len(context.activity.attachments or [])}")
-    logger.debug(f"Command status: {command}")
-    if not command and len(context.activity.attachments or []) > 1:
-        logger.debug("Handling attachments in user message.")
+    # Only listen for attachments if more than zero attachments is present
+    if not command and len(context.activity.attachments or []) > 0:
         # Handle attachments
         user_state_store_item = await WebchatHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
