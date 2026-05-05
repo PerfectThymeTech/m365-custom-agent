@@ -26,13 +26,26 @@ logger = setup_logging(__name__)
 
 SUPPORTED_CONTENT_TYPES = [
     "application/pdf",
+    "application/vnd.ms-excel.sheet.macroenabled.12",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "image/jpg",
     "image/jpeg",
     "image/png",
     "image/bmp",
     "image/tiff",
 ]
-SUPPORTED_FILE_TYPES = []
+SUPPORTED_FILE_TYPES = [
+    "pdf",
+    "xlsx",
+    "pptx",
+    "docx",
+    "png",
+    "jpg",
+    "jpeg",
+    "bmp",
+    "tiff",
+]
 IGNORED_CONTENT_TYPES = []
 
 
@@ -220,7 +233,7 @@ class WebchatHandler(AbstractHandler):
             logger.info("No supported attachments detected.")
             await stream_string_in_chunks(
                 context=context,
-                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {', '.join(SUPPORTED_FILE_TYPES)}. ",
+                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {', '.join(SUPPORTED_FILE_TYPES)}. \n\n",
             )
 
         if len(unsupported_attachments) > 0:
@@ -235,7 +248,7 @@ class WebchatHandler(AbstractHandler):
             if len(unsupported_attachments) > 0:
                 await stream_string_in_chunks(
                     context=context,
-                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload only supported file types: {', '.join(SUPPORTED_FILE_TYPES)}. ",
+                    text=f"\nNOTE: The following files you uploaded are not supported and have been ignored: {unsupported_attachments_names}. Please upload only supported file types: {', '.join(SUPPORTED_FILE_TYPES)}. \n\n",
                 )
 
         return user_state_store_item
@@ -329,7 +342,7 @@ class WebchatHandler(AbstractHandler):
         :rtype: None
         """
         await stream_string_in_chunks(
-            context, "Please upload a PDF file before we proceed."
+            context, "Please upload a PDF file before we proceed. \n\n"
         )
 
     @staticmethod
