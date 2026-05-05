@@ -153,8 +153,8 @@ class WebchatHandler(AbstractHandler):
 
             # Create file extraction client
             file_extraction_client = FileExtractionClient(
-                api_key=settings.AZURE_DOCUMENT_INTELLIGENCE_API_KEY,
-                endpoint=settings.AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT,
+                api_key=settings.AZURE_CONTENT_UNDERSTANDING_API_KEY,
+                endpoint=settings.AZURE_CONTENT_UNDERSTANDING_ENDPOINT,
                 managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             )
 
@@ -192,6 +192,8 @@ class WebchatHandler(AbstractHandler):
                     data=extracted_data,
                     keep_paragraphs=False,
                     keep_tables=False,
+                    keep_figures=False,
+                    keep_hyperlinks=False,
                     summarize_tables=False,
                     api_key=settings.AZURE_OPENAI_API_KEY,
                     endpoint=settings.AZURE_OPENAI_ENDPOINT,

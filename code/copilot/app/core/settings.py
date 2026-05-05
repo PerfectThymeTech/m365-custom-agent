@@ -46,8 +46,8 @@ class Settings(BaseSettings):
     USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME: str
 
     # Azure Document Intelligence settings
-    AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str
-    AZURE_DOCUMENT_INTELLIGENCE_API_KEY: str = ""
+    AZURE_CONTENT_UNDERSTANDING_ENDPOINT: str
+    AZURE_CONTENT_UNDERSTANDING_API_KEY: str = ""
 
     # Cosmos DB settings
     AZURE_COSMOS_ENDPOINT: str
