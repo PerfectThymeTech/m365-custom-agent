@@ -64,7 +64,11 @@ class WebchatHandler(AbstractHandler):
         command = False
 
         # Define user prompt
-        user_prompt = context.activity.text
+        user_prompt = (
+            context.activity.text
+            if context.activity.text
+            else ""
+        )
 
         match user_prompt.lower().strip():
             case "/restart":
@@ -289,7 +293,11 @@ class WebchatHandler(AbstractHandler):
         )
 
         # Define user prompt
-        user_prompt = context.activity.text
+        user_prompt = (
+            context.activity.text
+            if context.activity.text
+            else ""
+        )
 
         # Check for suggested action prompt scenarios
         logger.info("Checking for suggested action prompt scenarios.")
