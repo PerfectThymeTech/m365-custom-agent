@@ -95,6 +95,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
 
     # Only listen for attachments if more than one attachment is present since Teams sends a html text message attachment by default
     logger.debug(f"Number of attachments: {len(context.activity.attachments or [])}")
+    logger.debug(f"Command status: {command}")
     if not command and len(context.activity.attachments or []) > 1:
         logger.debug("Handling attachments in user message.")
         # Handle attachments
