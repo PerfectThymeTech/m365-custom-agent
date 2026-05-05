@@ -1,6 +1,8 @@
 from typing import Any
 
-from app.copilot.activities_msteams import on_message  # noqa: F401
+import app.copilot.activities_default as activities_default  # noqa: F401
+import app.copilot.activities_msteams as activities_msteams  # noqa: F401
+import app.copilot.activities_webchat as activities_webchat  # noqa: F401
 from app.copilot.copilot import copilot_apps
 from app.logs import setup_logging
 from fastapi import APIRouter, Request
@@ -24,14 +26,14 @@ async def post_message(request: Request) -> Any:
 
     # Get payload
     payload = await request.json()
-    channel = payload.get("channelId")
+    channel_id = payload.get("channelId")
     logger.debug(f"Message payload: {payload}")
 
     # Start agent process
     result = await start_agent_process(
         request=request,
-        agent_application=copilot_apps[channel],
-        adapter=copilot_apps[channel].adapter,
+        agent_application=copilot_apps[channel_id],
+        adapter=copilot_apps[channel_id].adapter,
     )
 
     return result
