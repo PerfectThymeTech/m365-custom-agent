@@ -7,8 +7,8 @@ from app.agents.summarizer import SummarizerAgent
 from app.logs import setup_logging
 from azure.ai.contentunderstanding import ContentUnderstandingClient
 from azure.ai.contentunderstanding.models import (
-    AnalysisResult,
     AnalysisContent,
+    AnalysisResult,
     DocumentContent,
 )
 from azure.core.credentials import AzureKeyCredential
@@ -98,10 +98,16 @@ class FileExtractionClient:
 
             # Get result
             result: AnalysisResult = poller.result()  # Wait for analysis to complete
-            result_content = result.contents[0] if result.contents and len(result.contents) > 0 else None
+            result_content = (
+                result.contents[0]
+                if result.contents and len(result.contents) > 0
+                else None
+            )
 
             # Debug log the result content
-            logger.debug(f"Data extraction completed for file URL: {file_url}, result: {result_content.as_dict() if result_content else None}")
+            logger.debug(
+                f"Data extraction completed for file URL: {file_url}, result: {result_content.as_dict() if result_content else None}"
+            )
 
         except Exception as e:
             logger.error(f"Error during document analysis: {e}")
@@ -268,7 +274,7 @@ class FileExtractionClient:
                     "kind": figure.kind,
                     "footnotes": [],
                 }
-                
+
                 for footnote in figure.footnotes:
                     item_footnote = {
                         "content": footnote.content,
@@ -277,7 +283,7 @@ class FileExtractionClient:
                     item["footnotes"].append(item_footnote)
 
             cleaned_data["figures"] = figures
-        
+
         # Process hyperlinks
         if isinstance(data, DocumentContent) and keep_hyperlinks and data.hyperlinks:
             hyperlinks = []
@@ -302,7 +308,7 @@ class FileExtractionClient:
                     "cells": [],
                     "footnotes": [],
                 }
-                
+
                 for cell in table.cells:
                     item_cell = {
                         "content": cell.content,
@@ -311,7 +317,7 @@ class FileExtractionClient:
                         "kind": cell.kind,
                     }
                     item["cells"].append(item_cell)
-                
+
                 for footnote in table.footnotes:
                     item_footnote = {
                         "content": footnote.content,
@@ -320,7 +326,7 @@ class FileExtractionClient:
                     item["footnotes"].append(item_footnote)
 
                 tables.append(item)
-            
+
             cleaned_data["tables"] = tables
 
             # Summarize tables
