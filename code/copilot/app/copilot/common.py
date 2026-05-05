@@ -159,7 +159,7 @@ async def get_suggested_actions_from_agent(
         model_name=settings.AZURE_OPENAI_MODEL_SLM_NAME,
         instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT,
         managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
-        reasoning_effort="minimal",
+        reasoning_effort="low",
     )
 
     # Get suggested actions from agent
