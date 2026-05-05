@@ -65,6 +65,15 @@ def get_copilot_configuration() -> CopilotConfiguration:
                 scopes=settings.SCOPES,
             )
 
+        case AuthorizationTypes.FEDERATED_CREDENTIALS:
+            copilot_service_connection_settings = CopilotServiceConnectionSettings(
+                auth_type=settings.AUTH_TYPE,
+                tenant_id=settings.TENANT_ID,
+                authority_endpoint=f"https://login.microsoftonline.com/{settings.TENANT_ID}",
+                federated_client_id=settings.FEDERATED_CLIENT_ID,
+                scopes=settings.SCOPES,
+            )
+
         case _:
             raise ValueError(f"Unsupported AUTH_TYPE: {settings.AUTH_TYPE}")
 
