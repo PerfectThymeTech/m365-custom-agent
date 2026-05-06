@@ -48,14 +48,14 @@ def setup_opentelemetry():
     :rtype: None
     """
     # Configure basic logging configuration
+    stream_handler = logging.StreamHandler()
+    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
+    stream_handler.setFormatter(formatter)
     logging.basicConfig(
         format=settings.LOGGING_FORMAT,
         handlers=[stream_handler],
         level=settings.LOGGING_LEVEL,
     )
-    stream_handler = logging.StreamHandler()
-    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
-    stream_handler.setFormatter(formatter)
 
     if settings.APPLICATIONINSIGHTS_AUTHENTICATION_STRING:
         credential = DefaultAzureCredential(
