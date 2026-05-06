@@ -94,7 +94,7 @@ resource "azapi_resource" "ai_foundry_project_connection_appinsights" {
       }
       error         = null
       expiryTime    = null
-      isSharedToAll = false
+      isSharedToAll = true
       metadata = {
         ApiType    = "Azure"
         ResourceId = module.application_insights.application_insights_id
