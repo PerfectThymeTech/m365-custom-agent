@@ -92,6 +92,7 @@ def setup_opentelemetry():
         },
         storage_directory=os.path.join(settings.HOME_DIRECTORY, "azure_monitor"),
         resource=resource,
+        logging_formatter=formatter,
     )
 
     # Add additional instrumentations and configurations
