@@ -59,12 +59,25 @@ class AbstractHandler(ABC):
         logger.error(
             f"Error occurred in conversation: {context.activity.conversation.id}, activity: {context.activity.id}",
             exc_info=True,
+            extra={
+                "code": "HANDLE_ERROR_RESPONSE",
+                "conversation_id": context.activity.conversation.id,
+                "activity_id": context.activity.id,
+            },
         )
 
         match error:
             case APIError() as api_error:
                 # Capture OpenAI APIError specifically
-                logger.error(f"OpenAI APIError occurred: {api_error}", exc_info=True)
+                logger.error(
+                    f"OpenAI APIError occurred: {api_error}",
+                    exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_API",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
+                )
 
                 if api_error.code == "string_above_max_length":
                     await stream_string_in_chunks(
@@ -82,6 +95,11 @@ class AbstractHandler(ABC):
                 logger.error(
                     f"OpenAI BadRequestError occurred: {bad_request_error}",
                     exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_BAD_REQUEST",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
                 )
 
                 if bad_request_error.code == "string_above_max_length":
@@ -99,6 +117,11 @@ class AbstractHandler(ABC):
                 logger.error(
                     f"ModelBehaviorError occurred: {model_behavior_error}",
                     exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_MODEL_BEHAVIOR",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
                 )
                 await stream_string_in_chunks(
                     context,
@@ -106,7 +129,15 @@ class AbstractHandler(ABC):
                 )
             case _:
                 # Capture any other unexpected errors
-                logger.error(f"An unexpected error occurred: {error}", exc_info=True)
+                logger.error(
+                    f"An unexpected error occurred: {error}",
+                    exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_UNEXPECTED",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
+                )
 
                 await stream_string_in_chunks(
                     context,

@@ -10,7 +10,6 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
 from opentelemetry.sdk.resources import Resource
-from pythonjsonlogger.json import JsonFormatter
 
 
 def setup_logging(module) -> logging.Logger:
@@ -24,8 +23,7 @@ def setup_logging(module) -> logging.Logger:
 
     # Create stream handler
     stream_handler = logging.StreamHandler()
-    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
-    stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(logging.Formatter(settings.LOGGING_FORMAT))
     logger.addHandler(stream_handler)
     return logger
 
@@ -49,8 +47,7 @@ def setup_opentelemetry():
     """
     # Configure basic logging configuration
     stream_handler = logging.StreamHandler()
-    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
-    stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(logging.Formatter(settings.LOGGING_FORMAT))
     logging.basicConfig(
         format=settings.LOGGING_FORMAT,
         handlers=[stream_handler],
@@ -92,7 +89,6 @@ def setup_opentelemetry():
         },
         storage_directory=os.path.join(settings.HOME_DIRECTORY, "azure_monitor"),
         resource=resource,
-        logging_formatter=formatter,
     )
 
     # Add additional instrumentations and configurations
@@ -121,4 +117,6 @@ class OpenTelemetryTranscriptLogger(TranscriptLogger):
         if not activity:
             raise TypeError("Activity is required")
 
-        self.logger.info(activity.model_dump_json())
+        self.logger.info(
+            activity.model_dump_json(), extra={"code": "TRANSCRIPT_LOGGER_ACTIVITY"}
+        )

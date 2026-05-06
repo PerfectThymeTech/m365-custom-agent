@@ -58,7 +58,10 @@ class FileExtractionClient:
         :rtype: dict
         """
         # Analyze document
-        logger.debug(f"Starting data extraction for file URL: {file_url}")
+        logger.debug(
+            f"Starting data extraction for file URL: {file_url}",
+            extra={"code": "DATA_EXTRACTION_STARTED", "file_url": file_url},
+        )
         extract_data_result = await asyncio.create_task(
             self._extract_data(
                 file_url,
@@ -106,7 +109,10 @@ class FileExtractionClient:
             result = poller.result()
             result_dict = result.as_dict()
         except Exception as e:
-            logger.error(f"Error during document analysis: {e}")
+            logger.error(
+                f"Error during document analysis: {e}",
+                extra={"code": "DATA_EXTRACTION_ERROR", "file_url": file_url},
+            )
             raise e
 
         return result_dict
@@ -186,7 +192,10 @@ class FileExtractionClient:
                     table_summary_response.summary
                 )
             else:
-                logger.error("Table summary response is None, skipping.")
+                logger.error(
+                    "Table summary response is None, skipping.",
+                    extra={"code": "DATA_EXTRACTION_TABLE_SUMMARY_ERROR"},
+                )
 
         return table_summaries, table_collection
 

@@ -23,11 +23,14 @@ async def post_message(request: Request, background_tasks: BackgroundTasks) -> A
     """
     Heartbeat endpoint to verify service is alive.
     """
-    logger.info(f"Received message")
+    logger.info(f"Received message", extra={"code": "MESSAGE_ENDPOINT_TRIGGERED"})
 
     # Get payload
     payload = await request.json()
-    logger.debug(f"Message payload: {payload}")
+    logger.debug(
+        f"Message payload: {payload}",
+        extra={"code": "MESSAGE_ENDPOINT_PAYLOAD"} | payload,
+    )
 
     # Get properties from payload
     activity_id = payload.get("id", id(request))

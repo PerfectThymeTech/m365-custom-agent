@@ -52,7 +52,12 @@ def filter_attachments_by_type(
         if attachment.content_type in supported_content_types:
             # Supported content type
             logger.info(
-                f"Supported attachment '{attachment.name}' with content type '{attachment.content_type}' detected."
+                f"Supported attachment '{attachment.name}' with content type '{attachment.content_type}' detected.",
+                extra={
+                    "code": "ATTACHMENT_CONTENT_TYPE_SUPPORTED",
+                    "attachment_name": attachment.name,
+                    "content_type": attachment.content_type,
+                },
             )
 
             if validate_file_types:
@@ -65,19 +70,34 @@ def filter_attachments_by_type(
                     # Check if file type is supported
                     if attachment_content.file_type.lower() in supported_file_types:
                         logger.info(
-                            f"Supported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+                            f"Supported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected.",
+                            extra={
+                                "code": "ATTACHMENT_FILE_TYPE_SUPPORTED",
+                                "attachment_name": attachment.name,
+                                "file_type": attachment_content.file_type,
+                            },
                         )
                         supported_attachments.append(attachment)
                     else:
                         logger.info(
-                            f"Unsupported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected."
+                            f"Unsupported attachment '{attachment.name}' with file type '{attachment_content.file_type}' detected.",
+                            extra={
+                                "code": "ATTACHMENT_FILE_TYPE_UNSUPPORTED",
+                                "attachment_name": attachment.name,
+                                "file_type": attachment_content.file_type,
+                            },
                         )
                         unsupported_attachments.append(attachment)
 
                 except ValidationError as e:
                     # Unsupported file type
                     logger.error(
-                        f"Failed to parse attachment content for {attachment.name}: {e}"
+                        f"Failed to parse attachment content for {attachment.name}: {e}",
+                        exc_info=True,
+                        extra={
+                            "code": "ATTACHMENT_FILE_TYPE_ERROR",
+                            "attachment_name": attachment.name,
+                        },
                     )
                     unsupported_attachments.append(attachment)
             else:
@@ -85,12 +105,22 @@ def filter_attachments_by_type(
         elif attachment.content_type in ignored_content_types:
             # Ignored content type
             logger.info(
-                f"Ignored attachment '{attachment.name}' with content type '{attachment.content_type}' detected."
+                f"Ignored attachment '{attachment.name}' with content type '{attachment.content_type}' detected.",
+                extra={
+                    "code": "ATTACHMENT_CONTENT_TYPE_IGNORED",
+                    "attachment_name": attachment.name,
+                    "content_type": attachment.content_type,
+                },
             )
         else:
             # Unsupported content type
             logger.info(
-                f"Unsupported attachment '{attachment.name}' with content type '{attachment.content_type}' detected."
+                f"Unsupported attachment '{attachment.name}' with content type '{attachment.content_type}' detected.",
+                extra={
+                    "code": "ATTACHMENT_CONTENT_TYPE_UNSUPPORTED",
+                    "attachment_name": attachment.name,
+                    "content_type": attachment.content_type,
+                },
             )
             unsupported_attachments.append(attachment)
 
@@ -108,12 +138,20 @@ def get_html_from_attachment(attachments: list[Attachment]) -> str:
                 if isinstance(attachment.content, str):
                     html_message = attachment.content
                     logger.info(
-                        f"HTML attachment '{attachment.name}' processed successfully."
+                        f"HTML attachment '{attachment.name}' processed successfully.",
+                        extra={
+                            "code": "HTML_ATTACHMENT_PROCESSED",
+                            "attachment_name": attachment.name,
+                        },
                     )
                     return html_message
                 else:
-                    logger.error(
-                        f"HTML attachment content for {attachment.name} is not a string."
+                    logger.warning(
+                        f"HTML attachment content for {attachment.name} is not a string.",
+                        extra={
+                            "code": "HTML_ATTACHMENT_CONTENT_INVALID",
+                            "attachment_name": attachment.name,
+                        },
                     )
 
     return html_message
@@ -132,7 +170,10 @@ async def get_suggested_actions_from_agent(
     :return: A list of suggested actions.
     :rtype: list[str]
     """
-    logger.info("Generating suggested actions using SuggestedActionsAgent.")
+    logger.info(
+        "Generating suggested actions using SuggestedActionsAgent.",
+        extra={"code": "SUGGESTED_ACTIONS_GENERATION_STARTED"},
+    )
 
     # Define input for agent
     input = f"""
@@ -171,7 +212,11 @@ async def get_suggested_actions_from_agent(
     )
 
     logger.info(
-        f"Number of suggested actions generated: {len(suggested_actions_response.suggested_actions)}"
+        f"Number of suggested actions generated: {len(suggested_actions_response.suggested_actions)}",
+        extra={
+            "code": "SUGGESTED_ACTIONS_GENERATION_COMPLETED",
+            "num_suggested_actions": len(suggested_actions_response.suggested_actions),
+        },
     )
 
     return suggested_actions_response

@@ -129,12 +129,16 @@ class RootAgent:
         :param usage: The Usage object containing token usage details.
         :type usage: Usage
         """
-        logger.info(f"Document Agent usage. Total tokens: {usage.total_tokens}")
         logger.info(
-            f"Document Agent usage. Input tokens: {usage.input_tokens}, Input token details: {usage.input_tokens_details}"
-        )
-        logger.info(
-            f"Document Agent usage. Output tokens: {usage.output_tokens}, Output token details: {usage.output_tokens_details}"
+            f"Agent usage: Total tokens: {usage.total_tokens}, Input tokens: {usage.input_tokens}, Input token details: {usage.input_tokens_details}, Output tokens: {usage.output_tokens}, Output token details: {usage.output_tokens_details}",
+            extra={
+                "code": "AGENT_USAGE_TOKENS",
+                "total_tokens": usage.total_tokens,
+                "input_tokens": usage.input_tokens,
+                "input_tokens_details": usage.input_tokens_details,
+                "output_tokens": usage.output_tokens,
+                "output_tokens_details": usage.output_tokens_details,
+            },
         )
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
@@ -178,7 +182,11 @@ class RootAgent:
                         context.streaming_response.queue_text_chunk(event.data.delta)
                         response += event.data.delta
             except Exception as e:
-                logger.error(f"Error streaming agent response: {e}", exc_info=True)
+                logger.error(
+                    f"Error streaming agent response: {e}",
+                    exc_info=True,
+                    extra={"code": "AGENT_RESPONSE_STREAMING_ERROR"},
+                )
                 raise e
 
         # Track consumed tokens
