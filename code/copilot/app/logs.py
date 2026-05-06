@@ -24,7 +24,7 @@ def setup_logging(module) -> logging.Logger:
 
     # Create stream handler
     stream_handler = logging.StreamHandler()
-    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="{")
+    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     return logger
@@ -49,7 +49,7 @@ def setup_opentelemetry():
     """
     # Configure basic logging configuration
     stream_handler = logging.StreamHandler()
-    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="{")
+    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="%")
     stream_handler.setFormatter(formatter)
     logging.basicConfig(
         format=settings.LOGGING_FORMAT,
