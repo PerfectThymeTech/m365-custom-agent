@@ -234,10 +234,6 @@ class MSTeamsHandler(AbstractHandler):
             user_state_store_item.file_uploaded = True
         else:
             logger.info("No supported attachments detected.")
-            await stream_string_in_chunks(
-                context=context,
-                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {', '.join(SUPPORTED_FILE_TYPES)}. \n\n",
-            )
 
         if len(unsupported_attachments) > 0:
             logger.info(
