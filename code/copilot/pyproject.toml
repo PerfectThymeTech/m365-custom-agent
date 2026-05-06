@@ -20,6 +20,7 @@ dependencies = [
     "opentelemetry-instrumentation-aiohttp-client==0.60b0",
     "opentelemetry-instrumentation-openai-agents==0.60.0",
     "pydantic-settings==2.14.0",
+    "python-json-logger==4.1.0",
 ]
 
 [dependency-groups]

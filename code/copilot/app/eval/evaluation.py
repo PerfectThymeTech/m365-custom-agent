@@ -19,6 +19,10 @@ class Evaluator:
         tool_calls: list[dict],
     ) -> dict:
         with tracer.start_as_current_span("evaluate_all_metrics"):
+            logger.info(
+                f"Starting all guardrail evaluations for Agent Name: '{self.agent_name}'",
+                extra={"code": "EVALUATION_STARTED", "agent_name": self.agent_name},
+            )
             results = {
                 # "relevance": self.evaluate_relevance(query, response),
                 "self_harm": self.evaluate_self_harm(query, response),
@@ -26,7 +30,10 @@ class Evaluator:
                     query, response, system_message, tool_definitions, tool_calls
                 ),
             }
-            logger.info(results)
+            logger.info(
+                f"Completed all guardrail evaluations for Agent Name: '{self.agent_name}'",
+                extra={"code": "EVALUATION_COMPLETED", "agent_name": self.agent_name},
+            )
             return results
 
     def evaluate_relevance(self, query: str, response: str) -> dict[str, str]:
@@ -37,9 +44,13 @@ class Evaluator:
 
         # Log results
         logger.info(
-            f"Relevance Guardrail Status: 'completed', Agent Name: '{self.agent_name}'"
+            f"Relevance Guardrail Status: 'completed', Agent Name: '{self.agent_name}'",
+            extra={
+                "code": "EVALUATION_METRIC_RESULT_RELEVANCE",
+                "agent_name": self.agent_name,
+            }
+            | result,
         )
-        logger.info(result)
         return result
 
     def evaluate_task_adherence(
@@ -60,9 +71,13 @@ class Evaluator:
 
         # Log results
         logger.info(
-            f"Task Adherence Guardrail Status: 'completed', Agent Name: '{self.agent_name}'"
+            f"Task Adherence Guardrail Status: 'completed', Agent Name: '{self.agent_name}'",
+            extra={
+                "code": "EVALUATION_METRIC_RESULT_TASK_ADHERENCE",
+                "agent_name": self.agent_name,
+            }
+            | result,
         )
-        logger.info(result)
         return result
 
     def evaluate_self_harm(self, query: str, response: str) -> dict[str, str]:
@@ -73,7 +88,11 @@ class Evaluator:
 
         # Log results
         logger.info(
-            f"Self-Harm Guardrail Status: 'completed', Agent Name: '{self.agent_name}'"
+            f"Self-Harm Guardrail Status: 'completed', Agent Name: '{self.agent_name}'",
+            extra={
+                "code": "EVALUATION_METRIC_RESULT_SELF_HARM",
+                "agent_name": self.agent_name,
+            }
+            | result,
         )
-        logger.info(result)
         return result

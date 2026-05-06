@@ -10,6 +10,7 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
 from opentelemetry.sdk.resources import Resource
+from pythonjsonlogger.json import JsonFormatter
 
 
 def setup_logging(module) -> logging.Logger:
@@ -23,7 +24,8 @@ def setup_logging(module) -> logging.Logger:
 
     # Create stream handler
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter(settings.LOGGING_FORMAT))
+    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="{")
+    stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     return logger
 
@@ -47,7 +49,8 @@ def setup_opentelemetry():
     """
     # Configure basic logging configuration
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging.Formatter(settings.LOGGING_FORMAT))
+    formatter = JsonFormatter(settings.LOGGING_FORMAT, style="{")
+    stream_handler.setFormatter(formatter)
     logging.basicConfig(
         format=settings.LOGGING_FORMAT,
         handlers=[stream_handler],
