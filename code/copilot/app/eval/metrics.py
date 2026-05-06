@@ -55,7 +55,7 @@ def get_credential(
 MODEL_CONFIG = get_model_config(
     api_key=settings.AZURE_OPENAI_API_KEY,
     endpoint=settings.AZURE_OPENAI_ENDPOINT,
-    deployment=settings.AZURE_OPENAI_MODEL_NANO_NAME,
+    deployment=settings.AZURE_OPENAI_MODEL_SLM_NAME,
 )
 CREDENTIAL = get_credential(
     api_key=settings.AZURE_OPENAI_API_KEY,
