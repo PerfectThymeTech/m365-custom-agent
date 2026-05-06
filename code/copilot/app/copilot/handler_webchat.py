@@ -224,7 +224,7 @@ class WebchatHandler(AbstractHandler):
             )
             await stream_string_in_chunks(
                 context=context,
-                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context.",
+                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context. \n\n",
             )
 
             # Update store item
