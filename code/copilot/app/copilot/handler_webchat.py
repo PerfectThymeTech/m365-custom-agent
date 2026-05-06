@@ -224,17 +224,13 @@ class WebchatHandler(AbstractHandler):
             )
             await stream_string_in_chunks(
                 context=context,
-                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context.",
+                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context. \n\n",
             )
 
             # Update store item
             user_state_store_item.file_uploaded = True
         else:
             logger.info("No supported attachments detected.")
-            await stream_string_in_chunks(
-                context=context,
-                text=f"I could not find any supported document in the attachments you uploaded. Please upload a supported file type: {', '.join(SUPPORTED_FILE_TYPES)}. \n\n",
-            )
 
         if len(unsupported_attachments) > 0:
             logger.info(
