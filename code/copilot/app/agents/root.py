@@ -155,7 +155,7 @@ class RootAgent:
                 "It was detected that the streaming response has timed out, or was cancelled. We will send the remaining response as a text message once completed."
             )
             typing_indicator.start()
-        return streaming_response_ended and previously_detected_streaming_ended
+        return streaming_response_ended or previously_detected_streaming_ended
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
