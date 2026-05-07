@@ -224,7 +224,9 @@ class RootAgent:
                             previously_detected_streaming_ended=streaming_response_ended,
                         )
                         if not streaming_response_ended:
-                            context.streaming_response.queue_text_chunk(event.data.delta)
+                            context.streaming_response.queue_text_chunk(
+                                event.data.delta
+                            )
                         else:
                             response_remaining += event.data.delta
                         response += event.data.delta
