@@ -184,13 +184,13 @@ async def stream_string_in_chunks(context: TurnContext, text: str):
     :param text: The text which must be streamed.
     :type text: str
     """
-    if context.streaming_response._ended or context.streaming_response._canceled:
+    if context.streaming_response._ended or context.streaming_response._cancelled:
         logger.warning(
-            "Attempted to stream response, but the streaming response has already ended or was canceled.",
+            "Attempted to stream response, but the streaming response has already ended or was cancelled.",
             extra={
-                "code": "STREAMING_RESPONSE_ENDED_OR_CANCELED",
+                "code": "STREAMING_RESPONSE_ENDED_OR_CANCELLED",
                 "streaming_response_ended": context.streaming_response._ended,
-                "streaming_response_canceled": context.streaming_response._canceled,
+                "streaming_response_cancelled": context.streaming_response._cancelled,
             },
         )
         await context.send_activity(text)

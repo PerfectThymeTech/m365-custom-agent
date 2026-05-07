@@ -140,19 +140,19 @@ class RootAgent:
         :type previously_detected_streaming_ended: bool
         """
         streaming_response_ended = (
-            context.streaming_response._ended or context.streaming_response._canceled
+            context.streaming_response._ended or context.streaming_response._cancelled
         )
         if streaming_response_ended and not previously_detected_streaming_ended:
             logger.warning(
-                "The streaming response has already ended or was canceled.",
+                "The streaming response has already ended or was cancelled.",
                 extra={
-                    "code": "STREAMING_RESPONSE_ENDED_OR_CANCELED",
+                    "code": "STREAMING_RESPONSE_ENDED_OR_CANCELLED",
                     "streaming_response_ended": context.streaming_response._ended,
-                    "streaming_response_canceled": context.streaming_response._canceled,
+                    "streaming_response_cancelled": context.streaming_response._cancelled,
                 },
             )
             await context.send_activity(
-                "It was detected that the streaming response has timed out, or was canceled. We will send the remaining response as a text message once completed."
+                "It was detected that the streaming response has timed out, or was cancelled. We will send the remaining response as a text message once completed."
             )
             typing_indicator.start()
         return streaming_response_ended and previously_detected_streaming_ended
