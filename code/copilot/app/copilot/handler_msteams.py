@@ -219,7 +219,7 @@ class MSTeamsHandler(AbstractHandler):
                         data=cleaned_data,
                     )
                 )
-                processed_attachment_names.append(attachment.name)
+                processed_attachment_names.append(f"`{attachment.name}`")
 
             # Add info about files in context
             logger.info(
