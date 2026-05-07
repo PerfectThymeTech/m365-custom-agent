@@ -184,11 +184,22 @@ async def stream_string_in_chunks(context: TurnContext, text: str):
     :param text: The text which must be streamed.
     :type text: str
     """
-    # Split string into words
-    words = text.split(sep=" ")
-    for word in words:
-        # Stream each word as a chunk
-        context.streaming_response.queue_text_chunk(f"{word} ")
+    if context.streaming_response._ended or context.streaming_response._canceled:
+        logger.warning(
+            "Attempted to stream response, but the streaming response has already ended or was canceled.",
+            extra={
+                "code": "STREAMING_RESPONSE_ENDED_OR_CANCELED",
+                "streaming_response_ended": context.streaming_response._ended,
+                "streaming_response_canceled": context.streaming_response._canceled,
+            },
+        )
+        await context.send_activity(text)
+    else:
+        # Split string into words
+        words = text.split(sep=" ")
+        for word in words:
+            # Stream each word as a chunk
+            context.streaming_response.queue_text_chunk(f"{word} ")
 
-        # Simulate delay for streaming effect
-        await asyncio.sleep(0.1)
+            # Simulate delay for streaming effect
+            await asyncio.sleep(0.1)

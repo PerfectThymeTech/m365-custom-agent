@@ -6,6 +6,7 @@ from agents.usage import Usage
 from app.logs import setup_logging
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
+from microsoft_agents.hosting.core.app.typing_indicator import TypingIndicator
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
@@ -122,6 +123,40 @@ class RootAgent:
             f"Document Agent usage. Output tokens: {usage.output_tokens}, Output token details: {usage.output_tokens_details}"
         )
 
+    @staticmethod
+    async def _check_streaming_has_ended(
+        context: TurnContext,
+        typing_indicator: TypingIndicator,
+        previously_detected_streaming_ended: bool = False,
+    ):
+        """
+        Check if the streaming response has ended.
+
+        :param context: The TurnContext for the current turn.
+        :type context: TurnContext
+        :param typing_indicator: The TypingIndicator for the current turn.
+        :type typing_indicator: TypingIndicator
+        :param previously_detected_streaming_ended: Whether streaming end was previously detected.
+        :type previously_detected_streaming_ended: bool
+        """
+        streaming_response_ended = (
+            context.streaming_response._ended or context.streaming_response._canceled
+        )
+        if streaming_response_ended and not previously_detected_streaming_ended:
+            logger.warning(
+                "The streaming response has already ended or was canceled.",
+                extra={
+                    "code": "STREAMING_RESPONSE_ENDED_OR_CANCELED",
+                    "streaming_response_ended": context.streaming_response._ended,
+                    "streaming_response_canceled": context.streaming_response._canceled,
+                },
+            )
+            await context.send_activity(
+                "It was detected that the streaming response has timed out, or was canceled. We will send the remaining response as a text message once completed."
+            )
+            typing_indicator.start()
+        return streaming_response_ended and previously_detected_streaming_ended
+
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
         self, input: str, context: TurnContext, last_response_id: str | None = None
@@ -145,18 +180,37 @@ class RootAgent:
             previous_response_id=last_response_id,
         )
 
+        # Check if the streaming response has ended
+        streaming_response_ended = False
+        typing_indicator = TypingIndicator(context, interval_seconds=0.1)
+
         # Return the streamed response
         response = ""
+        response_remaining = ""
         try:
             async for event in result.stream_events():
                 if event.type == "raw_response_event" and isinstance(
                     event.data, ResponseTextDeltaEvent
                 ):
-                    context.streaming_response.queue_text_chunk(event.data.delta)
+                    streaming_response_ended = await self._check_streaming_has_ended(
+                        context=context,
+                        typing_indicator=typing_indicator,
+                        previously_detected_streaming_ended=streaming_response_ended,
+                    )
+                    if not streaming_response_ended:
+                        context.streaming_response.queue_text_chunk(event.data.delta)
+                    else:
+                        response_remaining += event.data.delta
                     response += event.data.delta
         except Exception as e:
             logger.error(f"Error streaming agent response: {e}", exc_info=True)
             raise e
+
+        # Stop the typing indicator if it was started
+        if streaming_response_ended:
+            typing_indicator.stop()
+            if response_remaining:
+                await context.send_activity(response_remaining)
 
         # Track consumed tokens
         usage = result.context_wrapper.usage
