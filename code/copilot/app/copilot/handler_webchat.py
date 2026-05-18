@@ -94,6 +94,7 @@ class WebchatHandler(AbstractHandler):
                 user_state_store_item.document_extraction_results = (
                     DocumentExtractionResults()
                 )
+                user_state_store_item.conversation_id = None
                 user_state_store_item.last_response_id = None
                 user_state_store_item.last_response_token_count = 0
                 user_state_store_item.suggested_actions = {}
@@ -409,22 +410,22 @@ class WebchatHandler(AbstractHandler):
 
         # Stream agent response
         logger.info(
-            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.",
+            f"Streaming agent response with conversation id '{user_state_store_item.conversation_id}'.",
             extra={
                 "code": "HANDLE_AGENT_RESPONSE_STREAMING_STARTED",
                 "channel_id": "webchat",
-                "last_response_id": user_state_store_item.last_response_id,
+                "conversation_id": user_state_store_item.conversation_id,
             },
         )
-        last_response_id, response, total_token_count = await agent.stream_response(
+        conversation_id, response, total_token_count = await agent.stream_response(
             input=user_prompt,
             context=context,
             document_extraction_results=user_state_store_item.document_extraction_results,
-            last_response_id=user_state_store_item.last_response_id,
+            conversation_id=user_state_store_item.conversation_id,
         )
 
         # Update store item
-        user_state_store_item.last_response_id = last_response_id
+        user_state_store_item.conversation_id = conversation_id
         user_state_store_item.last_response_token_count = total_token_count
 
         return user_state_store_item, response

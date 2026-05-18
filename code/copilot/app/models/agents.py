@@ -14,11 +14,13 @@ class UserStateStoreItem(StoreItem):
         file_uploaded: bool = False,
         document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(),
         last_response_id: str = None,
+        conversation_id: str = None,
         last_total_token_count: int = 0,
         suggested_actions: dict[str, str] = {},
     ):
         self.file_uploaded = file_uploaded
         self.document_extraction_results = document_extraction_results
+        self.conversation_id = conversation_id
         self.last_response_id = last_response_id
         self.last_total_token_count = last_total_token_count
         self.suggested_actions = suggested_actions
@@ -36,6 +38,7 @@ class UserStateStoreItem(StoreItem):
             "file_uploaded": self.file_uploaded,
             "document_extraction_results": document_extraction_results_compressed,
             "last_response_id": self.last_response_id,
+            "conversation_id": self.conversation_id,
             "last_total_token_count": self.last_total_token_count,
             "suggested_actions": self.suggested_actions,
         }
@@ -56,6 +59,7 @@ class UserStateStoreItem(StoreItem):
                 decompressed_data
             ),
             last_response_id=json_data.get("last_response_id", None),
+            conversation_id=json_data.get("conversation_id", None),
             last_total_token_count=json_data.get("last_total_token_count", 0),
             suggested_actions=json_data.get("suggested_actions", {}),
         )

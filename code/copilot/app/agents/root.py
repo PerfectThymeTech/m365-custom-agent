@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from agents import Agent, OpenAIResponsesModel, Runner
+from agents import Agent, OpenAIResponsesModel, Runner, OpenAIConversationsSession
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
 from app.core.globals import BACKGROUND_TASKS_DICT
@@ -35,51 +35,6 @@ class RootAgent:
         reasoning_effort: str = "none",
         output_guardrails: list[callable] = [],
     ):
-        self.agent = self._create_agent(
-            api_key,
-            endpoint,
-            model_name=model_name,
-            agent_name=agent_name,
-            instructions=instructions,
-            managed_identity_client_id=managed_identity_client_id,
-            reasoning_effort=reasoning_effort,
-            output_guardrails=output_guardrails,
-        )
-        self.runner = Runner()
-
-    def _create_agent(
-        self,
-        api_key: str,
-        endpoint: str,
-        model_name: str,
-        agent_name: str,
-        instructions: str,
-        managed_identity_client_id: str = None,
-        reasoning_effort: str = "none",
-        output_guardrails: list[callable] = [],
-    ):
-        """
-        Create and configure the agent.
-
-        :param api_key: The API key for authentication.
-        :type api_key: str
-        :param endpoint: The API endpoint URL.
-        :type endpoint: str
-        :param model_name: The name of the model to use.
-        :type model_name: str
-        :param agent_name: The name of the agent.
-        :type agent_name: str
-        :param instructions: The instructions for the agent.
-        :type instructions: str
-        :param managed_identity_client_id: The client id of the managed identity.
-        :type managed_identity_client_id: str
-        :param reasoning_effort: The level of reasoning effort for the agent.
-        :type reasoning_effort: str
-        :param output_guardrails: The output guardrails of the agent.
-        :type output_guardrails: list[callable]
-        :return: Configured Agent instance.
-        :rtype: Agent
-        """
         # Define authentication
         if api_key:
             api_key = api_key
@@ -91,14 +46,48 @@ class RootAgent:
                 "https://cognitiveservices.azure.com/.default",
             )
 
-        # Define the model and client
-        openai_client = AsyncOpenAI(
+        self.openai_client = AsyncOpenAI(
             api_key=api_key,
             base_url=f"{endpoint}openai/v1/",
         )
+        self.agent = self._create_agent(
+            model_name=model_name,
+            agent_name=agent_name,
+            instructions=instructions,
+            managed_identity_client_id=managed_identity_client_id,
+            reasoning_effort=reasoning_effort,
+            output_guardrails=output_guardrails,
+        )
+        self.runner = Runner()
+
+    def _create_agent(
+        self,
+        model_name: str,
+        agent_name: str,
+        instructions: str,
+        reasoning_effort: str = "none",
+        output_guardrails: list[callable] = [],
+    ):
+        """
+        Create and configure the agent.
+
+        :param model_name: The name of the model to use.
+        :type model_name: str
+        :param agent_name: The name of the agent.
+        :type agent_name: str
+        :param instructions: The instructions for the agent.
+        :type instructions: str
+        :param reasoning_effort: The level of reasoning effort for the agent.
+        :type reasoning_effort: str
+        :param output_guardrails: The output guardrails of the agent.
+        :type output_guardrails: list[callable]
+        :return: Configured Agent instance.
+        :rtype: Agent
+        """
+        # Define the model
         model = OpenAIResponsesModel(
             model=model_name,
-            openai_client=openai_client,
+            openai_client=self.openai_client,
         )
         model_settings = ModelSettings(
             tool_choice="auto",
@@ -183,7 +172,7 @@ class RootAgent:
         input: str,
         context: TurnContext,
         document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(),
-        last_response_id: str | None = None,
+        conversation_id: str | None = None,
     ) -> Tuple[str, str, int]:
         """
         Stream the agent's response based on the input.
@@ -194,8 +183,8 @@ class RootAgent:
         :type context: TurnContext
         :param document_extraction_results: The results of document extraction for the current turn.
         :type document_extraction_results: DocumentExtractionResults
-        :param last_response_id: The ID of the last response for context continuity.
-        :type last_response_id: str | None
+        :param conversation_id: The ID of the conversation for context continuity.
+        :type conversation_id: str | None
         :return: A tuple containing the last response ID, the full response text, and the total token count.
         :rtype: Tuple[str, str, int]
         """
@@ -227,11 +216,15 @@ class RootAgent:
                 query=input,
             )
 
+            if not conversation_id:
+                conversation  = self.openai_client.conversations.create()
+                conversation_id = conversation.id
+
             # Generate agent response
             result = self.runner.run_streamed(
                 starting_agent=self.agent,
                 input=messages,
-                previous_response_id=last_response_id,
+                conversation_id=conversation_id,
                 context=agent_turn_context,
             )
 
@@ -277,6 +270,16 @@ class RootAgent:
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
 
+        # Remove developer messages from the conversation history to avoid sending them back to the model in future turns, while keeping them in the agent turn context for evaluation and logging purposes
+        conversation_items = await self.openai_client.conversations.items.list(
+            conversation_id=conversation_id
+        )
+        for item in conversation_items.data:
+            if item.role == "developer":
+                await self.openai_client.conversations.items.delete(
+                    conversation_id=conversation_id, item_id=item.id
+                )
+
         # Create background task to evaluate agent response
         BACKGROUND_TASKS_DICT[context.activity.id].add_task(
             Evaluator(agent_name=self.agent.name).evaluate_all_metrics,
@@ -288,7 +291,7 @@ class RootAgent:
         )
 
         # Return last response id, the full response, and the total token count
-        return result.last_response_id, response, usage.total_tokens
+        return conversation_id, response, usage.total_tokens
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def _get_response(
