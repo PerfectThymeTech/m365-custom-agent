@@ -281,6 +281,7 @@ class WebchatHandler(AbstractHandler):
 
             # Update store item
             user_state_store_item.file_uploaded = True
+            user_state_store_item.document_extraction_results = document_extraction_results
         else:
             logger.info(
                 "No supported attachments detected.",
