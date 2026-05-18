@@ -344,8 +344,11 @@ class MSTeamsHandler(AbstractHandler):
         ]
         file_names_joined = ", ".join(file_names)
         instructions = (
-            settings.INSTRUCTIONS_DOCUMENT_AGENT + "\n\n" + "### Files in context",
-            +"\n" + "[" + file_names_joined + "]",
+            settings.INSTRUCTIONS_DOCUMENT_AGENT
+            + "\n\n### Files in context\n"
+            + "["
+            + file_names_joined
+            + "]"
         )
 
         # Create agent
