@@ -22,19 +22,29 @@ class SuggestedActionsAgent(RootAgent):
         rtype: SuggestedActionsAgentResponse
         """
         # Generate agent response
-        logger.info("Generating suggested actions from agent.")
+        logger.info(
+            "Generating suggested actions from agent.",
+            extra={"code": "SUGGESTED_ACTIONS_AGENT_STARTED"},
+        )
         result = await self._get_response(
             input=input, last_response_id=last_response_id
         )
 
         # Parse the response into SuggestedActionsAgentResponse
         try:
-            logger.info("Parsing suggested actions response from agent.")
+            logger.info(
+                "Parsing suggested actions response from agent.",
+                extra={"code": "SUGGESTED_ACTIONS_AGENT_PARSING"},
+            )
             suggested_actions_response = (
                 SuggestedActionsAgentResponse.model_validate_json(result)
             )
         except ValidationError as e:
-            logger.error(f"Error parsing suggested actions response: {e}")
+            logger.error(
+                f"Error parsing suggested actions response: {e}",
+                exc_info=True,
+                extra={"code": "SUGGESTED_ACTIONS_AGENT_PARSING_ERROR"},
+            )
             suggested_actions_response = SuggestedActionsAgentResponse(
                 suggested_actions=[]
             )

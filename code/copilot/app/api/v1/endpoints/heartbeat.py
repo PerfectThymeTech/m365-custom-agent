@@ -20,5 +20,7 @@ async def get_heartbeat() -> Any:
     """
     Heartbeat endpoint to verify service is alive.
     """
-    logger.info("Received Heartbeat Request")
+    logger.info(
+        "Received Heartbeat Request", extra={"code": "HEARTBEAT_ENDPOINT_TRIGGERED"}
+    )
     return HeartbeatResult(isAlive=True)

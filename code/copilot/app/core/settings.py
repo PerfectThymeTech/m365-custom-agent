@@ -55,6 +55,16 @@ class Settings(BaseSettings):
     AZURE_COSMOS_DATABASE_ID: str
     AZURE_COSMOS_CONTAINER_ID: str = "user-state"
 
+    # Azure AI Foundry app settings
+    AZURE_AI_FOUNDRY_PROJECT_ENDPOINT: str = Field(
+        default=None,
+        alias=AliasChoices("AZURE_AI_FOUNDRY_PROJECT_ENDPOINT"),
+    )
+    AZURE_AI_FOUNDRY_PROJECT_ID: str = Field(
+        default=None,
+        alias=AliasChoices("AZURE_AI_FOUNDRY_PROJECT_ID"),
+    )
+
     # Open AI settings
     AZURE_OPENAI_ENDPOINT: str
     AZURE_OPENAI_API_KEY: str = ""
@@ -66,6 +76,12 @@ class Settings(BaseSettings):
         default="gpt-5-mini",
         alias=AliasChoices(
             "AZURE_OPENAI_MODEL_SLM_NAME", "AZURE_OPENAI_SLM_DEPLOYMENT_NAME"
+        ),
+    )
+    AZURE_OPENAI_MODEL_NANO_NAME: str = Field(
+        default="gpt-5-nano",
+        alias=AliasChoices(
+            "AZURE_OPENAI_MODEL_NANO_NAME", "AZURE_OPENAI_NANO_DEPLOYMENT_NAME"
         ),
     )
 

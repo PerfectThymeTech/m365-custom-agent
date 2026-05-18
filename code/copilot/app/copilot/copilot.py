@@ -27,7 +27,10 @@ def get_copilot_configuration_as_dict() -> dict[str, Any]:
     :rtype: dict[str, Any]
     """
     # Load configuration for msal
-    logger.info("Loading Copilot configuration")
+    logger.info(
+        "Loading Copilot configuration",
+        extra={"code": "COPILOT_CONFIGURATION_LOADING_STARTED"},
+    )
     config = get_copilot_configuration().model_dump(by_alias=True, exclude_none=True)
 
     return config
@@ -43,7 +46,10 @@ def get_copilot_connection_manager(config: dict[str, Any]) -> MsalConnectionMana
     :rtype: MsalConnectionManager
     """
     # Configure connection manager and adapter
-    logger.info("Configuring connection manager and adapter for Copilot")
+    logger.info(
+        "Configuring connection manager and adapter for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_CONNECTION_MANAGER_STARTED"},
+    )
     connection_manager = MsalConnectionManager(**config)
 
     return connection_manager
@@ -63,7 +69,10 @@ def get_copilot_app(
     :rtype: AgentApplication[TurnState]
     """
     # Configure storage
-    logger.info("Configuring storage for Copilot")
+    logger.info(
+        "Configuring storage for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_STORAGE_STARTED"},
+    )
     if settings.AZURE_COSMOS_KEY:
         auth_key = settings.AZURE_COSMOS_KEY
         credential = None
@@ -74,7 +83,10 @@ def get_copilot_app(
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
         )
         url = settings.AZURE_COSMOS_ENDPOINT
-    logger.info(f"Credential: {credential}")
+    logger.debug(
+        f"Credential: {credential}",
+        extra={"code": "COPILOT_CONFIGURATION_STORAGE_CREDENTIAL_CONFIGURED"},
+    )
     storage = (
         CosmosDBStorage(
             config=CosmosDBStorageConfig(
@@ -95,14 +107,20 @@ def get_copilot_app(
     )
 
     # Configure connection manager and adapter
-    logger.info("Configuring connection manager and adapter for Copilot")
+    logger.info(
+        "Configuring connection manager and adapter for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_CONNECTION_MANAGER_STARTED"},
+    )
     cloud_adapter = CloudAdapter(
         connection_manager=connection_manager,
     )
     # cloud_adapter.use(middleware=TranscriptLoggerMiddleware(logger=OpenTelemetryTranscriptLogger())) # Not required because of FastAPI instrumentation
 
     # Configure authorization
-    logger.info("Creating authorization for Copilot")
+    logger.info(
+        "Creating authorization for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_AUTHORIZATION_STARTED"},
+    )
     authorization = Authorization(
         storage=storage,
         connection_manager=connection_manager,
@@ -113,7 +131,10 @@ def get_copilot_app(
     )
 
     # Create agent application
-    logger.info("Creating AgentApplication for Copilot")
+    logger.info(
+        "Creating AgentApplication for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_AGENT_APPLICATION_STARTED"},
+    )
     agent_app = AgentApplication[TurnState](
         authorization=authorization,
         adapter=cloud_adapter,
@@ -136,7 +157,10 @@ def get_copilot_apps(
     :return: A dictionary mapping channel names to AgentApplication instances.
     :rtype: dict[str, AgentApplication[TurnState]]
     """
-    logger.info("Getting Copilot apps for channels")
+    logger.info(
+        "Getting Copilot apps for channels",
+        extra={"code": "COPILOT_CONFIGURATION_GET_APPS_STARTED"},
+    )
     teams_copilot_app = get_copilot_app(
         config=config, connection_manager=connection_manager
     )
@@ -147,7 +171,10 @@ def get_copilot_apps(
         config=config, connection_manager=connection_manager
     )
 
-    logger.info("Configured Copilot apps for channels")
+    logger.info(
+        "Configured Copilot apps for channels",
+        extra={"code": "COPILOT_CONFIGURATION_GET_APPS_COMPLETED"},
+    )
     return {
         "msteams": teams_copilot_app,
         "msteams:COPILOT": teams_copilot_app,
@@ -163,7 +190,10 @@ def get_auth_handlers() -> list[str]:
     :return: A list of authentication handler names.
     :rtype: list[str]
     """
-    logger.info("Getting authentication handlers for Copilot")
+    logger.info(
+        "Getting authentication handlers for Copilot",
+        extra={"code": "COPILOT_CONFIGURATION_GET_AUTH_HANDLERS_STARTED"},
+    )
     auth_handlers = {"default": ["GRAPH"]}
 
     return auth_handlers

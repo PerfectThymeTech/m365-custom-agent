@@ -6,13 +6,17 @@ from azure.identity import DefaultAzureCredential
 from azure.monitor.opentelemetry import configure_azure_monitor
 from microsoft_agents.activity import Activity
 from microsoft_agents.hosting.core.storage.transcript_logger import TranscriptLogger
+from opentelemetry import trace
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+from opentelemetry.instrumentation.openai_agents import OpenAIAgentsInstrumentor
+from opentelemetry.sdk.resources import Resource
 
 
 def setup_logging(module) -> logging.Logger:
     """Setup logging and event handler.
 
-    RETURNS (Logger): The logger object to log activities.
+    :return: The logger object to log activities.
+    :rtype: logging.Logger
     """
     logger = logging.getLogger(module)
     logger.setLevel(settings.LOGGING_LEVEL)
@@ -24,11 +28,22 @@ def setup_logging(module) -> logging.Logger:
     return logger
 
 
+def setup_tracing(module) -> trace.Tracer:
+    """Setup tracing.
+
+    :return: The tracer object to trace activities.
+    :rtype: trace.Tracer
+    """
+    tracer = trace.get_tracer(__name__)
+    return tracer
+
+
 def setup_opentelemetry():
     """
     Setup OpenTelemetry for Azure Monitor integration.
 
-    RETURNS: None
+    :return: None
+    :rtype: None
     """
     # Configure basic logging configuration
     stream_handler = logging.StreamHandler()
@@ -45,6 +60,15 @@ def setup_opentelemetry():
         )
     else:
         credential = None
+
+    # Create OTEL resource
+    resource = Resource.create(
+        attributes={
+            "service.name": settings.WEBSITE_NAME,
+            "service.namespace": settings.WEBSITE_NAME,
+            "service.instance.id": settings.WEBSITE_INSTANCE_ID,
+        }
+    )
 
     # Configure azure monitor
     configure_azure_monitor(
@@ -64,10 +88,12 @@ def setup_opentelemetry():
             "urllib3": {"enabled": False},
         },
         storage_directory=os.path.join(settings.HOME_DIRECTORY, "azure_monitor"),
+        resource=resource,
     )
 
     # Add additional instrumentations and configurations
     AioHttpClientInstrumentor().instrument()
+    OpenAIAgentsInstrumentor().instrument(tracer_provider=trace.get_tracer_provider())
 
 
 class OpenTelemetryTranscriptLogger(TranscriptLogger):
@@ -91,4 +117,6 @@ class OpenTelemetryTranscriptLogger(TranscriptLogger):
         if not activity:
             raise TypeError("Activity is required")
 
-        self.logger.info(activity.model_dump_json())
+        self.logger.info(
+            activity.model_dump_json(), extra={"code": "TRANSCRIPT_LOGGER_ACTIVITY"}
+        )
