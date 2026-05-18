@@ -75,12 +75,14 @@ class WebchatHandler(AbstractHandler):
         user_prompt = context.activity.text if context.activity.text else ""
 
         match user_prompt.lower().strip():
-            case "/restart":
-                logger.info("Restart ('/restart') command detected.")
+            case "/restart" | "/new":
+                logger.info(
+                    f"New conversation ('{user_prompt.lower().strip()}') command detected."
+                )
 
                 # Send informative update to user
                 context.streaming_response.queue_informative_update(
-                    "Restarting conversation and resetting context... "
+                    "Starting a new conversation and resetting context... "
                 )
 
                 # Reset user state
@@ -224,7 +226,7 @@ class WebchatHandler(AbstractHandler):
             )
             await stream_string_in_chunks(
                 context=context,
-                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context. \n\n",
+                text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to start a new conversation or reset the context, send `/new` or `/restart` to the agent. This will remove all files from the context and allow you to start with a fresh context. \n\n",
             )
 
             # Update store item

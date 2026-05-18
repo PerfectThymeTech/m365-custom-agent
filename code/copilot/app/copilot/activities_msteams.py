@@ -51,6 +51,7 @@ async def on_members_added(context: TurnContext, state: TurnState) -> None:
         "Please upload a single PDF file to get started. "
         "Once the file is processed, you can ask questions about its content. "
         "Feel free to ask me anything related to the document you upload! "
+        "To start a new conversation or reset the current context at any time, send `/new` or `/restart`."
     )
     return True
 
