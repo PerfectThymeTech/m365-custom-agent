@@ -216,7 +216,7 @@ class RootAgent:
             )
 
             if not conversation_id:
-                conversation = self.openai_client.conversations.create()
+                conversation = await self.openai_client.conversations.create()
                 conversation_id = conversation.id
 
             # Generate agent response
