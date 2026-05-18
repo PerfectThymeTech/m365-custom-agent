@@ -232,6 +232,7 @@ class RootAgent:
                 starting_agent=self.agent,
                 input=messages,
                 previous_response_id=last_response_id,
+                conversation_id=conversation_id,
                 context=agent_turn_context,
             )
 

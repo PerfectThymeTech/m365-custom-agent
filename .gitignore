@@ -164,3 +164,9 @@ __blobstorage__
 __queuestorage__
 __azurite_db*__.json
 .python_packages
+code/infra/vars.tfvars
+.vscode/settings.json
+code/teams/manifest.zip
+code/teams/manifest.json
+code/infra/vars_test.tfvars
+performancetests/

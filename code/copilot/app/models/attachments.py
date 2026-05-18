@@ -10,6 +10,7 @@ class AttachmentContent(BaseModel):
 class DocumentExtractionResult(BaseModel):
     title: str = Field(..., alias="title")
     data: str = Field(..., alias="data")
+    added_to_context: bool = Field(default=False, alias="addedToContext")
 
 
 class DocumentExtractionResults(BaseModel):
