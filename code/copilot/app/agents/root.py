@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from agents import Agent, OpenAIResponsesModel, Runner, OpenAIConversationsSession
+from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
 from agents.usage import Usage
 from app.core.globals import BACKGROUND_TASKS_DICT
@@ -54,7 +54,6 @@ class RootAgent:
             model_name=model_name,
             agent_name=agent_name,
             instructions=instructions,
-            managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
             output_guardrails=output_guardrails,
         )
@@ -217,7 +216,7 @@ class RootAgent:
             )
 
             if not conversation_id:
-                conversation  = self.openai_client.conversations.create()
+                conversation = self.openai_client.conversations.create()
                 conversation_id = conversation.id
 
             # Generate agent response
