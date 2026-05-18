@@ -13,6 +13,7 @@ from microsoft_agents.hosting.core.app.typing_indicator import TypingIndicator
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
+from app.models.attachments import DocumentExtractionResults
 
 logger = setup_logging(__name__)
 tracer = setup_tracing(__name__)
@@ -178,8 +179,8 @@ class RootAgent:
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
-        self, input: str, context: TurnContext, last_response_id: str | None = None
-    ) -> Tuple[str, str]:
+        self, input: str, context: TurnContext, document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(), last_response_id: str | None = None
+    ) -> Tuple[str, str, int]:
         """
         Stream the agent's response based on the input.
 
@@ -187,12 +188,36 @@ class RootAgent:
         :type input: str
         :param context: The TurnContext for the current turn.
         :type context: TurnContext
+        :param document_extraction_results: The results of document extraction for the current turn.
+        :type document_extraction_results: DocumentExtractionResults
         :param last_response_id: The ID of the last response for context continuity.
         :type last_response_id: str | None
-        :return: A tuple containing the last response ID and the full response text.
-        :rtype: Tuple[str, str]
+        :return: A tuple containing the last response ID, the full response text, and the total token count.
+        :rtype: Tuple[str, str, int]
         """
         with tracer.start_as_current_span("agent_session[openai.agents]"):
+            # Create messages
+            messages = []
+            for document in document_extraction_results.documents:
+                messages.append(
+                    {
+                        "role": "developer",
+                        "content": f"""
+                        # Context
+                        ## Document Extraction
+                        ### {document.title}
+                        """ 
+                        + "\n\n"
+                        + document.data
+                    }
+                )
+            messages.append(
+                {
+                    "role": "user",
+                    "content": input,
+                }
+            )
+
             # Create turn context
             agent_turn_context = AgentTurnContext(
                 query=input,
@@ -201,7 +226,7 @@ class RootAgent:
             # Generate agent response
             result = self.runner.run_streamed(
                 starting_agent=self.agent,
-                input=input,
+                input=messages,
                 previous_response_id=last_response_id,
                 context=agent_turn_context,
             )
@@ -258,8 +283,8 @@ class RootAgent:
             tool_calls=[],
         )
 
-        # Return last response id and the full response
-        return result.last_response_id, response
+        # Return last response id, the full response, and the total token count
+        return result.last_response_id, response, usage.total_tokens
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def _get_response(
