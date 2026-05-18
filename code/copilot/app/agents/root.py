@@ -6,6 +6,7 @@ from agents.usage import Usage
 from app.core.globals import BACKGROUND_TASKS_DICT
 from app.eval.evaluation import Evaluator
 from app.logs import setup_logging, setup_tracing
+from app.models.attachments import DocumentExtractionResults
 from app.models.copilot import AgentTurnContext
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
@@ -13,7 +14,6 @@ from microsoft_agents.hosting.core.app.typing_indicator import TypingIndicator
 from openai import AsyncOpenAI
 from openai.types.responses import ResponseTextDeltaEvent
 from openai.types.shared.reasoning import Reasoning
-from app.models.attachments import DocumentExtractionResults
 
 logger = setup_logging(__name__)
 tracer = setup_tracing(__name__)
@@ -179,7 +179,11 @@ class RootAgent:
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
-        self, input: str, context: TurnContext, document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(), last_response_id: str | None = None
+        self,
+        input: str,
+        context: TurnContext,
+        document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(),
+        last_response_id: str | None = None,
     ) -> Tuple[str, str, int]:
         """
         Stream the agent's response based on the input.
@@ -206,9 +210,9 @@ class RootAgent:
                         # Context
                         ## Document Extraction
                         ### {document.title}
-                        """ 
+                        """
                         + "\n\n"
-                        + document.data
+                        + document.data,
                     }
                 )
             messages.append(

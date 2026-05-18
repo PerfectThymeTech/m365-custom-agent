@@ -338,15 +338,13 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
-        file_names = [document.title for document in user_state_store_item.document_extraction_results.documents]
+        file_names = [
+            document.title
+            for document in user_state_store_item.document_extraction_results.documents
+        ]
         instructions = (
-            settings.INSTRUCTIONS_DOCUMENT_AGENT
-            + "\n\n"
-            + "### Files in context",
-            + "\n"
-            + "["
-            + ", ".join(file_names)
-            + "]"
+            settings.INSTRUCTIONS_DOCUMENT_AGENT + "\n\n" + "### Files in context",
+            +"\n" + "[" + ", ".join(file_names) + "]",
         )
 
         # Create agent
