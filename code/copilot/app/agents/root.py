@@ -171,7 +171,7 @@ class RootAgent:
         input: str,
         context: TurnContext,
         document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(),
-        conversation_id: str | None = None,
+        last_response_id: str | None = None,
     ) -> Tuple[str, str, int]:
         """
         Stream the agent's response based on the input.
@@ -182,8 +182,8 @@ class RootAgent:
         :type context: TurnContext
         :param document_extraction_results: The results of document extraction for the current turn.
         :type document_extraction_results: DocumentExtractionResults
-        :param conversation_id: The ID of the conversation for context continuity.
-        :type conversation_id: str | None
+        :param last_response_id: The ID of the last response for context continuity.
+        :type last_response_id: str | None
         :return: A tuple containing the last response ID, the full response text, and the total token count.
         :rtype: Tuple[str, str, int]
         """
@@ -215,15 +215,11 @@ class RootAgent:
                 query=input,
             )
 
-            if not conversation_id:
-                conversation = await self.openai_client.conversations.create()
-                conversation_id = conversation.id
-
             # Generate agent response
             result = self.runner.run_streamed(
                 starting_agent=self.agent,
                 input=messages,
-                conversation_id=conversation_id,
+                previous_response_id=last_response_id,
                 context=agent_turn_context,
             )
 
@@ -268,16 +264,9 @@ class RootAgent:
         # Track consumed tokens
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
+        logger.info(f"Finished streaming agent response with conversation ID {result._conversation_id}.",)
 
-        # Remove developer messages from the conversation history to avoid sending them back to the model in future turns, while keeping them in the agent turn context for evaluation and logging purposes
-        conversation_items = await self.openai_client.conversations.items.list(
-            conversation_id=conversation_id
-        )
-        for item in conversation_items.data:
-            if item.role == "developer":
-                await self.openai_client.conversations.items.delete(
-                    conversation_id=conversation_id, item_id=item.id
-                )
+        last_response_id = result.last_response_id
 
         # Create background task to evaluate agent response
         BACKGROUND_TASKS_DICT[context.activity.id].add_task(
@@ -290,7 +279,7 @@ class RootAgent:
         )
 
         # Return last response id, the full response, and the total token count
-        return conversation_id, response, usage.total_tokens
+        return last_response_id, response, usage.total_tokens
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def _get_response(
