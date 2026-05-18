@@ -264,7 +264,9 @@ class RootAgent:
         # Track consumed tokens
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
-        logger.info(f"Finished streaming agent response with conversation ID {result._conversation_id}.",)
+        logger.info(
+            f"Finished streaming agent response with conversation ID {result._conversation_id}.",
+        )
 
         last_response_id = result.last_response_id
 
