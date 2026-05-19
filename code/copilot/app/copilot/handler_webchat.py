@@ -76,7 +76,13 @@ class WebchatHandler(AbstractHandler):
 
         match user_prompt.lower().strip():
             case "/restart":
-                logger.info("Restart ('/restart') command detected.")
+                logger.info(
+                    "Restart ('/restart') command detected.",
+                    extra={
+                        "code": "HANDLE_COMMAND_DETECTED_RESTART",
+                        "channel_id": "webchat",
+                    },
+                )
 
                 # Send informative update to user
                 context.streaming_response.queue_informative_update(
@@ -88,7 +94,9 @@ class WebchatHandler(AbstractHandler):
                 user_state_store_item.document_extraction_results = (
                     DocumentExtractionResults()
                 )
+                user_state_store_item.conversation_id = None
                 user_state_store_item.last_response_id = None
+                user_state_store_item.last_response_token_count = 0
                 user_state_store_item.suggested_actions = {}
 
                 # Update user that we have
@@ -100,7 +108,13 @@ class WebchatHandler(AbstractHandler):
                 # Update command variable
                 command = True
             case _:
-                logger.info("No command detected.")
+                logger.info(
+                    "No command detected.",
+                    extra={
+                        "code": "HANDLE_COMMAND_DETECTED_NONE",
+                        "channel_id": "webchat",
+                    },
+                )
 
                 # Update command variable
                 command = False
@@ -128,7 +142,13 @@ class WebchatHandler(AbstractHandler):
         )
 
         # Filter attachments for document processing
-        logger.info("Filtering attachments for document processing.")
+        logger.info(
+            "Filtering attachments for document processing.",
+            extra={
+                "code": "HANDLE_ATTACHMENTS_FILTERING_STARTED",
+                "channel_id": "webchat",
+            },
+        )
         supported_attachments, unsupported_attachments = filter_attachments_by_type(
             attachments=context.activity.attachments or [],
             supported_content_types=SUPPORTED_CONTENT_TYPES,
@@ -140,7 +160,12 @@ class WebchatHandler(AbstractHandler):
         # Handle supported documents
         if len(supported_attachments) > 0:
             logger.info(
-                f"Supported attachments detected. Count: {len(supported_attachments)}"
+                f"Supported attachments detected. Count: {len(supported_attachments)}",
+                extra={
+                    "code": "HANDLE_ATTACHMENTS_SUPPORTED_DETECTED",
+                    "channel_id": "webchat",
+                    "attachment_count": len(supported_attachments),
+                },
             )
 
             # Initialize variables
@@ -160,7 +185,14 @@ class WebchatHandler(AbstractHandler):
 
             # Process each supported attachment
             for attachment in supported_attachments:
-                logger.info(f"Processing attachment: {attachment.name}")
+                logger.info(
+                    f"Processing attachment: {attachment.name}",
+                    extra={
+                        "code": "HANDLE_ATTACHMENTS_PROCESSING_STARTED",
+                        "channel_id": "webchat",
+                        "attachment_name": attachment.name,
+                    },
+                )
 
                 # Update user about processing of each file
                 await stream_string_in_chunks(
@@ -179,7 +211,12 @@ class WebchatHandler(AbstractHandler):
                     file_url=attachment.content_url,
                 )
                 logger.debug(
-                    f"Extracted Data from file {attachment.name}: {extracted_data}"
+                    f"Extracted Data from file {attachment.name}: {extracted_data}",
+                    extra={
+                        "code": "HANDLE_ATTACHMENTS_EXTRACTION_COMPLETED",
+                        "channel_id": "webchat",
+                        "attachment_name": attachment.name,
+                    },
                 )
 
                 # TODO: Check for harmful content in extracted data which could impact the agent response.
@@ -200,11 +237,23 @@ class WebchatHandler(AbstractHandler):
                     reasoning_effort="minimal",
                 )
                 logger.debug(
-                    f"Cleaned Data from file {attachment.name}: {cleaned_data}"
+                    f"Cleaned Data from file {attachment.name}: {cleaned_data}",
+                    extra={
+                        "code": "HANDLE_ATTACHMENTS_CLEANING_COMPLETED",
+                        "channel_id": "webchat",
+                        "attachment_name": attachment.name,
+                    },
                 )
 
                 # Update user about completion of file processing
-                logger.info(f"Attachment '{attachment.name}' processed successfully.")
+                logger.info(
+                    f"Attachment '{attachment.name}' processed successfully.",
+                    extra={
+                        "code": "HANDLE_ATTACHMENTS_PROCESSING_COMPLETED",
+                        "channel_id": "webchat",
+                        "attachment_name": attachment.name,
+                    },
+                )
                 await stream_string_in_chunks(
                     context=context, text="\n(100%) File processing completed.\n"
                 )
@@ -220,7 +269,12 @@ class WebchatHandler(AbstractHandler):
 
             # Add info about files in context
             logger.info(
-                f"Updating user about added files to context. Files in context: {processed_attachment_names}"
+                f"Updating user about added files to context. Files in context: {processed_attachment_names}",
+                extra={
+                    "code": "HANDLE_ATTACHMENTS_CONTEXT_UPDATED",
+                    "channel_id": "webchat",
+                    "files_in_context": processed_attachment_names,
+                },
             )
             await stream_string_in_chunks(
                 context=context,
@@ -229,12 +283,26 @@ class WebchatHandler(AbstractHandler):
 
             # Update store item
             user_state_store_item.file_uploaded = True
+            user_state_store_item.document_extraction_results = (
+                document_extraction_results
+            )
         else:
-            logger.info("No supported attachments detected.")
+            logger.info(
+                "No supported attachments detected.",
+                extra={
+                    "code": "HANDLE_ATTACHMENTS_NO_SUPPORTED_DETECTED",
+                    "channel_id": "webchat",
+                },
+            )
 
         if len(unsupported_attachments) > 0:
             logger.info(
-                f"Unsupported attachments detected. Count: {len(unsupported_attachments)}"
+                f"Unsupported attachments detected. Count: {len(unsupported_attachments)}",
+                extra={
+                    "code": "HANDLE_ATTACHMENTS_UNSUPPORTED_DETECTED",
+                    "channel_id": "webchat",
+                    "num_unsupported_attachments": len(unsupported_attachments),
+                },
             )
 
             # Update user about unprocessed and unsupported attachments
@@ -269,12 +337,13 @@ class WebchatHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
+        file_names = [
+            document.title
+            for document in user_state_store_item.document_extraction_results.documents
+        ]
         instructions = (
-            settings.INSTRUCTIONS_DOCUMENT_AGENT
-            + "\n\n"
-            + user_state_store_item.document_extraction_results.model_dump_json(
-                indent=None
-            )
+            settings.INSTRUCTIONS_DOCUMENT_AGENT + "\n\n" + "### Files in context",
+            +"\n" + "[" + ", ".join(file_names) + "]",
         )
 
         # Create agent
@@ -291,39 +360,74 @@ class WebchatHandler(AbstractHandler):
         user_prompt = context.activity.text if context.activity.text else ""
 
         # Check for suggested action prompt scenarios
-        logger.info("Checking for suggested action prompt scenarios.")
+        logger.info(
+            "Checking for suggested action prompt scenarios.",
+            extra={
+                "code": "HANDLE_AGENT_RESPONSE_SUGGESTED_ACTION_PROMPT_CHECK_STARTED",
+                "channel_id": "webchat",
+            },
+        )
         if user_prompt in user_state_store_item.suggested_actions.keys():
             user_prompt = user_state_store_item.suggested_actions[user_prompt]
             logger.info(
-                f"User prompt matches a suggested action. Using corresponding prompt."
+                f"User prompt matches a suggested action. Using corresponding prompt.",
+                extra={
+                    "code": "HANDLE_AGENT_RESPONSE_SUGGESTED_ACTION_PROMPT_MATCHED",
+                    "channel_id": "webchat",
+                    "user_prompt": user_prompt,
+                },
             )
         else:
             logger.info(
-                f"User prompt does not match any suggested action. Proceeding with default instructions."
+                f"User prompt does not match any suggested action. Proceeding with default instructions.",
+                extra={
+                    "code": "HANDLE_AGENT_RESPONSE_SUGGESTED_ACTION_PROMPT_NOT_MATCHED",
+                    "channel_id": "webchat",
+                    "user_prompt": user_prompt,
+                },
             )
 
         # Check for pre-defined prompt scenario
-        logger.info("Checking for pre-defined prompt scenario.")
+        logger.info(
+            "Checking for pre-defined prompt scenario.",
+            extra={
+                "code": "HANDLE_AGENT_RESPONSE_CHECK_PREDEFINED_PROMPT_SCENARIOS",
+                "channel_id": "webchat",
+            },
+        )
         for scenario in settings.SCENARIO_DEFINITIONS.scenarios:
             if user_prompt == scenario.title:
                 user_prompt = scenario.prompt
                 logger.info(
-                    f"User prompt matches predefined scenario '{scenario.title}'. Using corresponding prompt."
+                    f"User prompt matches predefined scenario '{scenario.title}'. Using corresponding prompt.",
+                    extra={
+                        "code": "HANDLE_AGENT_RESPONSE_PREDEFINED_PROMPT_SCENARIO_MATCHED",
+                        "channel_id": "webchat",
+                        "scenario_title": scenario.title,
+                    },
                 )
                 break
 
         # Stream agent response
         logger.info(
-            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'."
+            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.",
+            extra={
+                "code": "HANDLE_AGENT_RESPONSE_STREAMING_STARTED",
+                "channel_id": "webchat",
+                "last_response_id": user_state_store_item.last_response_id,
+            },
         )
-        last_response_id, response = await agent.stream_response(
+        last_response_id, response, total_token_count = await agent.stream_response(
             input=user_prompt,
-            last_response_id=user_state_store_item.last_response_id,
             context=context,
+            document_extraction_results=user_state_store_item.document_extraction_results,
+            last_response_id=user_state_store_item.last_response_id,
         )
 
         # Update store item
+        user_state_store_item.conversation_id = None
         user_state_store_item.last_response_id = last_response_id
+        user_state_store_item.last_response_token_count = total_token_count
 
         return user_state_store_item, response
 
@@ -356,12 +460,27 @@ class WebchatHandler(AbstractHandler):
         logger.error(
             f"Error occurred in conversation: {context.activity.conversation.id}, activity: {context.activity.id}",
             exc_info=True,
+            extra={
+                "code": "HANDLE_ERROR_RESPONSE",
+                "channel_id": "webchat",
+                "conversation_id": context.activity.conversation.id,
+                "activity_id": context.activity.id,
+            },
         )
 
         match error:
             case APIError() as api_error:
                 # Capture OpenAI APIError specifically
-                logger.error(f"OpenAI APIError occurred: {api_error}", exc_info=True)
+                logger.error(
+                    f"OpenAI APIError occurred: {api_error}",
+                    exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_API",
+                        "channel_id": "webchat",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
+                )
 
                 if api_error.code == "string_above_max_length":
                     await stream_string_in_chunks(
@@ -379,6 +498,12 @@ class WebchatHandler(AbstractHandler):
                 logger.error(
                     f"OpenAI BadRequestError occurred: {bad_request_error}",
                     exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_BAD_REQUEST",
+                        "channel_id": "webchat",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
                 )
 
                 if bad_request_error.code == "string_above_max_length":
@@ -396,6 +521,12 @@ class WebchatHandler(AbstractHandler):
                 logger.error(
                     f"ModelBehaviorError occurred: {model_behavior_error}",
                     exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_OPEN_AI_MODEL_BEHAVIOR",
+                        "channel_id": "webchat",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
                 )
                 await stream_string_in_chunks(
                     context,
@@ -403,7 +534,16 @@ class WebchatHandler(AbstractHandler):
                 )
             case _:
                 # Capture any other unexpected errors
-                logger.error(f"An unexpected error occurred: {error}", exc_info=True)
+                logger.error(
+                    f"An unexpected error occurred: {error}",
+                    exc_info=True,
+                    extra={
+                        "code": "HANDLE_ERROR_UNEXPECTED",
+                        "channel_id": "webchat",
+                        "conversation_id": context.activity.conversation.id,
+                        "activity_id": context.activity.id,
+                    },
+                )
 
                 await stream_string_in_chunks(
                     context,

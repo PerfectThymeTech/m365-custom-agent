@@ -17,7 +17,11 @@ async def on_error(context: TurnContext, error: Exception) -> None:
     :type error: Exception
     :return: None
     """
-    pass
+    logger.error(
+        f"An error occurred: {error}",
+        exc_info=True,
+        extra={"code": "ON_ERROR", "channel_id": "default"},
+    )
 
 
 @copilot_apps["default"].activity(
@@ -33,6 +37,17 @@ async def on_members_added(context: TurnContext, state: TurnState) -> None:
     :type state: TurnState
     :return: None
     """
+    logger.info(
+        f"Received members added activity from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'.",
+        extra={
+            "code": "ON_MEMBERS_ADDED",
+            "channel_id": "default",
+            "user_id": context.activity.from_property.id,
+            "channel_id": context.activity.channel_id,
+            "activity_id": context.activity.id,
+            "conversation_id": context.activity.conversation.id,
+        },
+    )
     await context.send_activity(
         "Welcome to the Large File Processing agent! "
         "You are using an unsupported channel/client."
@@ -54,6 +69,17 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     :type state: TurnState
     :return: None
     """
+    logger.info(
+        f"Received message activity from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'.",
+        extra={
+            "code": "ON_MESSAGE",
+            "channel_id": "default",
+            "user_id": context.activity.from_property.id,
+            "channel_id": context.activity.channel_id,
+            "activity_id": context.activity.id,
+            "conversation_id": context.activity.conversation.id,
+        },
+    )
     await context.send_activity(
         "Welcome to the Large File Processing agent! "
         "You are using an unsupported channel/client."
@@ -78,7 +104,14 @@ async def on_sign_in_success(
     :return: None
     """
     logger.info(
-        f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'."
+        f"Sign-in was successful for user: '{context.activity.from_property.id}', handler ID: '{handler_id}', caller id: '{context.activity.caller_id}'.",
+        extra={
+            "code": "ON_SIGN_IN_SUCCESS",
+            "channel_id": "default",
+            "user_id": context.activity.from_property.id,
+            "handler_id": handler_id,
+            "caller_id": context.activity.caller_id,
+        },
     )
 
 
@@ -94,5 +127,14 @@ async def on_turn(context: TurnContext, state: TurnState) -> None:
     :return: None
     """
     logger.info(
-        f"Received activity of type: '{context.activity.type}' from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'."
+        f"Received activity of type: '{context.activity.type}' from user: '{context.activity.from_property.id}', channel id: '{context.activity.channel_id}', activity id: '{context.activity.id}', conversation id: '{context.activity.conversation.id}'.",
+        extra={
+            "code": "ON_TURN",
+            "channel_id": "default",
+            "activity_type": context.activity.type,
+            "user_id": context.activity.from_property.id,
+            "channel_id": context.activity.channel_id,
+            "activity_id": context.activity.id,
+            "conversation_id": context.activity.conversation.id,
+        },
     )

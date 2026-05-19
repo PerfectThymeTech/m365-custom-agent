@@ -22,6 +22,10 @@ class ScenarioHandler:
 
         :return: None
         """
+        logger.info(
+            "Adding scenario cards to the carousel activity.",
+            extra={"code": "SCENARIO_CAROUSEL_SETUP_STARTED"},
+        )
         for scenario_definition in scenario_definitions.scenarios:
             # Create card for each scenario
             card = HeroCard(
@@ -55,9 +59,13 @@ class ScenarioHandler:
         :return: None
         """
         if len(self.activity.attachments) > 0:
-            logger.info("Send carousel activity with pre-defined scenarios.")
+            logger.info(
+                "Send carousel activity with pre-defined scenarios.",
+                extra={"code": "SCENARIO_CAROUSEL_SENT"},
+            )
             await context.send_activity(self.activity)
         else:
             logger.info(
-                "Carousel activity has no pre-defined scenarios. Skipping send."
+                "Carousel activity has no pre-defined scenarios. Skipping send.",
+                extra={"code": "SCENARIO_CAROUSEL_EMPTY"},
             )

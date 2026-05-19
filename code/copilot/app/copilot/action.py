@@ -33,7 +33,13 @@ class SuggestedActionHandler:
         :return: None
         """
         logger.info(
-            f"Adding suggested action with title: '{title}', prompt: '{prompt}', type: '{type}'"
+            f"Adding suggested action with title: '{title}', prompt: '{prompt}', type: '{type}'",
+            extra={
+                "code": "SUGGESTED_ACTION_ADDED",
+                "title": title,
+                "prompt": prompt,
+                "type": type,
+            },
         )
 
         # Create CardAction and add to activity
@@ -79,8 +85,15 @@ class SuggestedActionHandler:
         """
         if len(self.activity.suggested_actions.actions) > 0:
             logger.info(
-                f"Sending {len(self.activity.suggested_actions.actions)} suggested actions to the user."
+                f"Sending {len(self.activity.suggested_actions.actions)} suggested actions to the user.",
+                extra={
+                    "code": "SUGGESTED_ACTIONS_SENT",
+                    "count": len(self.activity.suggested_actions.actions),
+                },
             )
             await context.send_activity(self.activity)
         else:
-            logger.info("No suggested actions to send to the user.")
+            logger.info(
+                "No suggested actions to send to the user.",
+                extra={"code": "SUGGESTED_ACTIONS_NONE"},
+            )
