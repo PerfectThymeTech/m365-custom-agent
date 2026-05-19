@@ -263,6 +263,7 @@ class WebchatHandler(AbstractHandler):
                     DocumentExtractionResult(
                         title=attachment.name,
                         data=cleaned_data,
+                        appended_to_context=False,
                     )
                 )
                 processed_attachment_names.append(f"`{attachment.name}`")
@@ -428,6 +429,8 @@ class WebchatHandler(AbstractHandler):
         user_state_store_item.conversation_id = None
         user_state_store_item.last_response_id = last_response_id
         user_state_store_item.last_response_token_count = total_token_count
+        for document in user_state_store_item.document_extraction_results.documents:
+            document.appended_to_context = True
 
         return user_state_store_item, response
 

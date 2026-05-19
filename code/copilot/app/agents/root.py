@@ -95,6 +95,11 @@ class RootAgent:
             max_tokens=128000,
             reasoning=Reasoning(effort=reasoning_effort),
             verbosity="low",
+            extra_args={
+                "context_management": [
+                    {"type": "compaction", "compact_threshold": 700000}
+                ],
+            },
         )
 
         # Define the agent
@@ -191,18 +196,27 @@ class RootAgent:
             # Create messages
             messages = []
             for document in document_extraction_results.documents:
-                messages.append(
-                    {
-                        "role": "developer",
-                        "content": f"""
-                        # Context
-                        ## Document Extraction
-                        ### {document.title}
-                        """
-                        + "\n\n"
-                        + document.data,
-                    }
-                )
+                if not document.appended_to_context:
+                    logger.info(
+                        f"Appending document '{document.title}' to agent context.",
+                        extra={
+                            "code": "AGENT_RESPONSE_STREAMING_APPENDING_DOCUMENT_TO_CONTEXT",
+                            "document_title": document.title,
+                        },
+                    )
+                    messages.append(
+                        {
+                            "role": "developer",
+                            "content": f"""
+                            # Context
+                            ## Document Extraction
+                            ### {document.title}
+                            """
+                            + "\n\n"
+                            + document.data,
+                        }
+                    )
+                    document.appended_to_context = True
             messages.append(
                 {
                     "role": "user",
@@ -264,9 +278,6 @@ class RootAgent:
         # Track consumed tokens
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
-        logger.info(
-            f"Finished streaming agent response with conversation ID {result._conversation_id}.",
-        )
 
         last_response_id = result.last_response_id
 
