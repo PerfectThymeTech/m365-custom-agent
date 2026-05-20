@@ -136,9 +136,8 @@ class WebchatHandler(AbstractHandler):
         :rtype: UserStateStoreItem
         """
         # Update user that we detected a file attachment
-        await stream_string_in_chunks(
-            context=context,
-            text="I see that you just uploaded new files. Let me process them... ",
+        context.streaming_response.queue_informative_update(
+            "Let me review file uploads... "
         )
 
         # Filter attachments for document processing
