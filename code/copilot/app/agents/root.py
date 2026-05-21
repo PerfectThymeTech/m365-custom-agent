@@ -223,6 +223,13 @@ class RootAgent:
                     "content": input,
                 }
             )
+            logger.info(
+                f"Number of messages for agent: {len(messages)}",
+                extra={
+                    "code": "AGENT_RESPONSE_STREAMING_CONSTRUCTED_MESSAGES",
+                    "num_messages": len(messages),
+                },
+            )
 
             # Create turn context
             agent_turn_context = AgentTurnContext(

@@ -137,7 +137,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
                 "channel_id": "msteams",
                 "conversation_id": user_state_store_item.conversation_id,
                 "last_response_id": user_state_store_item.last_response_id,
-                "last_response_token_count": user_state_store_item.last_response_token_count,
+                "last_total_token_count": user_state_store_item.last_total_token_count,
                 "num_docs": len(user_state_store_item.document_extraction_results.documents),
             },
         )
@@ -161,7 +161,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
                 "channel_id": "msteams",
                 "conversation_id": user_state_store_item.conversation_id,
                 "last_response_id": user_state_store_item.last_response_id,
-                "last_response_token_count": user_state_store_item.last_response_token_count,
+                "last_total_token_count": user_state_store_item.last_total_token_count,
                 "num_docs": len(user_state_store_item.document_extraction_results.documents),
             },
         )
@@ -203,7 +203,7 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             "channel_id": "msteams",
             "conversation_id": user_state_store_item.conversation_id,
             "last_response_id": user_state_store_item.last_response_id,
-            "last_response_token_count": user_state_store_item.last_response_token_count,
+            "last_total_token_count": user_state_store_item.last_total_token_count,
             "num_docs": len(user_state_store_item.document_extraction_results.documents),
         },
     )
