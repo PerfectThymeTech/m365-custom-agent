@@ -422,11 +422,12 @@ class MSTeamsHandler(AbstractHandler):
 
         # Stream agent response
         logger.info(
-            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.",
+            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}' and documents '{file_names}'.",
             extra={
                 "code": "HANDLE_AGENT_RESPONSE_STREAMING_STARTED",
                 "channel_id": "msteams",
                 "last_response_id": user_state_store_item.last_response_id,
+                "file_names": file_names,
             },
         )
         last_response_id, response, total_token_count = await agent.stream_response(
