@@ -54,7 +54,6 @@ class RootAgent:
             model_name=model_name,
             agent_name=agent_name,
             instructions=instructions,
-            managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
         )
         self.model_name = model_name
