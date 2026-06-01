@@ -1,12 +1,14 @@
 from typing import Any, List, cast
 
 from agents.items import TResponseInputItem
+from agents.memory.openai_responses_compaction_session import (
+    _normalize_compaction_output_items,
+)
 from agents.memory.session import SessionABC
-from app.logs import setup_logging, setup_tracing
+from app.logs import setup_logging
 from openai import AsyncOpenAI
 
 logger = setup_logging(__name__)
-tracer = setup_tracing(__name__)
 
 
 class AgentSession(SessionABC):
@@ -65,7 +67,13 @@ class AgentSession(SessionABC):
         """
         for i in range(len(self.conversation_history) - 1, -1, -1):
             if self.conversation_history[i].get("role", None) == "developer":
-                print(f"Removing developer item: {self.conversation_history[i]}")
+                logger.info(
+                    f"Removing developer item: {self.conversation_history[i]}",
+                    extra={
+                        "code": "AGENT_SESSION_REMOVE_DEVELOPER_ITEM",
+                        "session_id": self.session_id,
+                    },
+                )
                 del self.conversation_history[i]
 
     async def compact_history(self, model_name: str) -> None:
@@ -77,175 +85,34 @@ class AgentSession(SessionABC):
         :rtype: None
         """
         # Implement your compaction logic here, e.g., call the OpenAI compaction endpoint
-        print("Running compaction for session:", self.session_id)
-        # Example: Call the OpenAI compaction endpoint with the current conversation history
+        logger.info(
+            f"Running compaction for session: {self.session_id}",
+            extra={
+                "code": "AGENT_SESSION_COMPACT_HISTORY",
+                "session_id": self.session_id,
+            },
+        )
         compacted_response = await self.openai_client.responses.compact(
             model=model_name,
             input=self.conversation_history,
         )
-        print(
-            "Compaction complete. Updating conversation history with compacted output."
+        logger.info(
+            "Compaction complete. Updating conversation history with compacted output.",
+            extra={
+                "code": "AGENT_SESSION_COMPACT_HISTORY_COMPLETED",
+                "session_id": self.session_id,
+            },
         )
 
-        # Update conversation history with compacted response
-        output_items: list[TResponseInputItem] = []
-        for item in compacted_response.output:
-            if isinstance(item, dict):
-                output_item = item
-            else:
-                # Suppress Pydantic literal warnings: responses.compact can return
-                # user-style input_text content inside ResponseOutputMessage.
-                output_item = item.model_dump(exclude_unset=True, warnings=False)
-
-            if (
-                isinstance(output_item, dict)
-                and output_item.get("type") == "message"
-                and output_item.get("role") == "user"
-            ):
-                output_items.append(
-                    self._normalize_compaction_user_message(output_item)
-                )
-                continue
-
-            output_items.append(cast(TResponseInputItem, output_item))
+        # Convert output to list[TResponseInputItem]
+        output_items = _normalize_compaction_output_items(compacted_response.output)
 
         # Update the session's conversation history with the compacted output items
-        print(f"Compacted output items: {len(output_items)} items after compaction.")
+        logger.debug(
+            f"Compacted output items: {len(output_items)} items after compaction.",
+            extra={
+                "code": "AGENT_SESSION_COMPACT_HISTORY_CONVERTED_OUTPUT",
+                "session_id": self.session_id,
+            },
+        )
         self.conversation_history = output_items
-
-    def _normalize_compaction_user_message(
-        self, item: dict[str, Any]
-    ) -> TResponseInputItem:
-        """Normalize compacted user message content before it is reused as input.
-
-        :param item: The compacted user message item to normalize.
-        :type item: dict[str, Any]
-        :return: The normalized user message item, ready for reuse as input.
-        :rtype: TResponseInputItem
-        """
-        content = item.get("content")
-        if not isinstance(content, list):
-            return cast(TResponseInputItem, item)
-
-        normalized_content: list[Any] = []
-        for content_item in content:
-            if not isinstance(content_item, dict):
-                normalized_content.append(content_item)
-                continue
-
-            content_type = content_item.get("type")
-            if content_type == "input_image":
-                normalized_content.append(
-                    self._normalize_compaction_input_image(content_item)
-                )
-            elif content_type == "input_file":
-                normalized_content.append(
-                    self._normalize_compaction_input_file(content_item)
-                )
-            else:
-                normalized_content.append(content_item)
-
-        normalized_item = dict(item)
-        normalized_item["content"] = normalized_content
-        return cast(TResponseInputItem, normalized_item)
-
-    def _normalize_compaction_input_image(
-        self, content_item: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Return a valid replay shape for a compacted Responses image input.
-
-        :param content_item: The compacted input_image content item to normalize.
-        :type content_item: dict[str, Any]
-        :return: The normalized input_image content item, ready for reuse as input.
-        :rtype: dict[str, Any]
-        """
-        normalized = {"type": "input_image"}
-
-        image_url = content_item.get("image_url")
-        file_id = content_item.get("file_id")
-        if isinstance(image_url, str) and image_url:
-            normalized["image_url"] = image_url
-        elif isinstance(file_id, str) and file_id:
-            normalized["file_id"] = file_id
-        else:
-            raise ValueError(
-                "Compaction input_image item missing image_url or file_id."
-            )
-
-        detail = content_item.get("detail")
-        if isinstance(detail, str) and detail:
-            normalized["detail"] = detail
-
-        return normalized
-
-    def _normalize_compaction_input_file(
-        self, content_item: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Return a valid replay shape for a compacted Responses file input.
-
-        :param content_item: The compacted input_file content item to normalize.
-        :type content_item: dict[str, Any]
-        :return: The normalized input_file content item, ready for reuse as input.
-        :rtype: dict[str, Any]
-        """
-        normalized = {"type": "input_file"}
-
-        file_data = content_item.get("file_data")
-        file_url = content_item.get("file_url")
-        file_id = content_item.get("file_id")
-        if isinstance(file_data, str) and file_data:
-            normalized["file_data"] = file_data
-        elif isinstance(file_url, str) and file_url:
-            normalized["file_url"] = file_url
-        elif isinstance(file_id, str) and file_id:
-            normalized["file_id"] = file_id
-        else:
-            raise ValueError(
-                "Compaction input_file item missing file_data, file_url, or file_id."
-            )
-
-        filename = content_item.get("filename")
-        if isinstance(filename, str) and filename:
-            normalized["filename"] = filename
-
-        detail = content_item.get("detail")
-        if isinstance(detail, str) and detail:
-            normalized["detail"] = detail
-
-        return normalized
-
-    def _normalize_compaction_user_message(
-        self, item: dict[str, Any]
-    ) -> TResponseInputItem:
-        """Normalize compacted user message content before it is reused as input.
-
-        :param item: The compacted user message content item to normalize.
-        :type item: dict[str, Any]
-        :return: The normalized user message content item, ready for reuse as input.
-        :rtype: TResponseInputItem
-        """
-        content = item.get("content")
-        if not isinstance(content, list):
-            return cast(TResponseInputItem, item)
-
-        normalized_content: list[Any] = []
-        for content_item in content:
-            if not isinstance(content_item, dict):
-                normalized_content.append(content_item)
-                continue
-
-            content_type = content_item.get("type")
-            if content_type == "input_image":
-                normalized_content.append(
-                    self._normalize_compaction_input_image(content_item)
-                )
-            elif content_type == "input_file":
-                normalized_content.append(
-                    self._normalize_compaction_input_file(content_item)
-                )
-            else:
-                normalized_content.append(content_item)
-
-        normalized_item = dict(item)
-        normalized_item["content"] = normalized_content
-        return cast(TResponseInputItem, normalized_item)
