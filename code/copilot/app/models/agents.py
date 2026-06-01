@@ -14,18 +14,13 @@ class UserConversationStoreItem(StoreItem):
 
     def store_item_to_json(self) -> dict:
         return {
-            "conversation_history": [
-                item.model_dump() for item in self.conversation_history
-            ],
+            "conversation_history": self.conversation_history,
         }
 
     @staticmethod
     def from_json_to_store_item(json_data: dict) -> "UserConversationStoreItem":
         return UserConversationStoreItem(
-            conversation_history=[
-                TResponseInputItem.model_validate(item)
-                for item in json_data.get("conversation_history", [])
-            ],
+            conversation_history=json_data.get("conversation_history", []),
         )
 
 
