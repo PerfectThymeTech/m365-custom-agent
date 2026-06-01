@@ -223,9 +223,9 @@ class RootAgent:
         # Create session with conversation history for context continuity in streaming
         session = AgentSession(
             session_id=context.activity.id,
-            conversation_history=conversation_history,
             openai_client=self.openai_client,
         )
+        session.add_items(items=conversation_history)
         # Generate agent response
         result = self.runner.run_streamed(
             starting_agent=self.agent,
