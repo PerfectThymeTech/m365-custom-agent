@@ -76,8 +76,6 @@ class RootAgent:
         :type agent_name: str
         :param instructions: The instructions for the agent.
         :type instructions: str
-        :param conversation_history: The conversation history for the agent.
-        :type conversation_history: list[TResponseInputItem]
         :param reasoning_effort: The level of reasoning effort for the agent.
         :type reasoning_effort: str
         :return: Configured Agent instance.

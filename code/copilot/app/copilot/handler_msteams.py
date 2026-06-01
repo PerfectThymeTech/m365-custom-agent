@@ -296,7 +296,6 @@ class MSTeamsHandler(AbstractHandler):
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
             agent_name="Document Agent",
             instructions=instructions,
-            conversation_history=user_conversation_store_item.conversation_history,
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )
