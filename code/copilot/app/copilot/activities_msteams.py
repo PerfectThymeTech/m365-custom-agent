@@ -92,6 +92,9 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         default_value_factory=lambda: UserConversationStoreItem(),
         target_cls=UserConversationStoreItem,
     )
+    logger.info(
+        f"Loaded user state for user: '{context.activity.from_property.id}', file_uploaded: '{user_state_store_item.file_uploaded}', conversation history length: '{len(user_conversation_store_item.conversation_history)}'."
+    )
 
     # Check for pre-defined command
     user_state_store_item, user_conversation_store_item, command = (
