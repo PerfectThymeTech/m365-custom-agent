@@ -2,8 +2,10 @@ from typing import Tuple
 
 from agents import Agent, OpenAIResponsesModel, Runner
 from agents.model_settings import ModelSettings
+from agents.items import TResponseInputItem
 from agents.usage import Usage
 from app.logs import setup_logging
+from app.agents.session import AgentSession
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from microsoft_agents.hosting.core import TurnContext
 from microsoft_agents.hosting.core.app.typing_indicator import TypingIndicator
@@ -28,43 +30,6 @@ class RootAgent:
         managed_identity_client_id: str = None,
         reasoning_effort: str = "none",
     ):
-        self.agent = self._create_agent(
-            api_key,
-            endpoint,
-            model_name=model_name,
-            instructions=instructions,
-            managed_identity_client_id=managed_identity_client_id,
-            reasoning_effort=reasoning_effort,
-        )
-        self.runner = Runner()
-
-    def _create_agent(
-        self,
-        api_key: str,
-        endpoint: str,
-        model_name: str,
-        instructions: str,
-        managed_identity_client_id: str = None,
-        reasoning_effort: str = "none",
-    ):
-        """
-        Create and configure the agent.
-
-        :param api_key: The API key for authentication.
-        :type api_key: str
-        :param endpoint: The API endpoint URL.
-        :type endpoint: str
-        :param model_name: The name of the model to use.
-        :type model_name: str
-        :param instructions: The instructions for the agent.
-        :type instructions: str
-        :param managed_identity_client_id: The client id of the managed identity.
-        :type managed_identity_client_id: str
-        :param reasoning_effort: The level of reasoning effort for the agent.
-        :type reasoning_effort: str
-        :return: Configured Agent instance.
-        :rtype: Agent
-        """
         # Define authentication
         if api_key:
             api_key = api_key
@@ -77,13 +42,45 @@ class RootAgent:
             )
 
         # Define the model and client
-        openai_client = AsyncOpenAI(
+        self.openai_client = AsyncOpenAI(
             api_key=api_key,
             base_url=f"{endpoint}openai/v1/",
         )
+
+        # Create agent
+        self.agent = self._create_agent(
+            model_name=model_name,
+            instructions=instructions,
+            managed_identity_client_id=managed_identity_client_id,
+            reasoning_effort=reasoning_effort,
+        )
+        self.model_name = model_name
+        self.runner = Runner()
+
+    def _create_agent(
+        self,
+        model_name: str,
+        instructions: str,
+        reasoning_effort: str = "none",
+    ):
+        """
+        Create and configure the agent.
+
+        :param model_name: The name of the model to use.
+        :type model_name: str
+        :param instructions: The instructions for the agent.
+        :type instructions: str
+        :param conversation_history: The conversation history for the agent.
+        :type conversation_history: list[TResponseInputItem]
+        :param reasoning_effort: The level of reasoning effort for the agent.
+        :type reasoning_effort: str
+        :return: Configured Agent instance.
+        :rtype: Agent
+        """
+        # Define the model
         model = OpenAIResponsesModel(
             model=model_name,
-            openai_client=openai_client,
+            openai_client=self.openai_client,
         )
         model_settings = ModelSettings(
             tool_choice="auto",
@@ -92,6 +89,10 @@ class RootAgent:
             max_tokens=128000,
             reasoning=Reasoning(effort=reasoning_effort),
             verbosity="low",
+            store=False,
+            extra_body={
+                "include": ["reasoning.encrypted_content"]
+            },
         )
 
         # Define the agent
@@ -159,8 +160,11 @@ class RootAgent:
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def stream_response(
-        self, input: str, context: TurnContext, last_response_id: str | None = None
-    ) -> Tuple[str, str]:
+        self, input: str, 
+        context: TurnContext, 
+        conversation_history: list[TResponseInputItem] = [],
+        compaction_threshold: int = 8000000
+    ) -> Tuple[str, str, list[TResponseInputItem]]:
         """
         Stream the agent's response based on the input.
 
@@ -168,16 +172,24 @@ class RootAgent:
         :type input: str
         :param context: The TurnContext for the current turn.
         :type context: TurnContext
-        :param last_response_id: The ID of the last response for context continuity.
-        :type last_response_id: str | None
-        :return: A tuple containing the last response ID and the full response text.
-        :rtype: Tuple[str, str]
+        :param conversation_history: The conversation history for the agent.
+        :type conversation_history: list[TResponseInputItem]
+        :param compaction_threshold: The token count threshold to trigger compaction.
+        :type compaction_threshold: int
+        :return: A tuple containing the full response text and the updated conversation history.
+        :rtype: Tuple[str, list[TResponseInputItem]]
         """
+        # Create session with conversation history for context continuity in streaming
+        session = AgentSession(
+            session_id=context.activity.id,
+            conversation_history=conversation_history,
+            openai_client=self.openai_client,
+        )
         # Generate agent response
         result = self.runner.run_streamed(
             starting_agent=self.agent,
             input=input,
-            previous_response_id=last_response_id,
+            session=session,
         )
 
         # Check if the streaming response has ended
@@ -216,8 +228,22 @@ class RootAgent:
         usage = result.context_wrapper.usage
         self._track_token_usage(usage)
 
+        # Clean up history
+        await session.remove_developer_items()
+        if usage.total_tokens > compaction_threshold:
+            logger.warning(
+                f"Compaction threshold exceeded: {usage.total_tokens} tokens used.",
+                extra={
+                    "code": "AGENT_RESPONSE_STREAMING_COMPACTION_THRESHOLD_EXCEEDED",
+                    "total_tokens": usage.total_tokens,
+                    "compaction_threshold": compaction_threshold,
+                }
+            )
+            await session.compact_history(model_name=self.model_name)
+        history = await session.get_items()
+
         # Return last response id and the full response
-        return result.last_response_id, response
+        return (response, history)
 
     # TODO: https://cookbook.openai.com/examples/how_to_handle_rate_limits
     async def _get_response(

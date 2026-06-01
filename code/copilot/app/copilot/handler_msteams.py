@@ -11,7 +11,7 @@ from app.copilot.handler_abstract import AbstractHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem
+from app.models.agents import UserStateStoreItem, UserConversationStoreItem
 from app.models.attachments import (
     AttachmentContent,
     DocumentExtractionResult,
@@ -50,7 +50,7 @@ class MSTeamsHandler(AbstractHandler):
 
     @staticmethod
     async def handle_commands(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
+        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
     ):
         """
         Handle default commands.
@@ -59,6 +59,8 @@ class MSTeamsHandler(AbstractHandler):
         :type context: TurnContext
         :param user_state_store_item: The UserStateStoreItem object for the current user.
         :type user_state_store_item: UserStateStoreItem
+        :param user_conversation_store_item: The UserConversationStoreItem object for the current user.
+        :type user_conversation_store_item: UserConversationStoreItem
         :return: The updated UserStateStoreItem object after processing the agent response and a string specifying whether a pre-defined command was processed.
         :rtype: Tuple[UserStateStoreItem, bool]
         """
@@ -88,6 +90,7 @@ class MSTeamsHandler(AbstractHandler):
                 )
                 user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
+                user_conversation_store_item.conversation_history = []
 
                 # Update user that we have
                 await stream_string_in_chunks(
@@ -103,7 +106,7 @@ class MSTeamsHandler(AbstractHandler):
                 # Update command variable
                 command = False
 
-        return (user_state_store_item, command)
+        return (user_state_store_item, user_conversation_store_item, command)
 
     @staticmethod
     async def handle_attachments(
@@ -254,7 +257,7 @@ class MSTeamsHandler(AbstractHandler):
 
     @staticmethod
     async def handle_agent_response(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
+        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
     ) -> Tuple[UserStateStoreItem, str]:
         """
         Handle agent response based on user prompt and previous state.
@@ -263,6 +266,8 @@ class MSTeamsHandler(AbstractHandler):
         :type context: TurnContext
         :param user_state_store_item: The UserStateStoreItem object for the current user.
         :type user_state_store_item: UserStateStoreItem
+        :param user_conversation_store_item: The UserConversationStoreItem object for the current user's conversation history.
+        :type user_conversation_store_item: UserConversationStoreItem
         :return: The updated UserStateStoreItem object after processing the agent response and the string response.
         :rtype: Tuple[UserStateStoreItem, string]
         """
@@ -286,6 +291,7 @@ class MSTeamsHandler(AbstractHandler):
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
             instructions=instructions,
+            conversation_history=user_conversation_store_item.conversation_history,
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
             reasoning_effort="none",
         )
@@ -323,16 +329,17 @@ class MSTeamsHandler(AbstractHandler):
         logger.info(
             f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'."
         )
-        last_response_id, response = await agent.stream_response(
+        response, conversation_history = await agent.stream_response(
             input=user_prompt,
-            last_response_id=user_state_store_item.last_response_id,
+            conversation_history=user_conversation_store_item.conversation_history,
             context=context,
         )
 
         # Update store item
-        user_state_store_item.last_response_id = last_response_id
+        user_conversation_store_item.conversation_history = conversation_history
+        user_state_store_item.last_response_id = None
 
-        return user_state_store_item, response
+        return (user_state_store_item, user_conversation_store_item, response)
 
     @staticmethod
     async def handle_default_response(context: TurnContext) -> None:
