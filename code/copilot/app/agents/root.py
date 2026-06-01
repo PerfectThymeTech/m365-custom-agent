@@ -186,39 +186,39 @@ class RootAgent:
         """
         messages = []
         for document in document_extraction_results.documents:
-            if not document.appended_to_context:
-                logger.info(
-                    f"Appending document '{document.title}' to agent context.",
-                    extra={
-                        "code": "AGENT_RESPONSE_STREAMING_APPENDING_DOCUMENT_TO_CONTEXT",
-                        "document_title": document.title,
-                    },
-                )
-                messages.append(
-                    {
-                        "role": "developer",
-                        "content": f"""
-                        # Context
-                        ## Document Extraction
-                        ### {document.title}
-                        """
-                        + "\n\n"
-                        + document.data,
-                    }
-                )
-            messages.append(
-                {
-                    "role": "user",
-                    "content": input,
-                }
-            )
             logger.info(
-                f"Number of messages for agent: {len(messages)}",
+                f"Appending document '{document.title}' to agent context.",
                 extra={
-                    "code": "AGENT_RESPONSE_STREAMING_CONSTRUCTED_MESSAGES",
-                    "num_messages": len(messages),
+                    "code": "AGENT_RESPONSE_STREAMING_APPENDING_DOCUMENT_TO_CONTEXT",
+                    "document_title": document.title,
                 },
             )
+            messages.append(
+                {
+                    "role": "developer",
+                    "content": f"""
+                    # Context
+                    ## Document Extraction
+                    ### {document.title}
+                    """
+                    + "\n\n"
+                    + document.data,
+                }
+            )
+
+        messages.append(
+            {
+                "role": "user",
+                "content": input,
+            }
+        )
+        logger.info(
+            f"Number of messages for agent: {len(messages)}",
+            extra={
+                "code": "AGENT_RESPONSE_STREAMING_CONSTRUCTED_MESSAGES",
+                "num_messages": len(messages),
+            },
+        )
 
         # Create session with conversation history for context continuity in streaming
         session = AgentSession(
