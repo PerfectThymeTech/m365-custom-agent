@@ -5,7 +5,7 @@ from app.copilot.handler_msteams import MSTeamsHandler
 from app.copilot.scenarios import ScenarioHandler
 from app.core.settings import settings
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem, UserConversationStoreItem
+from app.models.agents import UserConversationStoreItem, UserStateStoreItem
 from microsoft_agents.activity import ActivityTypes, ConversationUpdateTypes
 from microsoft_agents.hosting.core import TurnContext, TurnState
 
@@ -94,8 +94,12 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     )
 
     # Check for pre-defined command
-    user_state_store_item, user_conversation_store_item, command = await MSTeamsHandler.handle_commands(
-        context=context, user_state_store_item=user_state_store_item, user_conversation_store_item=user_conversation_store_item
+    user_state_store_item, user_conversation_store_item, command = (
+        await MSTeamsHandler.handle_commands(
+            context=context,
+            user_state_store_item=user_state_store_item,
+            user_conversation_store_item=user_conversation_store_item,
+        )
     )
 
     # Only listen for attachments if more than zero attachments is present
@@ -113,8 +117,12 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Use agent to process user prompt
     if not command:
         # Handle agent response
-        user_state_store_item, user_conversation_store_item, response = await MSTeamsHandler.handle_agent_response(
-            context=context, user_state_store_item=user_state_store_item, user_conversation_store_item=user_conversation_store_item
+        user_state_store_item, user_conversation_store_item, response = (
+            await MSTeamsHandler.handle_agent_response(
+                context=context,
+                user_state_store_item=user_state_store_item,
+                user_conversation_store_item=user_conversation_store_item,
+            )
         )
 
         # Get suggested actions from agent if files have been uploaded

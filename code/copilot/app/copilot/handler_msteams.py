@@ -11,7 +11,7 @@ from app.copilot.handler_abstract import AbstractHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem, UserConversationStoreItem
+from app.models.agents import UserConversationStoreItem, UserStateStoreItem
 from app.models.attachments import (
     AttachmentContent,
     DocumentExtractionResult,
@@ -50,7 +50,9 @@ class MSTeamsHandler(AbstractHandler):
 
     @staticmethod
     async def handle_commands(
-        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
     ):
         """
         Handle default commands.
@@ -257,7 +259,9 @@ class MSTeamsHandler(AbstractHandler):
 
     @staticmethod
     async def handle_agent_response(
-        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
     ) -> Tuple[UserStateStoreItem, str]:
         """
         Handle agent response based on user prompt and previous state.
@@ -290,6 +294,7 @@ class MSTeamsHandler(AbstractHandler):
             api_key=settings.AZURE_OPENAI_API_KEY,
             endpoint=settings.AZURE_OPENAI_ENDPOINT,
             model_name=settings.AZURE_OPENAI_MODEL_NAME,
+            agent_name="Document Agent",
             instructions=instructions,
             conversation_history=user_conversation_store_item.conversation_history,
             managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,

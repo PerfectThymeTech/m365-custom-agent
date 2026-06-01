@@ -1,8 +1,8 @@
+from agents.items import TResponseInputItem
 from app.files.compression import DataCompressionClient
 from app.models.attachments import DocumentExtractionResults
 from microsoft_agents.hosting.core import StoreItem
 from pydantic import BaseModel, Field
-from agents.items import TResponseInputItem
 
 
 class UserConversationStoreItem(StoreItem):
@@ -11,16 +11,21 @@ class UserConversationStoreItem(StoreItem):
         conversation_history: list[TResponseInputItem] = [],
     ):
         self.conversation_history = conversation_history
-    
+
     def store_item_to_json(self) -> dict:
         return {
-            "conversation_history": [item.model_dump() for item in self.conversation_history],
+            "conversation_history": [
+                item.model_dump() for item in self.conversation_history
+            ],
         }
 
     @staticmethod
     def from_json_to_store_item(json_data: dict) -> "UserConversationStoreItem":
         return UserConversationStoreItem(
-            conversation_history=[TResponseInputItem.model_validate(item) for item in json_data.get("conversation_history", [])],
+            conversation_history=[
+                TResponseInputItem.model_validate(item)
+                for item in json_data.get("conversation_history", [])
+            ],
         )
 
 
