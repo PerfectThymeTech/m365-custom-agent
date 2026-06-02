@@ -226,7 +226,7 @@ class RootAgent:
             openai_client=self.openai_client,
         )
         await session.add_items(items=conversation_history)
-        
+
         # Generate agent response
         result = self.runner.run_streamed(
             starting_agent=self.agent,

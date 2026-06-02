@@ -260,7 +260,7 @@ class MSTeamsHandler(AbstractHandler):
         context: TurnContext,
         user_state_store_item: UserStateStoreItem,
         user_conversation_store_item: UserConversationStoreItem,
-    ) -> Tuple[UserStateStoreItem, str]:
+    ) -> Tuple[UserStateStoreItem, UserConversationStoreItem, str]:
         """
         Handle agent response based on user prompt and previous state.
 
@@ -271,7 +271,7 @@ class MSTeamsHandler(AbstractHandler):
         :param user_conversation_store_item: The UserConversationStoreItem object for the current user's conversation history.
         :type user_conversation_store_item: UserConversationStoreItem
         :return: The updated UserStateStoreItem object after processing the agent response and the string response.
-        :rtype: Tuple[UserStateStoreItem, string]
+        :rtype: Tuple[UserStateStoreItem, UserConversationStoreItem, str]
         """
         # Send informative update to user
         context.streaming_response.queue_informative_update(
@@ -333,9 +333,7 @@ class MSTeamsHandler(AbstractHandler):
                 break
 
         # Stream agent response
-        logger.info(
-            f"Streaming agent response with documents '{file_names_joined}'."
-        )
+        logger.info(f"Streaming agent response with documents '{file_names_joined}'.")
         response, conversation_history = await agent.stream_response(
             input=user_prompt,
             conversation_history=user_conversation_store_item.conversation_history,

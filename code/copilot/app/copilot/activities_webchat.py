@@ -97,8 +97,12 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     )
 
     # Check for pre-defined command
-    user_state_store_item, user_conversation_store_item, command = await WebchatHandler.handle_commands(
-        context=context, user_state_store_item=user_state_store_item, user_conversation_store_item=user_conversation_store_item,
+    user_state_store_item, user_conversation_store_item, command = (
+        await WebchatHandler.handle_commands(
+            context=context,
+            user_state_store_item=user_state_store_item,
+            user_conversation_store_item=user_conversation_store_item,
+        )
     )
 
     # Only listen for attachments if more than zero attachments is present
@@ -116,9 +120,12 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     # Use agent to process user prompt
     if not command:
         # Handle agent response
-        user_state_store_item, user_conversation_store_item, response = await WebchatHandler.handle_agent_response(
-            context=context, user_state_store_item=user_state_store_item,
-            user_conversation_store_item=user_conversation_store_item,
+        user_state_store_item, user_conversation_store_item, response = (
+            await WebchatHandler.handle_agent_response(
+                context=context,
+                user_state_store_item=user_state_store_item,
+                user_conversation_store_item=user_conversation_store_item,
+            )
         )
 
         # Get suggested actions from agent if files have been uploaded

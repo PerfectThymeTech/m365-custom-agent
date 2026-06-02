@@ -56,7 +56,9 @@ class WebchatHandler(AbstractHandler):
 
     @staticmethod
     async def handle_commands(
-        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
     ):
         """
         Handle default commands.
@@ -318,7 +320,7 @@ class WebchatHandler(AbstractHandler):
             if user_prompt == scenario.title:
                 user_prompt = scenario.prompt
                 logger.info(
-            f"Streaming agent response with documents '{file_names_joined}'."
+                    f"Streaming agent response with documents '{file_names_joined}'."
                 )
                 break
 
@@ -335,7 +337,7 @@ class WebchatHandler(AbstractHandler):
         # Update store item
         user_conversation_store_item.conversation_history = conversation_history
         user_state_store_item.last_response_id = None
-        
+
         return (user_state_store_item, user_conversation_store_item, response)
 
     @staticmethod
