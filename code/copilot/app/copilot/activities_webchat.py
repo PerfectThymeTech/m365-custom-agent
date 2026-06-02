@@ -2,7 +2,6 @@ from app.copilot.action import SuggestedActionHandler
 from app.copilot.common import configure_context, get_suggested_actions_from_agent
 from app.copilot.copilot import auth_handlers, copilot_apps
 from app.copilot.handler_webchat import WebchatHandler
-from app.copilot.scenarios import ScenarioHandler
 from app.core.settings import settings
 from app.logs import setup_logging
 from app.models.agents import UserConversationStoreItem, UserStateStoreItem
@@ -110,11 +109,6 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         # Handle attachments
         user_state_store_item = await WebchatHandler.handle_attachments(
             context=context, user_state_store_item=user_state_store_item
-        )
-
-        # Send default scenario as carousel
-        await ScenarioHandler(scenario_definitions=settings.SCENARIO_DEFINITIONS).send(
-            context=context
         )
 
     # Use agent to process user prompt

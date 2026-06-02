@@ -8,6 +8,7 @@ from app.copilot.common import (
     stream_string_in_chunks,
 )
 from app.copilot.handler_abstract import AbstractHandler
+from app.copilot.scenarios import ScenarioHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
@@ -228,6 +229,11 @@ class WebchatHandler(AbstractHandler):
                 context=context,
                 text=f"\n\nNote: The following files are added to the context: {processed_attachment_names}. If you want to reset the context, then please send the following command to the agent: `/restart`. This will remove all files from the context and allow you to start with a fresh context. \n\n",
             )
+
+            # Send default scenario as carousel
+            await ScenarioHandler(
+                scenario_definitions=settings.SCENARIO_DEFINITIONS
+            ).send(context=context)
 
             # Update store item
             user_state_store_item.file_uploaded = True
