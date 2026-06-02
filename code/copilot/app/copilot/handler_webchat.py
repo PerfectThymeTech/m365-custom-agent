@@ -11,7 +11,7 @@ from app.copilot.handler_abstract import AbstractHandler
 from app.core.settings import settings
 from app.files.extraction import FileExtractionClient
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem
+from app.models.agents import UserConversationStoreItem, UserStateStoreItem
 from app.models.attachments import (
     AttachmentContent,
     DocumentExtractionResult,
@@ -56,7 +56,7 @@ class WebchatHandler(AbstractHandler):
 
     @staticmethod
     async def handle_commands(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
+        context: TurnContext, user_state_store_item: UserStateStoreItem, user_conversation_store_item: UserConversationStoreItem
     ):
         """
         Handle default commands.
@@ -90,6 +90,7 @@ class WebchatHandler(AbstractHandler):
                 )
                 user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
+                user_conversation_store_item.conversation_history = []
 
                 # Update user that we have
                 await stream_string_in_chunks(
@@ -105,7 +106,7 @@ class WebchatHandler(AbstractHandler):
                 # Update command variable
                 command = False
 
-        return (user_state_store_item, command)
+        return (user_state_store_item, user_conversation_store_item, command)
 
     @staticmethod
     async def handle_attachments(
@@ -122,9 +123,8 @@ class WebchatHandler(AbstractHandler):
         :rtype: UserStateStoreItem
         """
         # Update user that we detected a file attachment
-        await stream_string_in_chunks(
-            context=context,
-            text="I see that you just uploaded new files. Let me process them... ",
+        context.streaming_response.queue_informative_update(
+            "Let me review file uploads... "
         )
 
         # Filter attachments for document processing
@@ -251,8 +251,10 @@ class WebchatHandler(AbstractHandler):
 
     @staticmethod
     async def handle_agent_response(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
-    ) -> Tuple[UserStateStoreItem, str]:
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
+    ) -> Tuple[UserStateStoreItem, UserConversationStoreItem, str]:
         """
         Handle agent response based on user prompt and previous state.
 
@@ -260,8 +262,10 @@ class WebchatHandler(AbstractHandler):
         :type context: TurnContext
         :param user_state_store_item: The UserStateStoreItem object for the current user.
         :type user_state_store_item: UserStateStoreItem
+        :param user_conversation_store_item: The UserConversationStoreItem object for the current user's conversation history.
+        :type user_conversation_store_item: UserConversationStoreItem
         :return: The updated UserStateStoreItem object after processing the agent response and the string response.
-        :rtype: Tuple[UserStateStoreItem, string]
+        :rtype: Tuple[UserStateStoreItem, UserConversationStoreItem, str]
         """
         # Send informative update to user
         context.streaming_response.queue_informative_update(
@@ -269,12 +273,17 @@ class WebchatHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
+        file_names = [
+            document.title
+            for document in user_state_store_item.document_extraction_results.documents
+        ]
+        file_names_joined = ", ".join(file_names)
         instructions = (
             settings.INSTRUCTIONS_DOCUMENT_AGENT
-            + "\n\n"
-            + user_state_store_item.document_extraction_results.model_dump_json(
-                indent=None
-            )
+            + "\n\n### Files in context\n"
+            + "["
+            + file_names_joined
+            + "]"
         )
 
         # Create agent
@@ -309,7 +318,7 @@ class WebchatHandler(AbstractHandler):
             if user_prompt == scenario.title:
                 user_prompt = scenario.prompt
                 logger.info(
-                    f"User prompt matches predefined scenario '{scenario.title}'. Using corresponding prompt."
+            f"Streaming agent response with documents '{file_names_joined}'."
                 )
                 break
 
@@ -317,16 +326,17 @@ class WebchatHandler(AbstractHandler):
         logger.info(
             f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'."
         )
-        last_response_id, response = await agent.stream_response(
+        response, conversation_history = await agent.stream_response(
             input=user_prompt,
-            last_response_id=user_state_store_item.last_response_id,
+            conversation_history=user_conversation_store_item.conversation_history,
             context=context,
         )
 
         # Update store item
-        user_state_store_item.last_response_id = last_response_id
-
-        return user_state_store_item, response
+        user_conversation_store_item.conversation_history = conversation_history
+        user_state_store_item.last_response_id = None
+        
+        return (user_state_store_item, user_conversation_store_item, response)
 
     @staticmethod
     async def handle_default_response(context: TurnContext) -> None:
