@@ -343,6 +343,7 @@ class MSTeamsHandler(AbstractHandler):
         response, conversation_history = await agent.stream_response(
             input=user_prompt,
             conversation_history=user_conversation_store_item.conversation_history,
+            document_extraction_results=user_state_store_item.document_extraction_results,
             context=context,
         )
 

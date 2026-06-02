@@ -326,17 +326,16 @@ class WebchatHandler(AbstractHandler):
             if user_prompt == scenario.title:
                 user_prompt = scenario.prompt
                 logger.info(
-                    f"Streaming agent response with documents '{file_names_joined}'."
+                    f"User prompt matches predefined scenario '{scenario.title}'. Using corresponding prompt."
                 )
                 break
 
         # Stream agent response
-        logger.info(
-            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'."
-        )
+        logger.info(f"Streaming agent response with documents '{file_names_joined}'.")
         response, conversation_history = await agent.stream_response(
             input=user_prompt,
             conversation_history=user_conversation_store_item.conversation_history,
+            document_extraction_results=user_state_store_item.document_extraction_results,
             context=context,
         )
 
