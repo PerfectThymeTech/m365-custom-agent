@@ -91,7 +91,9 @@ class MSTeamsHandler(AbstractHandler):
                 user_state_store_item.document_extraction_results = (
                     DocumentExtractionResults()
                 )
+                user_state_store_item.conversation_id = None
                 user_state_store_item.last_response_id = None
+                user_state_store_item.last_response_token_count = 0
                 user_state_store_item.suggested_actions = {}
 
                 # Update user that we have
@@ -131,9 +133,8 @@ class MSTeamsHandler(AbstractHandler):
         :rtype: UserStateStoreItem
         """
         # Update user that we detected a file attachment
-        await stream_string_in_chunks(
-            context=context,
-            text="I see that you just uploaded new files. Let me process them... ",
+        context.streaming_response.queue_informative_update(
+            "Let me review file uploads... "
         )
 
         # Filter attachments for document processing
@@ -263,6 +264,7 @@ class MSTeamsHandler(AbstractHandler):
                     DocumentExtractionResult(
                         title=attachment.name,
                         data=cleaned_data,
+                        appended_to_context=False,
                     )
                 )
                 processed_attachment_names.append(f"`{attachment.name}`")
@@ -283,7 +285,9 @@ class MSTeamsHandler(AbstractHandler):
 
             # Update store item
             user_state_store_item.file_uploaded = True
-            user_state_store_item.document_extraction_results = document_extraction_results
+            user_state_store_item.document_extraction_results = (
+                document_extraction_results
+            )
         else:
             logger.info(
                 "No supported attachments detected.",
@@ -335,12 +339,17 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
+        file_names = [
+            document.title
+            for document in user_state_store_item.document_extraction_results.documents
+        ]
+        file_names_joined = ", ".join(file_names)
         instructions = (
             settings.INSTRUCTIONS_DOCUMENT_AGENT
-            + "\n\n"
-            + user_state_store_item.document_extraction_results.model_dump_json(
-                indent=None
-            )
+            + "\n\n### Files in context\n"
+            + "["
+            + file_names_joined
+            + "]"
         )
 
         # Create agent
@@ -413,20 +422,27 @@ class MSTeamsHandler(AbstractHandler):
 
         # Stream agent response
         logger.info(
-            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}'.",
+            f"Streaming agent response with previous response id '{user_state_store_item.last_response_id}' and documents '{file_names}'.",
             extra={
                 "code": "HANDLE_AGENT_RESPONSE_STREAMING_STARTED",
                 "channel_id": "msteams",
+                "last_response_id": user_state_store_item.last_response_id,
+                "file_names": file_names,
             },
         )
-        last_response_id, response = await agent.stream_response(
+        last_response_id, response, total_token_count = await agent.stream_response(
             input=user_prompt,
-            last_response_id=user_state_store_item.last_response_id,
             context=context,
+            document_extraction_results=user_state_store_item.document_extraction_results,
+            last_response_id=user_state_store_item.last_response_id,
         )
 
         # Update store item
+        user_state_store_item.conversation_id = None
         user_state_store_item.last_response_id = last_response_id
+        user_state_store_item.last_response_token_count = total_token_count
+        for document in user_state_store_item.document_extraction_results.documents:
+            document.appended_to_context = True
 
         return user_state_store_item, response
 

@@ -130,6 +130,20 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             context=context, user_state_store_item=user_state_store_item
         )
 
+        logger.info(
+            f"Logging user state store item with following number of docs '{len(user_state_store_item.document_extraction_results.documents)}'.",
+            extra={
+                "code": "ON_MESSAGE_SAVING_USER_STATE_STORE_ITEM_INTERMEDIATE_1",
+                "channel_id": "msteams",
+                "conversation_id": user_state_store_item.conversation_id,
+                "last_response_id": user_state_store_item.last_response_id,
+                "last_total_token_count": user_state_store_item.last_total_token_count,
+                "num_docs": len(
+                    user_state_store_item.document_extraction_results.documents
+                ),
+            },
+        )
+
         # Send default scenario as carousel
         await ScenarioHandler(scenario_definitions=settings.SCENARIO_DEFINITIONS).send(
             context=context
@@ -140,6 +154,20 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         # Handle agent response
         user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
             context=context, user_state_store_item=user_state_store_item
+        )
+
+        logger.info(
+            f"Logging user state store item with following number of docs '{len(user_state_store_item.document_extraction_results.documents)}'.",
+            extra={
+                "code": "ON_MESSAGE_SAVING_USER_STATE_STORE_ITEM_INTERMEDIATE_1",
+                "channel_id": "msteams",
+                "conversation_id": user_state_store_item.conversation_id,
+                "last_response_id": user_state_store_item.last_response_id,
+                "last_total_token_count": user_state_store_item.last_total_token_count,
+                "num_docs": len(
+                    user_state_store_item.document_extraction_results.documents
+                ),
+            },
         )
 
         # Get suggested actions from agent if files have been uploaded
@@ -172,6 +200,19 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     await suggested_action_handler.send(context=context)
 
     # Save store item back to state
+    logger.info(
+        f"Saving user state store item with following number of docs '{len(user_state_store_item.document_extraction_results.documents)}'.",
+        extra={
+            "code": "ON_MESSAGE_SAVING_USER_STATE_STORE_ITEM",
+            "channel_id": "msteams",
+            "conversation_id": user_state_store_item.conversation_id,
+            "last_response_id": user_state_store_item.last_response_id,
+            "last_total_token_count": user_state_store_item.last_total_token_count,
+            "num_docs": len(
+                user_state_store_item.document_extraction_results.documents
+            ),
+        },
+    )
     suggested_actions = suggested_action_handler.get_suggested_actions()
     user_state_store_item.suggested_actions = suggested_actions
     state.set_value(

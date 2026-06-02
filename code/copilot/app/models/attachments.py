@@ -8,9 +8,14 @@ class AttachmentContent(BaseModel):
 
 
 class DocumentExtractionResult(BaseModel):
-    title: str = Field(..., alias="title")
-    data: str = Field(..., alias="data")
+    title: str = Field(..., serialization_alias="title")
+    data: str = Field(..., serialization_alias="data")
+    appended_to_context: bool = Field(
+        default=False, serialization_alias="appendedToContext"
+    )
 
 
 class DocumentExtractionResults(BaseModel):
-    documents: list[DocumentExtractionResult] = Field(default=[], alias="documents")
+    documents: list[DocumentExtractionResult] = Field(
+        default=[], serialization_alias="documents"
+    )
