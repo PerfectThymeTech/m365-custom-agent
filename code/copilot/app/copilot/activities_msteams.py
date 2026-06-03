@@ -2,10 +2,9 @@ from app.copilot.action import SuggestedActionHandler
 from app.copilot.common import configure_context, get_suggested_actions_from_agent
 from app.copilot.copilot import auth_handlers, copilot_apps
 from app.copilot.handler_msteams import MSTeamsHandler
-from app.copilot.scenarios import ScenarioHandler
 from app.core.settings import settings
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem
+from app.models.agents import UserConversationStoreItem, UserStateStoreItem
 from microsoft_agents.activity import ActivityTypes, ConversationUpdateTypes
 from microsoft_agents.hosting.core import TurnContext, TurnState
 
@@ -87,10 +86,22 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
         default_value_factory=lambda: UserStateStoreItem(),
         target_cls=UserStateStoreItem,
     )
+    user_conversation_store_item: UserConversationStoreItem = state.get_value(
+        name="ConversationState.user_conversation_store_item",
+        default_value_factory=lambda: UserConversationStoreItem(),
+        target_cls=UserConversationStoreItem,
+    )
+    logger.info(
+        f"Loaded user state for user: '{context.activity.from_property.id}', file_uploaded: '{user_state_store_item.file_uploaded}', conversation history length: '{len(user_conversation_store_item.conversation_history)}'."
+    )
 
     # Check for pre-defined command
-    user_state_store_item, command = await MSTeamsHandler.handle_commands(
-        context=context, user_state_store_item=user_state_store_item
+    user_state_store_item, user_conversation_store_item, command = (
+        await MSTeamsHandler.handle_commands(
+            context=context,
+            user_state_store_item=user_state_store_item,
+            user_conversation_store_item=user_conversation_store_item,
+        )
     )
 
     # Only listen for attachments if more than zero attachments is present
@@ -100,16 +111,15 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
             context=context, user_state_store_item=user_state_store_item
         )
 
-        # Send default scenario as carousel
-        await ScenarioHandler(scenario_definitions=settings.SCENARIO_DEFINITIONS).send(
-            context=context
-        )
-
     # Use agent to process user prompt
     if not command:
         # Handle agent response
-        user_state_store_item, response = await MSTeamsHandler.handle_agent_response(
-            context=context, user_state_store_item=user_state_store_item
+        user_state_store_item, user_conversation_store_item, response = (
+            await MSTeamsHandler.handle_agent_response(
+                context=context,
+                user_state_store_item=user_state_store_item,
+                user_conversation_store_item=user_conversation_store_item,
+            )
         )
 
         # Get suggested actions from agent if files have been uploaded
@@ -140,6 +150,10 @@ async def on_message(context: TurnContext, state: TurnState) -> None:
     user_state_store_item.suggested_actions = suggested_actions
     state.set_value(
         path="ConversationState.user_state_store_item", value=user_state_store_item
+    )
+    state.set_value(
+        path="ConversationState.user_conversation_store_item",
+        value=user_conversation_store_item,
     )
 
     # End response stream if active

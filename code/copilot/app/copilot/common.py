@@ -125,10 +125,12 @@ async def get_suggested_actions_from_agent(
     """
     Get suggested actions from the SuggestedActionsAgent.
 
-    :param input: The input string to be sent to the agent.
-    :type input: str
-    :param last_response_id: The last response ID from the agent, if any.
-    :type last_response_id: str | None
+    :param user_input: The input string to be sent to the agent.
+    :type user_input: str
+    :param agent_response: The response string from the agent.
+    :type agent_response: str
+    :param agent_instructions: The instructions string for the agent.
+    :type agent_instructions: str
     :return: A list of suggested actions.
     :rtype: list[str]
     """
@@ -157,6 +159,7 @@ async def get_suggested_actions_from_agent(
         api_key=settings.AZURE_OPENAI_API_KEY,
         endpoint=settings.AZURE_OPENAI_ENDPOINT,
         model_name=settings.AZURE_OPENAI_MODEL_SLM_NAME,
+        agent_name="Suggested Actions Agent",
         instructions=settings.INSTRUCTIONS_SUGGESTED_ACTIONS_AGENT,
         managed_identity_client_id=settings.MANAGED_IDENTITY_CLIENT_ID,
         reasoning_effort="low",

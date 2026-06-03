@@ -152,6 +152,7 @@ class FileExtractionClient:
             api_key=api_key,
             endpoint=endpoint,
             model_name=model_name,
+            agent_name="Table Summarizer Agent",
             instructions=instructions,
             managed_identity_client_id=managed_identity_client_id,
             reasoning_effort=reasoning_effort,
