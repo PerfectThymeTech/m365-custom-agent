@@ -29,12 +29,10 @@ class UserStateStoreItem(StoreItem):
         self,
         file_uploaded: bool = False,
         document_extraction_results: DocumentExtractionResults = DocumentExtractionResults(),
-        last_response_id: str = None,
         suggested_actions: dict[str, str] = {},
     ):
         self.file_uploaded = file_uploaded
         self.document_extraction_results = document_extraction_results
-        self.last_response_id = last_response_id
         self.suggested_actions = suggested_actions
 
     def store_item_to_json(self) -> dict:
@@ -49,7 +47,6 @@ class UserStateStoreItem(StoreItem):
         return {
             "file_uploaded": self.file_uploaded,
             "document_extraction_results": document_extraction_results_compressed,
-            "last_response_id": self.last_response_id,
             "suggested_actions": self.suggested_actions,
         }
 
@@ -68,7 +65,6 @@ class UserStateStoreItem(StoreItem):
             document_extraction_results=DocumentExtractionResults.model_validate_json(
                 decompressed_data
             ),
-            last_response_id=json_data.get("last_response_id", None),
             suggested_actions=json_data.get("suggested_actions", {}),
         )
 

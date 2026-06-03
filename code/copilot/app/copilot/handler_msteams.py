@@ -91,7 +91,6 @@ class MSTeamsHandler(AbstractHandler):
                 user_state_store_item.document_extraction_results = (
                     DocumentExtractionResults()
                 )
-                user_state_store_item.last_response_id = None
                 user_state_store_item.suggested_actions = {}
                 user_conversation_store_item.conversation_history = []
 
@@ -349,7 +348,6 @@ class MSTeamsHandler(AbstractHandler):
 
         # Update store item
         user_conversation_store_item.conversation_history = conversation_history
-        user_state_store_item.last_response_id = None
 
         return (user_state_store_item, user_conversation_store_item, response)
 
