@@ -145,11 +145,9 @@ class MSTeamsHandler(AbstractHandler):
             )
 
             # Initialize variables
-            document_extraction_results = (
-                user_state_store_item.document_extraction_results
-            )
             processed_attachment_names = [
-                document.title for document in document_extraction_results.documents
+                document.title
+                for document in user_state_store_item.document_extraction_results.documents
             ]
 
             # Create file extraction client
@@ -216,7 +214,7 @@ class MSTeamsHandler(AbstractHandler):
                 )
 
                 # Append the data to the extracted data list
-                document_extraction_results.documents.append(
+                user_state_store_item.document_extraction_results.documents.append(
                     DocumentExtractionResult(
                         title=attachment.name,
                         data=cleaned_data,
