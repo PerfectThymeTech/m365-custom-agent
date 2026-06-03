@@ -68,10 +68,11 @@ class AgentSession(SessionABC):
         for i in range(len(self.conversation_history) - 1, -1, -1):
             if self.conversation_history[i].get("role", None) == "developer":
                 logger.info(
-                    f"Removing developer item: {self.conversation_history[i]}",
+                    f"Removing developer item at index {i} from session.",
                     extra={
                         "code": "AGENT_SESSION_REMOVE_DEVELOPER_ITEM",
                         "session_id": self.session_id,
+                        "index": i,
                     },
                 )
                 del self.conversation_history[i]
