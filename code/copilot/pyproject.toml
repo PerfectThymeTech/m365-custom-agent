@@ -3,7 +3,7 @@ name = "copilot"
 version = "0.1.0"
 description = "This project demonstrates the usage of the Microsoft Agents SDK for building custom AI agents."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<3.14"
 dependencies = [
     "aiohttp==3.13.5",
     "azure-ai-contentunderstanding==1.1.0",
