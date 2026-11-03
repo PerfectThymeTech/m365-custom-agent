@@ -31,10 +31,6 @@ locals {
     # User authorization settings
     USER_AUTHORIZATION_GRAPH_OAUTH_CONNECTION_NAME = local.bot_connection_user_authorization_graph_oauth_name
 
-    # Azure Document Intelligence settings
-    AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT = module.document_intelligence.cognitive_account_endpoint
-    AZURE_DOCUMENT_INTELLIGENCE_API_KEY  = ""
-
     # Azure Content Understanding settings
     AZURE_CONTENT_UNDERSTANDING_ENDPOINT = module.ai_foundry.ai_services_cognitive_endpoint
     AZURE_CONTENT_UNDERSTANDING_API_KEY  = ""
