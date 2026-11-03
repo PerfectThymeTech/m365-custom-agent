@@ -117,4 +117,6 @@ class OpenTelemetryTranscriptLogger(TranscriptLogger):
         if not activity:
             raise TypeError("Activity is required")
 
-        self.logger.info(activity.model_dump_json())
+        self.logger.info(
+            activity.model_dump_json(), extra={"code": "TRANSCRIPT_LOGGER_ACTIVITY"}
+        )

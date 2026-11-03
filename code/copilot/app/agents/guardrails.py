@@ -20,7 +20,13 @@ async def relevance_guardrail(
 
     # Log results
     logger.info(
-        f"Relevance Guardrail Result: {result}, Agent Name: {agent.name}, Tripwire Triggered: {tripwire_triggered}"
+        f"Relevance Guardrail Result: 'Completed', Agent Name: {agent.name}, Tripwire Triggered: {tripwire_triggered}",
+        extra={
+            "code": "RELEVANCE_GUARDRAIL_RESULT",
+            "agent_name": agent.name,
+            "tripwire_triggered": tripwire_triggered,
+        }
+        | result,
     )
 
     return GuardrailFunctionOutput(

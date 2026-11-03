@@ -12,7 +12,10 @@ class SummarizerAgent(RootAgent):
         self, table: str, last_response_id: str | None = None
     ) -> TableSummaryAgentResponse | None:
         # Generate table summary
-        logger.info("Generating table summary from agent.")
+        logger.info(
+            "Generating table summary from agent.",
+            extra={"code": "TABLE_SUMMARY_AGENT_STARTED"},
+        )
         model_input = f"# Table Definition\n{table}"
         result = await self._get_response(
             input=model_input, last_response_id=last_response_id
@@ -20,12 +23,19 @@ class SummarizerAgent(RootAgent):
 
         # Parse the response into TableSummaryAgentResponse
         try:
-            logger.info("Parsing table summary response from agent.")
+            logger.info(
+                "Parsing table summary response from agent.",
+                extra={"code": "TABLE_SUMMARY_AGENT_PARSING"},
+            )
             table_summary_response = TableSummaryAgentResponse.model_validate_json(
                 result
             )
         except ValidationError as e:
-            logger.error(f"Error parsing table summary response: {e}")
+            logger.error(
+                f"Error parsing table summary response: {e}",
+                exc_info=True,
+                extra={"code": "TABLE_SUMMARY_AGENT_PARSING_ERROR"},
+            )
             table_summary_response = None
 
         return table_summary_response
