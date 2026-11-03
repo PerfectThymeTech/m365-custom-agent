@@ -5,6 +5,10 @@ from microsoft_agents.hosting.core import StoreItem
 from pydantic import BaseModel, Field
 
 
+class MessageOutput(BaseModel):
+    response: str
+
+
 class UserConversationStoreItem(StoreItem):
     def __init__(
         self,
