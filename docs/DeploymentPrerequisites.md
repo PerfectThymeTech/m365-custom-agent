@@ -85,12 +85,13 @@ To verify that your environment is correctly set up for deployments with Terrafo
       required_providers {
         azurerm = {
           source  = "hashicorp/azurerm"
-          version = "~> 4.0"
+          version = "~> 5.0"
         }
       }
     }
 
     provider "azurerm" {
+      resource_provider_registrations = "none"
       features {}
     }
 
@@ -139,6 +140,16 @@ To verify that your environment is correctly set up for deployments with Terrafo
     You will be prompted to confirm the action. Type `yes` to proceed.
 
 By following these steps, you can confirm that your environment is properly configured for deploying resources using Terraform in Azure. If you encounter any issues during this process, review the error messages for guidance on resolving them before proceeding with more complex deployments.
+
+## Upgrading Existing Terraform Deployments
+
+The baseline and application configurations use AzureRM `5.12.0`, AzAPI `2.13.0`, and time `0.14.2`, matching the versions tested in [terraform-azurerm-modules PR #177](https://github.com/PerfectThymeTech/terraform-azurerm-modules/pull/177). Module sources continue to track `main`, so PR #177 must be merged before initializing these configurations.
+
+For an existing deployment, back up the Terraform state and run `terraform init -upgrade` in both [docs/prereqs](/docs/prereqs/) and [code/infra](/code/infra/), retaining the application's existing `-backend-config` argument. Then run `terraform validate` and review `terraform plan` with your usual variable file before applying either deployment.
+
+AzureRM v5 does not register resource providers by default. Both configurations explicitly register the providers listed in their `locals.tf` files; the application list includes `Microsoft.DocumentDB` for Cosmos DB and `Microsoft.Storage` for storage accounts. The deployment identity needs permission to register these providers. The management provider keeps registration disabled, so the subscription hosting an existing Log Analytics workspace must already have its required providers registered.
+
+No static-website import is needed for the supplied configuration because `storage_static_website` is empty. If you previously enabled a static website, follow PR #177's one-time import guidance for `azurerm_storage_account_static_website` before applying. The Application Insights and Cosmos DB module inputs ending in `local_authentication_disabled` remain supported and should not be inverted by callers.
 
 ## Next Steps
 

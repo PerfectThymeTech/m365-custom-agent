@@ -5,11 +5,13 @@ locals {
     "Microsoft.Authorization",
     "Microsoft.BotService",
     "Microsoft.CognitiveServices",
+    "Microsoft.DocumentDB",
     "microsoft.insights",
     "Microsoft.KeyVault",
     "Microsoft.ManagedIdentity",
     "Microsoft.Network",
     "Microsoft.Resources",
+    "Microsoft.Storage",
     "Microsoft.Web",
   ]
 
