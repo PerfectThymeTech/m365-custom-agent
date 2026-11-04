@@ -25,8 +25,8 @@ jobs:
     with:
       environment: "dev"
       config: "PerfectThymeTech"
-      terraform_version: "1.15.1"
-      node_version: 24
+      terraform_version: "1.17.1"
+      node_version: 26
       working_directory: "./code/infra"
       tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
       subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
@@ -42,8 +42,8 @@ jobs:
   #   with:
   #     environment: "dev"
   #     config: "PerfectThymeTech"
-  #     terraform_version: "1.15.1"
-  #     node_version: 24
+  #     terraform_version: "1.17.1"
+  #     node_version: 26
   #     working_directory: "./code/infra"
   #     tenant_id: "37963dd4-f4e6-40f8-a7d6-24b97919e452"
   #     subscription_id: "1fdab118-1638-419a-8b12-06c9543714a0"
