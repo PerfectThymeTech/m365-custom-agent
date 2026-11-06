@@ -91,7 +91,9 @@ class MSTeamsHandler(AbstractHandler):
                 user_state_store_item.document_extraction_results = (
                     DocumentExtractionResults()
                 )
+                user_state_store_item.conversation_id = None
                 user_state_store_item.last_response_id = None
+                user_state_store_item.last_response_token_count = 0
                 user_state_store_item.suggested_actions = {}
 
                 # Update user that we have
@@ -339,12 +341,17 @@ class MSTeamsHandler(AbstractHandler):
         )
 
         # Define instructions before creating the agent
+        file_names = [
+            document.title
+            for document in user_state_store_item.document_extraction_results.documents
+        ]
+        file_names_joined = ", ".join(file_names)
         instructions = (
             settings.INSTRUCTIONS_DOCUMENT_AGENT
-            + "\n\n"
-            + user_state_store_item.document_extraction_results.model_dump_json(
-                indent=None
-            )
+            + "\n\n### Files in context\n"
+            + "["
+            + file_names_joined
+            + "]"
         )
 
         # Create agent
@@ -421,16 +428,20 @@ class MSTeamsHandler(AbstractHandler):
             extra={
                 "code": "HANDLE_AGENT_RESPONSE_STREAMING_STARTED",
                 "channel_id": "msteams",
+                "last_response_id": user_state_store_item.last_response_id,
             },
         )
-        last_response_id, response = await agent.stream_response(
+        last_response_id, response, total_token_count = await agent.stream_response(
             input=user_prompt,
-            last_response_id=user_state_store_item.last_response_id,
             context=context,
+            document_extraction_results=user_state_store_item.document_extraction_results,
+            last_response_id=user_state_store_item.last_response_id,
         )
 
         # Update store item
+        user_state_store_item.conversation_id = None
         user_state_store_item.last_response_id = last_response_id
+        user_state_store_item.last_response_token_count = total_token_count
 
         return user_state_store_item, response
 
