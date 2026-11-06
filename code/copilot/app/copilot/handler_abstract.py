@@ -4,7 +4,7 @@ from typing import Tuple
 from agents.exceptions import ModelBehaviorError
 from app.copilot.common import stream_string_in_chunks
 from app.logs import setup_logging
-from app.models.agents import UserStateStoreItem
+from app.models.agents import UserConversationStoreItem, UserStateStoreItem
 from microsoft_agents.hosting.core import TurnContext
 from openai import APIError, BadRequestError
 
@@ -26,8 +26,10 @@ class AbstractHandler(ABC):
     @staticmethod
     @abstractmethod
     async def handle_agent_response(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
-    ) -> Tuple[UserStateStoreItem, str]:
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
+    ) -> Tuple[UserStateStoreItem, UserConversationStoreItem, str]:
         pass
 
     @staticmethod
@@ -147,6 +149,8 @@ class AbstractHandler(ABC):
     @staticmethod
     @abstractmethod
     async def handle_commands(
-        context: TurnContext, user_state_store_item: UserStateStoreItem
-    ) -> Tuple[UserStateStoreItem, bool]:
+        context: TurnContext,
+        user_state_store_item: UserStateStoreItem,
+        user_conversation_store_item: UserConversationStoreItem,
+    ) -> Tuple[UserStateStoreItem, UserConversationStoreItem, bool]:
         pass
